@@ -396,7 +396,8 @@ class MatchEngine:
             type_ = "rating_upgrade" if direction > 0 else "rating_downgrade"
             self._moment(type_, player=pid, team=ps.meta.team,
                          facts={"from": round(ref_v, 1), "to": round(now, 1), "delta": change,
-                                "since_minute": int(ref_t // 60), "top_reason": LABELS[parts[0][0]]},
+                                "since_minute": int(ref_t // 60), "top_reason": LABELS[parts[0][0]],
+                                "breakdown": why},
                          evidence=sorted({en.event_id for en in entries}),
                          importance=min(0.9, IMPORTANCE[type_] + 0.1 * (abs(change) - RATING_STEP)),
                          template=f"{ps.short} {ref_v:.1f} -> {now:.1f}: {why}")
