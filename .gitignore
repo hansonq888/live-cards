@@ -17,3 +17,5 @@ data/
 # Vision weights
 *.pt
 .DS_Store
+web/public/prototype/three.min.js
+*.tsbuildinfo
