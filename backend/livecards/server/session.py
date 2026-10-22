@@ -55,7 +55,8 @@ class LiveSession:
         self.paused = False
         self.model_enabled = explainer_agent() is not None
         self.metrics = {"moments": 0, "cues": 0, "claims_checked": 0, "blocked": 0,
-                        "model_lines": 0, "template_lines": 0, "rewrites": 0, "latency_ms": []}
+                        "model_lines": 0, "template_lines": 0, "rewrites": 0, "aired_unverified": 0,
+                        "latency_ms": []}
         self.cue_seq = 0
         self.inflight = 0
         self.tasks: set[asyncio.Task] = set()
@@ -199,6 +200,7 @@ class LiveSession:
         if result is None:
             return
         self.metrics["cues"] += 1
+        self.metrics["aired_unverified"] += not result.verdict.ok  # must stay 0
         self.metrics["model_lines" if result.source == "model" else "template_lines"] += 1
         self.metrics["rewrites"] += result.attempts > 1 and result.source == "model"
         self.metrics["latency_ms"].append(result.ms)

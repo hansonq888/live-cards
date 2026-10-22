@@ -6,7 +6,7 @@ incoming: Varenne arriving, xG 0.29 from there"). Every number in a rationale co
 from the stats engine's formulas.
 
 Signals (weight, lifetime):
-  goal scorer 1.0 · cross/through ball into the box -> receiver 0.9 · sprint alert 0.8
+  goal scorer 1.0 (until the restart) · cross/through ball into the box -> receiver 0.9 · sprint alert 0.8
   ball carrier breaking at 25+ km/h 0.75 · big chance 0.7 · long ball -> receiver 0.6
   rating upgrade 0.6 · streak 0.5 · nearest player to the ball 0.3 (0.4 in the final third)
 
@@ -85,7 +85,8 @@ class AutoDirector:
                 self._add(e.receiver, 0.6, e.t + dur + 2.0,
                           f"Long ball toward {name}", "predict")
         elif e.type == "goal" and e.player:
-            self._add(e.player, 1.0, e.t + 12, f"{self.names[e.player]} scores", "goal")
+            # Stay on the scorer through the celebration, until the restart.
+            self._add(e.player, 1.0, e.t + 40, f"{self.names[e.player]} scores", "goal")
 
     def on_moment(self, m: Moment) -> None:
         if not m.player:
