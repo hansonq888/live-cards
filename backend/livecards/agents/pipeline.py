@@ -81,7 +81,7 @@ class ExplainerExec(Executor):
             return Draft(job, text, "model", attempt, t0)
         except TimeoutError:
             self.sink(TraceEvent(job.moment.id, "explainer", "timeout", _ms(start), "", attempt))
-        except Exception as exc:  # model or network failure: recover with the template
+        except Exception as exc:  # noqa: BLE001 - any model failure falls back to the template
             self.sink(TraceEvent(job.moment.id, "explainer", "error", _ms(start),
                                  type(exc).__name__, attempt))
         return Draft(job, "", "none", attempt, t0)

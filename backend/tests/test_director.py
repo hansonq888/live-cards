@@ -1,5 +1,7 @@
 """Auto-director: predictive switching on the hero move, minimum hold, manual override."""
 
+import itertools
+
 import pytest
 
 from livecards.agents.director import MIN_HOLD_S, URGENT_HOLD_S, URGENT_WEIGHT, AutoDirector
@@ -39,7 +41,7 @@ def test_ring_is_on_the_winger_during_his_sprint(match, decisions):
 def test_minimum_hold(match, decisions):
     subs = {e.t for e in match.events if e.type == "substitution"}
     switches = [d for d in decisions if d[4]]
-    for prev, cur in zip(switches, switches[1:]):
+    for prev, cur in itertools.pairwise(switches):
         held = cur[0] - prev[0]
         if any(abs(cur[0] - s) < 0.2 for s in subs):
             continue  # the followed player was substituted off

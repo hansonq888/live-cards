@@ -92,8 +92,8 @@ class AutoDirector:
             return
         name = self.names.get(m.player, m.player)
         table = {
-            "fastest_sprint": (0.8, 8, f"{name} at {m.facts.get('speed_kmh', 0):.1f} km/h, "
-                                       "fastest sprint of the match"),
+            "fastest_sprint": (0.8, 8, (f"{name} at {m.facts.get('speed_kmh', 0):.1f} km/h, "
+                                        "fastest sprint of the match")),
             "sprint": (0.8, 8, f"{name} sprinting at {m.facts.get('speed_kmh', 0):.1f} km/h"),
             "big_chance": (0.7, 8, f"Big chance for {name}"),
             "rating_upgrade": (0.6, 8, f"{name}'s card upgrades to {m.facts.get('to', 0):.1f}"),
