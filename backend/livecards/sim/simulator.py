@@ -40,7 +40,7 @@ RECYCLE_BONUS = {"CB": 0.75, "FB": 0.55, "DM": 0.45, "CM": 0.2, "GK": 0.1, "ST":
 
 
 def _clamp(v: float, lo: float, hi: float) -> float:
-    return lo if v < lo else hi if v > hi else v
+    return lo if v < lo else min(v, hi)
 
 
 def _seg_dist(px: float, py: float, ax: float, ay: float, bx: float, by: float) -> tuple[float, float]:
@@ -164,6 +164,7 @@ class Simulator:
         self.subs = sorted(self.story.substitutions)
         self.last_pass: tuple[str, float] | None = None
         self.pressed = False
+        self.kickoff_taker: SimPlayer | None = None
 
     # ---- helpers -------------------------------------------------------------------
     def on_pitch(self, team: str | None = None) -> list[SimPlayer]:
@@ -178,6 +179,12 @@ class Simulator:
             if m.team == team and m.t0 <= self.t < m.t1:
                 out = m
         return out
+
+    def tiredness(self, p: SimPlayer) -> float:
+        """0 normally; rises toward 1 for a planted fading player as his stamina drains."""
+        if p.fade_t0 is None or self.t <= p.fade_t0:
+            return 0.0
+        return 1.0 - p.stamina
 
     def quiet_penalty(self, p: SimPlayer) -> float:
         return sum(q.penalty for q in self.story.quiet if q.player == p.id and q.t0 <= self.t < q.t1)
@@ -212,7 +219,7 @@ class Simulator:
             self._support_runs(p.team)
         self.ball.mode, self.ball.holder = "held", p
         p.order = None
-        self.decide_at = self.t + self.rng.uniform(*hold)
+        self.decide_at = self.t + self.rng.uniform(*hold) * (1 + 1.2 * self.tiredness(p))
         self.carries_in_row = 0
         self.pressed = False
         self._set_default_carry(p)
@@ -289,8 +296,7 @@ class Simulator:
                   - 0.07 * max(0.0, 3 - lane) / 3 + m.pass_bonus)
             if kind == "cross":
                 pc -= 0.25
-            if p.fade_t0 is not None and self.t > p.fade_t0:
-                pc -= 0.3 * (1 - p.stamina)
+            pc -= 0.4 * self.tiredness(p)
             ok = self.rng.random() < _clamp(pc, 0.25, 0.97)
         else:
             ok = force == "complete"
@@ -376,6 +382,7 @@ class Simulator:
                 self.ball.x, self.ball.y = gx + p.dir * 1.2, gy
                 self.emit("goal", team=p.team, player=p.id, x=p.x, y=p.y)
                 self.reset_shape = True
+                self.kickoff_taker = self._kickoff_taker(self.other(p.team))
                 self.dead(45, lambda: self.kickoff(self.other(p.team)))
             elif outcome == "saved":
                 self.give(gk, hold=(2.5, 4.0))
@@ -394,13 +401,16 @@ class Simulator:
 
     def kickoff(self, team: str) -> None:
         self.reset_shape = False
-        taker = next((q for q in self.on_pitch(team) if q.role == "ST"), self.on_pitch(team)[-1])
-        taker.x, taker.y = -0.6 * taker.dir, 0.0
+        taker = self._kickoff_taker(team)
+        self.kickoff_taker = None
         self.ball.x, self.ball.y, self.ball.z = 0.0, 0.0, 0.11
         self.emit("kickoff", team=team, player=taker.id, x=0.0, y=0.0)
         self.give(taker, change_event=False, hold=(0.5, 0.8))
         self.poss = team
         self.safe_until = self.t + 2.0
+
+    def _kickoff_taker(self, team: str) -> SimPlayer:
+        return next((q for q in self.on_pitch(team) if q.role == "ST"), self.on_pitch(team)[-1])
 
     def decide(self, p: SimPlayer) -> None:
         ax, ay = p.att()
@@ -479,15 +489,14 @@ class Simulator:
         if self.rng.random() > 0.11 * (0.6 + 0.8 * o.tackle) * m.tackle_mult * DT:
             return
         o.tackle_ready = self.t + 4.0
-        if self.rng.random() < 0.3:
+        if self.rng.random() < 0.3 + 0.45 * self.tiredness(o):
             self.emit("foul", team=o.team, player=o.id, x=p.x, y=p.y, target=p.id)
             if not o.yellow and self.t > 300 and self.rng.random() < 0.13:
                 o.yellow = True
                 self.emit("card", team=o.team, player=o.id, kind="yellow", x=p.x, y=p.y)
             self.dead(4.0, lambda: self._restart_with(p))
             return
-        fade = 0.3 * (1 - p.stamina) if p.fade_t0 is not None and self.t > p.fade_t0 else 0.0
-        if self.rng.random() < 0.5 + 0.25 * (o.tackle - 0.5) + fade:
+        if self.rng.random() < 0.5 + 0.25 * (o.tackle - 0.5) + 0.35 * self.tiredness(p):
             self.emit("tackle", team=o.team, player=o.id, x=p.x, y=p.y, outcome="won", target=p.id)
             self.give(o)
         else:
@@ -501,6 +510,8 @@ class Simulator:
         if self.reset_shape:
             ax, ay = min(sx * 0.9 + 4, -2.0), sy
             spd = 3.0
+            if p is self.kickoff_taker:
+                ax, ay = -0.6, 0.0
         elif p.role == "GK":
             ax, ay = -48 + _clamp((bx + 20) * 0.08, 0, 6), _clamp(by * 0.15, -3, 3)
             spd = 3.5
@@ -718,11 +729,15 @@ class Simulator:
 
     # ---- main loop -------------------------------------------------------------------
     def place_formation(self, kickoff_team: str) -> None:
+        """Line both teams up for a kickoff (match start and half time only)."""
+        taker = self._kickoff_taker(kickoff_team)
         for p in self.slots:
             sx, sy = p.spot
             p.x, p.y = min(sx * 0.9 + 4, -2.0) * p.dir, sy * p.dir
             if p.role == "GK":
                 p.x = -48.0 * p.dir
+            if p is taker:
+                p.x, p.y = -0.6 * p.dir, 0.0
             p.vx = p.vy = 0.0
             p.order = None
         self.active = None

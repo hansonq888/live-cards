@@ -5,7 +5,8 @@
 
 Values are shrunk toward the role mean early in a match so one early event can't swing
 a card: per-90 rates use a 30-minute prior and ratios a small prior sample.
-Top speed only ever lifts Pace (you're not slower for not having sprinted yet).
+Pace is a capability: top speed and sprints can lift it, but not sprinting doesn't lower
+it (tiredness shows up in Engine instead).
 Role baselines are calibrated on synthetic matches (scripts/calibrate_baselines.py).
 """
 
@@ -30,14 +31,14 @@ BASELINES_PATH = Path(__file__).with_name("baselines.json")
 class Metric:
     key: str
     weight: float
-    kind: str  # rate (per 90) | ratio | peak
+    kind: str  # rate (per 90) | lift (per-90 rate that can only raise) | ratio | peak
     label: str
 
 
 ATTRIBUTE_METRICS: dict[str, list[Metric]] = {
     "pace": [
         Metric("top_speed_kmh", 0.6, "peak", "top speed (km/h)"),
-        Metric("sprints", 0.4, "rate", "sprints"),
+        Metric("sprints", 0.4, "lift", "sprints"),
     ],
     "passing": [
         Metric("pass_pct", 0.4, "ratio", "pass completion %"),
@@ -103,7 +104,7 @@ def z_scores(stats: PlayerStats, role: str) -> dict[str, dict[str, float]]:
         for m in metrics:
             mean, sd = base[m.key]
             z = (shrunk_value(stats, m, mean) - mean) / sd
-            if m.kind == "peak":
+            if m.kind in ("peak", "lift"):
                 z = max(0.0, z)
             out[attr][m.key] = max(-Z_CLIP, min(Z_CLIP, z))
     return out

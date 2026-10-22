@@ -19,7 +19,7 @@ from livecards.replay import run_engine
 from livecards.sim.simulator import simulate
 
 MIN_MINUTES = 60
-RATE_KEYS = {m.key for ms in ATTRIBUTE_METRICS.values() for m in ms if m.kind == "rate"}
+RATE_KEYS = {m.key for ms in ATTRIBUTE_METRICS.values() for m in ms if m.kind in ("rate", "lift")}
 
 
 def main() -> None:

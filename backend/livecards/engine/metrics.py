@@ -30,7 +30,7 @@ def xg(x: float, y: float, attack_dir: int) -> float:
     """Chance quality (0-1) from shot distance and the angle the goal mouth subtends.
 
     logistic(-1.1 + 1.6 * angle_rad - 0.075 * distance_m)
-    e.g. penalty spot ~0.31, 6 m central ~0.57, 25 m central ~0.08.
+    e.g. penalty spot 0.29, 6 m central 0.55, 25 m central 0.075.
     """
     ax, ay = to_attack(x, y, attack_dir)
     dx, dy = HALF_LENGTH - ax, ay
