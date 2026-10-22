@@ -27,6 +27,7 @@ EventType = Literal[
     "goal",
     "tackle",
     "interception",
+    "recovery",
     "foul",
     "card",
     "substitution",

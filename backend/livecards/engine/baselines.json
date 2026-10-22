@@ -1,0 +1,437 @@
+{
+ "source": "synthetic seeds 1-8, players with 60+ minutes",
+ "roles": {
+  "AM": {
+   "avg_difficulty": [
+    5.344,
+    0.802
+   ],
+   "chances_created": [
+    0.375,
+    1.5
+   ],
+   "distance_per_min": [
+    150.048,
+    22.507
+   ],
+   "forward_passes": [
+    3.75,
+    1.639
+   ],
+   "hi_runs": [
+    87.375,
+    13.991
+   ],
+   "interceptions": [
+    3.5,
+    1.5
+   ],
+   "pass_pct": [
+    82.021,
+    12.303
+   ],
+   "pressures_won": [
+    6.375,
+    2.058
+   ],
+   "shots": [
+    3.125,
+    1.5
+   ],
+   "sprints": [
+    3.0,
+    1.5
+   ],
+   "tackles_won": [
+    1.875,
+    1.5
+   ],
+   "top_speed_kmh": [
+    27.738,
+    4.161
+   ],
+   "xg": [
+    0.303,
+    1.5
+   ]
+  },
+  "CB": {
+   "avg_difficulty": [
+    4.476,
+    0.671
+   ],
+   "chances_created": [
+    0.031,
+    1.5
+   ],
+   "distance_per_min": [
+    124.552,
+    18.683
+   ],
+   "forward_passes": [
+    19.469,
+    5.483
+   ],
+   "hi_runs": [
+    0.25,
+    1.5
+   ],
+   "interceptions": [
+    0.156,
+    1.5
+   ],
+   "pass_pct": [
+    83.282,
+    12.492
+   ],
+   "pressures_won": [
+    0.094,
+    1.5
+   ],
+   "shots": [
+    0.0,
+    1.5
+   ],
+   "sprints": [
+    0.0,
+    1.5
+   ],
+   "tackles_won": [
+    0.156,
+    1.5
+   ],
+   "top_speed_kmh": [
+    21.441,
+    3.216
+   ],
+   "xg": [
+    0.0,
+    1.5
+   ]
+  },
+  "CM": {
+   "avg_difficulty": [
+    5.3,
+    0.795
+   ],
+   "chances_created": [
+    1.062,
+    1.5
+   ],
+   "distance_per_min": [
+    139.02,
+    20.853
+   ],
+   "forward_passes": [
+    22.625,
+    4.106
+   ],
+   "hi_runs": [
+    18.625,
+    4.554
+   ],
+   "interceptions": [
+    1.937,
+    1.5
+   ],
+   "pass_pct": [
+    80.77,
+    12.115
+   ],
+   "pressures_won": [
+    7.437,
+    3.316
+   ],
+   "shots": [
+    0.312,
+    1.5
+   ],
+   "sprints": [
+    0.437,
+    1.5
+   ],
+   "tackles_won": [
+    3.062,
+    1.5
+   ],
+   "top_speed_kmh": [
+    27.931,
+    4.19
+   ],
+   "xg": [
+    0.02,
+    1.5
+   ]
+  },
+  "DM": {
+   "avg_difficulty": [
+    4.626,
+    0.694
+   ],
+   "chances_created": [
+    0.25,
+    1.5
+   ],
+   "distance_per_min": [
+    129.138,
+    19.371
+   ],
+   "forward_passes": [
+    18.083,
+    8.051
+   ],
+   "hi_runs": [
+    7.667,
+    5.137
+   ],
+   "interceptions": [
+    0.625,
+    1.5
+   ],
+   "pass_pct": [
+    82.795,
+    12.419
+   ],
+   "pressures_won": [
+    4.625,
+    1.844
+   ],
+   "shots": [
+    0.042,
+    1.5
+   ],
+   "sprints": [
+    0.0,
+    1.5
+   ],
+   "tackles_won": [
+    1.917,
+    1.5
+   ],
+   "top_speed_kmh": [
+    23.679,
+    3.552
+   ],
+   "xg": [
+    0.003,
+    1.5
+   ]
+  },
+  "FB": {
+   "avg_difficulty": [
+    4.569,
+    0.685
+   ],
+   "chances_created": [
+    0.031,
+    1.5
+   ],
+   "distance_per_min": [
+    131.806,
+    19.771
+   ],
+   "forward_passes": [
+    13.906,
+    4.297
+   ],
+   "hi_runs": [
+    16.5,
+    5.154
+   ],
+   "interceptions": [
+    0.031,
+    1.5
+   ],
+   "pass_pct": [
+    82.655,
+    12.398
+   ],
+   "pressures_won": [
+    0.375,
+    1.5
+   ],
+   "shots": [
+    0.0,
+    1.5
+   ],
+   "sprints": [
+    6.25,
+    2.385
+   ],
+   "tackles_won": [
+    0.125,
+    1.5
+   ],
+   "top_speed_kmh": [
+    28.653,
+    4.298
+   ],
+   "xg": [
+    0.0,
+    1.5
+   ]
+  },
+  "GK": {
+   "avg_difficulty": [
+    4.721,
+    0.888
+   ],
+   "chances_created": [
+    0.0,
+    1.5
+   ],
+   "distance_per_min": [
+    27.283,
+    4.092
+   ],
+   "forward_passes": [
+    1.75,
+    1.5
+   ],
+   "hi_runs": [
+    0.0,
+    1.5
+   ],
+   "interceptions": [
+    0.0,
+    1.5
+   ],
+   "pass_pct": [
+    82.259,
+    12.339
+   ],
+   "pressures_won": [
+    0.0,
+    1.5
+   ],
+   "shots": [
+    0.0,
+    1.5
+   ],
+   "sprints": [
+    0.0,
+    1.5
+   ],
+   "tackles_won": [
+    0.0,
+    1.5
+   ],
+   "top_speed_kmh": [
+    16.856,
+    2.528
+   ],
+   "xg": [
+    0.0,
+    1.5
+   ]
+  },
+  "ST": {
+   "avg_difficulty": [
+    5.266,
+    0.79
+   ],
+   "chances_created": [
+    0.875,
+    1.5
+   ],
+   "distance_per_min": [
+    146.162,
+    21.924
+   ],
+   "forward_passes": [
+    0.625,
+    1.5
+   ],
+   "hi_runs": [
+    112.375,
+    68.564
+   ],
+   "interceptions": [
+    5.0,
+    2.0
+   ],
+   "pass_pct": [
+    76.489,
+    11.473
+   ],
+   "pressures_won": [
+    7.25,
+    3.382
+   ],
+   "shots": [
+    2.937,
+    1.5
+   ],
+   "sprints": [
+    3.0,
+    2.062
+   ],
+   "tackles_won": [
+    1.375,
+    1.5
+   ],
+   "top_speed_kmh": [
+    28.319,
+    4.248
+   ],
+   "xg": [
+    0.434,
+    1.5
+   ]
+  },
+  "W": {
+   "avg_difficulty": [
+    5.422,
+    0.813
+   ],
+   "chances_created": [
+    1.756,
+    1.5
+   ],
+   "distance_per_min": [
+    156.245,
+    23.437
+   ],
+   "forward_passes": [
+    4.955,
+    3.245
+   ],
+   "hi_runs": [
+    110.465,
+    33.37
+   ],
+   "interceptions": [
+    1.451,
+    1.5
+   ],
+   "pass_pct": [
+    76.344,
+    11.452
+   ],
+   "pressures_won": [
+    8.988,
+    3.012
+   ],
+   "shots": [
+    1.6,
+    1.5
+   ],
+   "sprints": [
+    7.525,
+    3.061
+   ],
+   "tackles_won": [
+    1.677,
+    1.5
+   ],
+   "top_speed_kmh": [
+    30.488,
+    4.573
+   ],
+   "xg": [
+    0.129,
+    1.5
+   ]
+  }
+ }
+}

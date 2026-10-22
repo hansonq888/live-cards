@@ -4,6 +4,7 @@ Everything outside a beat is simulated stochastically. Coordinates in steps are 
 the acting player's attack frame (x toward the goal they attack, y to their left).
 
 The default script (Riverside FC vs Northgate Athletic):
+  0'-65'   Riverside's Varenne is starved of service: a quiet card before his moment.
   20'-32'  Northgate's dominant spell: they press harder and pass better.
   ~31'     Northgate score at the end of that spell (Halden).
   62'      Riverside substitution: Marchbanks on for Halloway.
@@ -95,11 +96,22 @@ class Fade:
 
 
 @dataclass
+class Quiet:
+    """A player starved of service: teammates look for him less and he stays high, not pressing."""
+
+    player: str
+    t0: float
+    t1: float
+    penalty: float = 1.2
+
+
+@dataclass
 class Storylines:
     beats: list[Beat] = field(default_factory=list)
     modifiers: list[TeamModifier] = field(default_factory=list)
     substitutions: list[tuple[float, str, str]] = field(default_factory=list)  # (t, off, on)
     fades: list[Fade] = field(default_factory=list)
+    quiet: list[Quiet] = field(default_factory=list)
     allow_random_goals: bool = False
 
 
@@ -118,6 +130,7 @@ def default_storylines() -> Storylines:
         ],
         substitutions=[(62 * m, "RIV-11", "RIV-14"), (75 * m, "NGT-07", "NGT-17")],
         fades=[Fade("NGT-08", 60 * m)],
+        quiet=[Quiet("RIV-09", 0, 65 * m)],
         beats=[
             Beat("ngt_opener", 30 * m + 20, [
                 Start("NGT-10"),

@@ -18,7 +18,6 @@ import numpy as np
 
 from livecards.contracts import (
     FPS,
-    GOAL_HALF_WIDTH,
     HALF_DURATION,
     HALF_LENGTH,
     HALF_WIDTH,
@@ -26,6 +25,7 @@ from livecards.contracts import (
     Event,
     PlayerMeta,
 )
+from livecards.engine.metrics import xg
 from livecards.sim import storylines as sl
 from livecards.sim.match import Match
 from livecards.sim.roster import build_match_meta, spot_for
@@ -33,7 +33,10 @@ from livecards.sim.roster import build_match_meta, spot_for
 DT = 1.0 / FPS
 MAX_RANDOM_SPEED = 8.85  # m/s (31.9 km/h): only scripted sprints break 32 km/h
 TACKLE_RANGE = 1.8
+INTERCEPT_LANE_M = 1.2  # a defender this close to the lane cuts the pass out
 PRESSURE_RANGE = 3.0
+# Preference for the safe option (recycling possession through the back line).
+RECYCLE_BONUS = {"CB": 0.75, "FB": 0.55, "DM": 0.45, "CM": 0.2, "GK": 0.1, "ST": -0.25}
 
 
 def _clamp(v: float, lo: float, hi: float) -> float:
@@ -46,16 +49,6 @@ def _seg_dist(px: float, py: float, ax: float, ay: float, bx: float, by: float) 
     L2 = dx * dx + dy * dy
     s = 0.0 if L2 == 0 else _clamp(((px - ax) * dx + (py - ay) * dy) / L2, 0.0, 1.0)
     return math.hypot(px - (ax + s * dx), py - (ay + s * dy)), s
-
-
-def xg_model(ax: float, ay: float) -> float:
-    """Chance quality from distance and the angle the goal mouth subtends (attack frame)."""
-    dx, dy = HALF_LENGTH - ax, ay
-    dist = math.hypot(dx, dy)
-    angle = math.atan2(2 * GOAL_HALF_WIDTH * dx, dx * dx + dy * dy - GOAL_HALF_WIDTH**2)
-    if angle < 0:
-        angle += math.pi
-    return round(1 / (1 + math.exp(-(-1.1 + 1.6 * angle - 0.075 * dist))), 3)
 
 
 @dataclass(slots=True)
@@ -186,6 +179,9 @@ class Simulator:
                 out = m
         return out
 
+    def quiet_penalty(self, p: SimPlayer) -> float:
+        return sum(q.penalty for q in self.story.quiet if q.player == p.id and q.t0 <= self.t < q.t1)
+
     def emit(self, type_: str, **kw) -> Event:
         e = Event(id=f"e-{len(self.events) + 1:04d}", t=round(self.t, 1),
                   minute=int(self.t // 60), type=type_, **kw)
@@ -223,7 +219,7 @@ class Simulator:
 
     def _set_default_carry(self, p: SimPlayer) -> None:
         ax, ay = p.att()
-        tx = min(ax + 14, 46)
+        tx = min(ax + 12, 36 if ax < 36 else ax + 1)
         ty = ay * (0.6 if ax > 20 else 0.95)
         spd = p.top * self.rng.uniform(0.5, 0.68)
         self.carry = Carry(tx * p.dir, ty * p.dir, spd)
@@ -321,14 +317,16 @@ class Simulator:
                     on_done()
             self.flight((lx, ly, 0.11), spd, arc, arrive)
         else:
+            cut_out = True
             if interceptor is not None:
                 icp, ix, iy = interceptor, interceptor.x, interceptor.y
-            elif lane < 6:
+            elif lane < INTERCEPT_LANE_M:
                 icp, s = lane_opp, lane_s
                 ix, iy = p.x + (lx - p.x) * s, p.y + (ly - p.y) * s
             else:
                 icp, _ = self.nearest(opps, lx, ly)
                 ix, iy = lx, ly
+                cut_out = False
             self.emit("pass", team=p.team, player=p.id, x=p.x, y=p.y, end_x=ix, end_y=iy,
                            outcome="incomplete", receiver=r.id, under_pressure=under,
                            speed_kmh=round(spd * 3.6, 1), kind=kind)
@@ -336,7 +334,8 @@ class Simulator:
             icp.order = (ix, iy, icp.top * 0.95, self.t + dur + 0.5)
 
             def arrive_int() -> None:
-                self.emit("interception", team=icp.team, player=icp.id, x=ix, y=iy, target=p.id)
+                self.emit("interception" if cut_out else "recovery", team=icp.team, player=icp.id,
+                          x=ix, y=iy, target=p.id)
                 self.give(icp)
                 if on_done:
                     on_done()
@@ -345,11 +344,11 @@ class Simulator:
     def do_shot(self, p: SimPlayer, *, target_y: float | None = None, speed_kmh: float | None = None,
                 outcome: str | None = None, height: float | None = None) -> None:
         ax, ay = p.att()
-        xg = xg_model(ax, ay)
+        chance = xg(p.x, p.y, p.dir)
         dist = math.hypot(HALF_LENGTH - ax, ay)
         if outcome is None:
             m = self.mods(p.team)
-            if self.rng.random() < xg * (0.7 + 0.6 * p.finish) * m.shot_mult:
+            if self.rng.random() < chance * (0.7 + 0.6 * p.finish) * m.shot_mult:
                 outcome = "goal" if self.story.allow_random_goals else "saved"
             else:
                 outcome = self.rng.choices(["saved", "off_target", "blocked"], [0.38, 0.4, 0.22])[0]
@@ -367,7 +366,7 @@ class Simulator:
             ux, uy = (gx - p.x) / dist, (gy - p.y) / dist
             gx, gy = p.x + ux * 2.2, p.y + uy * 2.2
         self.emit("shot", team=p.team, player=p.id, x=p.x, y=p.y, end_x=gx, end_y=gy,
-                  outcome=outcome, speed_kmh=round(speed_kmh, 1), xg=xg)
+                  outcome=outcome, speed_kmh=round(speed_kmh, 1), xg=chance)
         spd = speed_kmh / 3.6
         defenders = self.on_pitch(self.other(p.team))
         gk = next((q for q in defenders if q.role == "GK"), defenders[0])
@@ -408,7 +407,7 @@ class Simulator:
         m = self.mods(p.team)
         if p.role != "GK" and ax > 24 and abs(ay) < 22:
             dist = math.hypot(HALF_LENGTH - ax, ay)
-            p_shot = _clamp(0.55 - dist / 30, 0.01, 0.5) * m.shot_mult
+            p_shot = (0.085 if dist < 30 else 0.012) * m.shot_mult
             if self.rng.random() < p_shot:
                 self.do_shot(p)
                 return
@@ -426,13 +425,15 @@ class Simulator:
                 continue
             lx, ly = q.x + q.vx * 0.7, q.y + q.vy * 0.7
             d = math.hypot(lx - p.x, ly - p.y)
-            if d < 5 or d > 55:
+            if d < 5 or d > 60:
                 continue
             openness = min(10.0, self.nearest(opps, lx, ly)[1])
             lane = min(_seg_dist(o.x, o.y, p.x, p.y, lx, ly)[0] for o in opps)
             prog = lx * p.dir - ax
-            score = (0.05 * prog * m.forward_mult + 0.10 * openness + 0.12 * min(lane, 5.0)
-                     - 0.02 * d + self.rng.gauss(0, 0.35))
+            safety = RECYCLE_BONUS.get(q.role, 0.0) * (1.6 if pressure < 4 else 1.0)
+            safety -= self.quiet_penalty(q)
+            score = (0.03 * prog * m.forward_mult + 0.14 * openness + 0.12 * min(lane, 5.0)
+                     - 0.012 * d + safety + self.rng.gauss(0, 0.35))
             best.append((score, q, lx, ly))
         if not best:
             self.decide_at = self.t + 0.5
@@ -525,7 +526,8 @@ class Simulator:
         pressers: set[str] = set()
         if not self.reset_shape and b.mode != "dead":
             tx, ty = (b.f1[0], b.f1[1]) if b.mode == "flight" else (b.x, b.y)
-            outfield = sorted((q for q in self.on_pitch(pressing) if q.role != "GK"),
+            outfield = sorted((q for q in self.on_pitch(pressing)
+                               if q.role != "GK" and not self.quiet_penalty(q)),
                               key=lambda q: math.hypot(q.x - tx, q.y - ty))
             n = 1 + self.mods(pressing).pressers + (1 if abs(tx) * -self.dirs[pressing] > 25 else 0)
             pressers = {q.id for q in outfield[:n]}
