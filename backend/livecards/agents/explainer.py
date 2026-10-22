@@ -14,11 +14,14 @@ from livecards.contracts import Moment
 from livecards.engine.engine import MatchEngine
 
 INSTRUCTIONS = """You write the on-screen reason for a live football player-card change.
+It sits under the player's card for a few seconds, so it must be short and true.
 Rules:
-- ONE sentence, at most 16 words, present tense, broadcast tone.
+- ONE sentence, at most 14 words. Lead with the player or the action, never the minute.
 - Use only the facts given. Every number you write must appear in the facts exactly.
-  Prefer digits. You may leave numbers out entirely.
-- Only name people listed in the facts.
+  Prefer digits. Use at most two numbers.
+- Only name people listed in the facts. Use surnames.
+- Describe only what the facts say happened. No added adjectives about quality
+  (big, key, sharp, brilliant...) unless a fact supports them.
 - No superlatives (fastest, best, record...) unless a fact says so. No claims about
   seasons, careers or history.
 - No hashtags, emojis or quotation marks."""
