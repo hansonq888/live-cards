@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: "Helvetica Neue", Arial, sans-serif; }
+  #stage { position: relative; width: 1280px; height: 720px; }
+  canvas { display: block; }
+  .bug { position: absolute; top: 22px; left: 26px; display: flex; align-items: stretch; height: 36px; font-weight: 700; font-size: 18px; color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+  .bug .team { padding: 0 12px; display: flex; align-items: center; letter-spacing: .5px; }
+  .bug .riv { background: #c8102e; }
+  .bug .ngt { background: #1d4ed8; }
+  .bug .score { background: #111; padding: 0 14px; display: flex; align-items: center; min-width: 54px; justify-content: center; }
+  .bug .clock { background: #f3f3f3; color: #111; padding: 0 12px; display: flex; align-items: center; font-variant-numeric: tabular-nums; }
+  .card { position: absolute; top: 22px; right: 26px; width: 248px; background: linear-gradient(160deg, rgba(14,20,30,.94), rgba(28,38,56,.94)); border: 1.5px solid #39e5ff; border-radius: 14px; color: #fff; padding: 14px 16px 12px; box-shadow: 0 0 22px rgba(57,229,255,.35); transition: none; }
+  .card .top { display: flex; align-items: center; gap: 12px; }
+  .card .rating { font-size: 40px; font-weight: 800; line-height: 1; color: #39e5ff; min-width: 70px; }
+  .card .name { font-size: 18px; font-weight: 700; }
+  .card .meta { font-size: 12px; opacity: .75; margin-top: 2px; }
+  .card .delta { display: inline-block; margin-left: 6px; font-size: 13px; font-weight: 800; color: #22c55e; }
+  .card .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; margin-top: 12px; }
+  .card .stat { background: rgba(255,255,255,.06); border-radius: 8px; padding: 6px 8px; }
+  .card .stat b { display: block; font-size: 17px; font-variant-numeric: tabular-nums; }
+  .card .stat span { font-size: 10.5px; opacity: .7; text-transform: uppercase; letter-spacing: .6px; }
+  .card .read { margin-top: 10px; font-size: 12.5px; line-height: 1.35; color: #d7f8ff; border-top: 1px solid rgba(57,229,255,.25); padding-top: 8px; }
+  .card .read i { font-style: normal; color: #39e5ff; font-weight: 700; }
+  .tag { position: absolute; transform: translate(-50%, -100%); background: rgba(10,14,22,.85); border: 1px solid #39e5ff; color: #fff; font-size: 12.5px; font-weight: 700; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+  .alert { position: absolute; transform: translate(-50%, -100%); background: #39e5ff; color: #04121a; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+  .goal { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: 96px; font-weight: 900; letter-spacing: 6px; color: #fff; text-shadow: 0 6px 30px rgba(0,0,0,.6), 0 0 40px rgba(200,16,46,.9); }
+  .hint { position: absolute; left: 26px; bottom: 22px; font-size: 13px; color: rgba(255,255,255,.85); background: rgba(0,0,0,.45); padding: 6px 10px; border-radius: 6px; }
+  .synthetic { position: absolute; right: 26px; bottom: 22px; font-size: 11px; color: rgba(255,255,255,.7); background: rgba(0,0,0,.45); padding: 5px 9px; border-radius: 6px; letter-spacing: .5px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="bug"><div class="team riv">RIV</div><div class="score" id="score">0 – 0</div><div class="team ngt">NGT</div><div class="clock" id="clock">67:12</div></div>
+  <div class="card" id="card">
+    <div class="top"><div class="rating" id="rating">7.4</div><div><div class="name" id="pname">J. Okafor</div><div class="meta" id="pmeta">#7 · Right Wing · Riverside</div></div></div>
+    <div class="stats">
+      <div class="stat"><b id="s1">8.12 km</b><span>Distance</span></div>
+      <div class="stat"><b id="s2">31.8 km/h</b><span>Top speed</span></div>
+      <div class="stat"><b id="s3">41</b><span>Touches</span></div>
+      <div class="stat"><b id="s4">2</b><span>Chances created</span></div>
+    </div>
+    <div class="read" id="read"><i>AI read:</i> Driving attacks down the right — 3 of Riverside's last 4 chances started with him.</div>
+  </div>
+  <div class="tag" id="tag">Okafor</div>
+  <div class="alert" id="alert" style="display:none">⚡ 33.6 km/h — fastest sprint of the match</div>
+  <div class="goal" id="goal" style="display:none">GOAL</div>
+  <div class="hint" id="hint">Ring: following #7 Okafor · press ⇥ to switch player</div>
+  <div class="synthetic">SYNTHETIC MATCH · RENDERED FROM SIMULATOR DATA</div>
+</div>
+<script src="node_modules/three/build/three.min.js"></script>
+<script>
+const W = 1280, H = 720, FPS = 25, DUR = 12, N = FPS * DUR, dt = 1 / FPS;
+// ---------- deterministic RNG ----------
+let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+// ---------- players ----------
+const base442 = [[-48,0],[-30,-22],[-32,-8],[-32,8],[-30,22],[-8,-24],[-12,-8],[-12,8],[-8,24],[12,-6],[14,6]];
+const players = [];
+base442.forEach((b, i) => players.push({ team: 'A', idx: i, bx: b[0], bz: b[1], x: b[0] + 8, z: b[1], vx: 0, vz: 0 }));
+base442.forEach((b, i) => players.push({ team: 'B', idx: i, bx: -b[0], bz: -b[1], x: -b[0] + 8, z: -b[1], vx: 0, vz: 0 }));
+const A = i => players[i], B = i => players[11 + i];
+// script: A3 (#5 CB), A6 (CM), A8 (right wing, z=+24), A9/A10 strikers. Riverside attacks +x.
+const CB = A(3), CM = A(7), RW = A(8), ST = A(10);
+// keyframes
+const segs = [
+  { type: 'own', p: CB, t0: 0.0, t1: 1.4, from: [-22, 6], to: [-15, 4] },
+  { type: 'pass', from: CB, to: CM, t0: 1.4, t1: 2.3, end: [-3, 12], arc: 0.4 },
+  { type: 'own', p: CM, t0: 2.3, t1: 3.3, from: [-3, 12], to: [5, 15] },
+  { type: 'pass', from: CM, to: RW, t0: 3.3, t1: 4.5, end: [19, 26], arc: 3.8 },
+  { type: 'own', p: RW, t0: 4.5, t1: 6.5, from: [19, 26], to: [37, 21] },
+  { type: 'pass', from: RW, to: ST, t0: 6.5, t1: 7.35, end: [41, 2.5], arc: 1.2 },
+  { type: 'own', p: ST, t0: 7.35, t1: 7.75, from: [41, 2.5], to: [42.6, 1.8] },
+  { type: 'shot', from: ST, t0: 7.75, t1: 8.25, end: [52.7, -2.3], h0: 0.25, h1: 1.5 },
+];
+const runs = [
+  { p: CM, t0: 0.4, t1: 2.3, to: [-3, 12] },
+  { p: RW, t0: 1.8, t1: 4.5, to: [19, 26] },
+  { p: ST, t0: 4.6, t1: 7.35, to: [41, 2.5] },
+  { p: ST, t0: 8.3, t1: 12, to: [38, 30] },
+  { p: RW, t0: 8.6, t1: 12, to: [36, 27] },
+];
+const lerp = (a, b, s) => a + (b - a) * s;
+const frames = []; // per frame: positions, ball, speeds
+let ball = { x: -21.4, y: 0.11, z: 6, };
+let camX = -10;
+const traveled = new Array(22).fill(0), topSpeed = new Array(22).fill(0);
+for (let f = 0; f < N; f++) {
+  const t = f * dt;
+  // ---- ball from script ----
+  let owner = null;
+  const seg = segs.find(s => t >= s.t0 && t < s.t1) || null;
+  if (seg && seg.type === 'own') {
+    const s = (t - seg.t0) / (seg.t1 - seg.t0);
+    seg.p.x = lerp(seg.from[0], seg.to[0], s); seg.p.z = lerp(seg.from[1], seg.to[1], s);
+    const dx = seg.to[0] - seg.from[0], dz = seg.to[1] - seg.from[1], L = Math.hypot(dx, dz) || 1;
+    ball = { x: seg.p.x + dx / L * 0.7, y: 0.11, z: seg.p.z + dz / L * 0.7 };
+    owner = seg.p;
+  } else if (seg && seg.type === 'pass') {
+    const s = (t - seg.t0) / (seg.t1 - seg.t0);
+    if (!seg.start) seg.start = [ball.x, ball.z];
+    ball = { x: lerp(seg.start[0], seg.end[0], s), y: 0.11 + seg.arc * 4 * s * (1 - s), z: lerp(seg.start[1], seg.end[1], s) };
+  } else if (seg && seg.type === 'shot') {
+    const s = (t - seg.t0) / (seg.t1 - seg.t0);
+    if (!seg.start) seg.start = [ball.x, ball.z];
+    ball = { x: lerp(seg.start[0], seg.end[0], s), y: lerp(seg.h0, seg.h1, s), z: lerp(seg.start[1], seg.end[1], s) };
+  } else if (t >= 8.25) {
+    const s = Math.min(1, (t - 8.25) / 0.5);
+    ball = { x: lerp(52.7, 54.2, s), y: Math.max(0.12, lerp(1.5, 0.12, s)), z: -2.3 + 0.2 * s };
+  }
+  // ---- players ----
+  const shift = Math.max(-25, Math.min(28, ball.x * 0.55));
+  players.forEach((p, k) => {
+    if (p === owner) return;
+    let tx, tz, vmax = 6.2;
+    const isGK = p.idx === 0;
+    tx = p.bx + (isGK ? shift * 0.08 : shift); tz = p.bz * 0.85 + ball.z * (isGK ? 0.25 : 0.22);
+    if (isGK && p.team === 'B') { tx = 50.5; tz = Math.max(-3, Math.min(3, ball.z * 0.3)); if (t > 7.8 && t < 8.6) { tz = -2.0; } }
+    const r = runs.find(r => r.p === p && t >= r.t0 && t < r.t1);
+    if (r) { tx = r.to[0]; tz = r.to[1]; vmax = 8.8; }
+    // Northgate press: two nearest outfield B players chase the ball
+    if (p.team === 'B' && !isGK) {
+      const outfield = players.filter(q => q.team === 'B' && q.idx !== 0);
+      const near = outfield.map(q => [q, Math.hypot(q.x - ball.x, q.z - ball.z)]).sort((a, b) => a[1] - b[1]).slice(0, 2).map(a => a[0]);
+      if (near.includes(p) && t < 8.3) { tx = ball.x + 1.6; tz = ball.z + (p.z > ball.z ? 1.0 : -1.0); vmax = 7.0; }
+    }
+    if (t > 8.4) vmax = Math.min(vmax, p.team === 'B' ? 2.0 : vmax);
+    tx = Math.max(-51.5, Math.min(51.5, tx)); tz = Math.max(-33, Math.min(33, tz));
+    // steering with acceleration limit
+    let dx = tx - p.x, dz = tz - p.z; const d = Math.hypot(dx, dz);
+    let desiredVx = 0, desiredVz = 0;
+    if (d > 0.3) { const sp = Math.min(vmax, d * 1.4); desiredVx = dx / d * sp; desiredVz = dz / d * sp; }
+    const acc = 9 * dt;
+    p.vx += Math.max(-acc, Math.min(acc, desiredVx - p.vx));
+    p.vz += Math.max(-acc, Math.min(acc, desiredVz - p.vz));
+    p.x += p.vx * dt; p.z += p.vz * dt;
+  });
+  // velocities for owner (direct-set)
+  const snap = players.map((p, k) => {
+    const prev = frames.length ? frames[frames.length - 1].p[k] : { x: p.x, z: p.z };
+    const vx = (p.x - prev.x) / dt, vz = (p.z - prev.z) / dt, sp = Math.min(Math.hypot(vx, vz), 9.6);
+    traveled[k] += sp * dt; topSpeed[k] = Math.max(topSpeed[k], sp);
+    return { x: p.x, z: p.z, vx, vz, sp };
+  });
+  camX = camX + (Math.max(-22, Math.min(26, ball.x * 0.85)) - camX) * 0.07;
+  frames.push({ t, p: snap, ball: { ...ball }, camX, dist: [...traveled], top: [...topSpeed] });
+}
+// ---------- three.js scene ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(1);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.getElementById('stage').prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0b1220');
+scene.fog = new THREE.Fog('#0b1220', 120, 220);
+const camera = new THREE.PerspectiveCamera(24, W / H, 1, 600);
+scene.add(new THREE.HemisphereLight('#dfe8ff', '#2a4a22', 0.95));
+const sun = new THREE.DirectionalLight('#ffffff', 1.6); sun.position.set(-30, 70, 40); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -70, right: 70, top: 50, bottom: -50, near: 10, far: 200 }); sun.shadow.bias = -0.0005;
+scene.add(sun);
+// pitch texture
+const PX = 20, cw = 105 * PX, ch = 68 * PX, pad = 6 * PX;
+const cv = document.createElement('canvas'); cv.width = cw + 2 * pad; cv.height = ch + 2 * pad;
+const g = cv.getContext('2d');
+for (let i = 0; i < 18; i++) { g.fillStyle = i % 2 ? '#2f7d32' : '#3a8c3c'; g.fillRect(i * cv.width / 18, 0, cv.width / 18 + 1, cv.height); }
+g.strokeStyle = 'rgba(255,255,255,0.92)'; g.lineWidth = 3.2; g.fillStyle = 'rgba(255,255,255,0.92)';
+const P = (x, z) => [pad + (x + 52.5) * PX, pad + (z + 34) * PX];
+const rect = (x0, z0, x1, z1) => { const [a, b] = P(x0, z0), [c, d] = P(x1, z1); g.strokeRect(a, b, c - a, d - b); };
+rect(-52.5, -34, 52.5, 34);
+g.beginPath(); g.moveTo(...P(0, -34)); g.lineTo(...P(0, 34)); g.stroke();
+g.beginPath(); g.arc(...P(0, 0), 9.15 * PX, 0, Math.PI * 2); g.stroke();
+[[0, 0], [-41.5, 0], [41.5, 0]].forEach(s => { g.beginPath(); g.arc(...P(...s), 0.25 * PX, 0, Math.PI * 2); g.fill(); });
+[-1, 1].forEach(sd => {
+  const gx = 52.5 * sd;
+  rect(Math.min(gx, gx - 16.5 * sd), -20.16, Math.max(gx, gx - 16.5 * sd), 20.16);
+  rect(Math.min(gx, gx - 5.5 * sd), -9.16, Math.max(gx, gx - 5.5 * sd), 9.16);
+  g.save(); g.beginPath(); const [cx, cz] = P(41.5 * sd, 0); g.arc(cx, cz, 9.15 * PX, sd > 0 ? Math.PI - 0.927 : -0.927, sd > 0 ? Math.PI + 0.927 : 0.927); g.stroke(); g.restore();
+});
+const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+const pitch = new THREE.Mesh(new THREE.PlaneGeometry(105 + 12, 68 + 12), new THREE.MeshLambertMaterial({ map: tex }));
+pitch.rotation.x = -Math.PI / 2; pitch.receiveShadow = true; scene.add(pitch);
+const apron = new THREE.Mesh(new THREE.PlaneGeometry(200, 140), new THREE.MeshLambertMaterial({ color: '#24572a' }));
+apron.rotation.x = -Math.PI / 2; apron.position.y = -0.02; apron.receiveShadow = true; scene.add(apron);
+// boards (fictional)
+const boardMat = new THREE.MeshLambertMaterial({ color: '#141b2b' });
+const boardTex = (() => { const c = document.createElement('canvas'); c.width = 2048; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#121a2a'; x.fillRect(0, 0, 2048, 64); x.font = 'bold 40px Arial'; for (let i = 0; i < 6; i++) { x.fillStyle = i % 2 ? '#39e5ff' : '#ffffff'; x.fillText(i % 2 ? 'LIVE CARDS' : 'RIVERSIDE FC', 40 + i * 340, 46); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const back = new THREE.Mesh(new THREE.BoxGeometry(120, 1, 0.2), [boardMat, boardMat, boardMat, boardMat, new THREE.MeshBasicMaterial({ map: boardTex }), boardMat]);
+back.position.set(0, 0.5, -39); scene.add(back);
+// goals
+const white = new THREE.MeshLambertMaterial({ color: '#ffffff' });
+[-1, 1].forEach(sd => {
+  const gx = 52.5 * sd;
+  [-3.66, 3.66].forEach(z => { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.44, 12), white); post.position.set(gx, 1.22, z); post.castShadow = true; scene.add(post); });
+  const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 7.32, 12), white); bar.rotation.x = Math.PI / 2; bar.position.set(gx, 2.44, 0); scene.add(bar);
+  const net = new THREE.Mesh(new THREE.BoxGeometry(2, 2.44, 7.32, 6, 8, 20), new THREE.MeshBasicMaterial({ color: '#ffffff', wireframe: true, transparent: true, opacity: 0.35 }));
+  net.position.set(gx + sd * 1, 1.22, 0); scene.add(net);
+});
+// player meshes
+function makePlayer(shirt, shorts, gk) {
+  const grp = new THREE.Group();
+  const mShirt = new THREE.MeshLambertMaterial({ color: gk ? '#f5c518' : shirt });
+  const mShorts = new THREE.MeshLambertMaterial({ color: shorts });
+  const mSkin = new THREE.MeshLambertMaterial({ color: '#c99a77' });
+  const mSock = new THREE.MeshLambertMaterial({ color: gk ? '#f5c518' : shirt });
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.5, 4, 10), mShirt); torso.position.y = 1.28; grp.add(torso);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), mSkin); head.position.y = 1.86; grp.add(head);
+  const hip = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.22, 0.26, 10), mShorts); hip.position.y = 0.92; grp.add(hip);
+  const legs = [-0.11, 0.11].map(off => { const pivot = new THREE.Group(); pivot.position.set(off, 0.88, 0); const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.6, 4, 8), mSock); leg.position.y = -0.42; pivot.add(leg); grp.add(pivot); return pivot; });
+  const arms = [-0.3, 0.3].map(off => { const pivot = new THREE.Group(); pivot.position.set(off, 1.55, 0); const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.45, 4, 8), mSkin); arm.position.y = -0.3; pivot.add(arm); grp.add(pivot); return pivot; });
+  grp.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  grp.userData = { legs, arms, phase: rnd() * 6 };
+  scene.add(grp); return grp;
+}
+const meshes = players.map(p => p.team === 'A' ? makePlayer('#c8102e', '#ffffff', p.idx === 0) : makePlayer('#1d4ed8', '#0b1a3a', p.idx === 0));
+const ballMesh = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), new THREE.MeshLambertMaterial({ color: '#ffffff' })); ballMesh.castShadow = true; scene.add(ballMesh);
+// ring
+const ringGrp = new THREE.Group();
+const ring1 = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.12, 64), new THREE.MeshBasicMaterial({ color: '#39e5ff', transparent: true, opacity: 0.95, side: THREE.DoubleSide }));
+const ring2 = new THREE.Mesh(new THREE.RingGeometry(1.25, 1.36, 64), new THREE.MeshBasicMaterial({ color: '#39e5ff', transparent: true, opacity: 0.45, side: THREE.DoubleSide }));
+[ring1, ring2].forEach(r => { r.rotation.x = -Math.PI / 2; ringGrp.add(r); });
+ringGrp.position.y = 0.04; scene.add(ringGrp);
+// selection timeline: follow RW, switch to ST at 6.7s
+const kRW = players.indexOf(RW), kST = players.indexOf(ST);
+const card = {
+  RW: { name: 'J. Okafor', meta: '#7 · Right Wing · Riverside', baseKm: 8.12, touches: 41, chances: 2, rating: 7.4, read: "<i>AI read:</i> Driving attacks down the right — 3 of Riverside's last 4 chances started with him." },
+  ST: { name: 'L. Moretti', meta: '#9 · Striker · Riverside', baseKm: 7.31, touches: 22, chances: 1, rating: 6.9, read: '<i>AI read:</i> Quiet so far — 2 shots, both from outside the box. Watching for his near-post run.' },
+};
+function screenPos(v) { const p = v.clone().project(camera); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H]; }
+const $ = id => document.getElementById(id);
+window.renderFrame = function (f) {
+  const fr = frames[f], t = fr.t;
+  fr.p.forEach((s, k) => {
+    const m = meshes[k]; m.position.set(s.x, 0, s.z);
+    if (s.sp > 0.4) m.rotation.y = Math.atan2(s.vx, s.vz);
+    else { const dx = fr.ball.x - s.x, dz = fr.ball.z - s.z; m.rotation.y = Math.atan2(dx, dz); }
+    const ph = m.userData.phase + fr.dist[k] * 1.9, amp = Math.min(1, s.sp / 6) * 0.75;
+    m.userData.legs[0].rotation.x = Math.sin(ph) * amp; m.userData.legs[1].rotation.x = -Math.sin(ph) * amp;
+    m.userData.arms[0].rotation.x = -Math.sin(ph) * amp * 0.8; m.userData.arms[1].rotation.x = Math.sin(ph) * amp * 0.8;
+  });
+  ballMesh.position.set(fr.ball.x, fr.ball.y, fr.ball.z); ballMesh.rotation.z = -fr.ball.x * 2;
+  camera.position.set(fr.camX, 24, 60); camera.lookAt(fr.camX + 2, 0, 1.5);
+  // ring selection
+  const SW0 = 6.6, SW1 = 7.1; let sx, sz, sel;
+  const a = fr.p[kRW], b = fr.p[kST];
+  if (t < SW0) { sx = a.x; sz = a.z; sel = 'RW'; }
+  else if (t < SW1) { const s = (t - SW0) / (SW1 - SW0), e = s * s * (3 - 2 * s); sx = lerp(a.x, b.x, e); sz = lerp(a.z, b.z, e); sel = s < 0.5 ? 'RW' : 'ST'; }
+  else { sx = b.x; sz = b.z; sel = 'ST'; }
+  ringGrp.position.x = sx; ringGrp.position.z = sz;
+  const pulse = 1 + 0.08 * Math.sin(t * 6); ring2.scale.set(pulse, pulse, pulse);
+  renderer.render(scene, camera);
+  // overlays
+  const c = card[sel], k = sel === 'RW' ? kRW : kST;
+  const goalScored = t >= 8.25;
+  $('pname').textContent = c.name; $('pmeta').textContent = c.meta;
+  $('s1').textContent = (c.baseKm + fr.dist[k] / 1000).toFixed(2) + ' km';
+  $('s2').textContent = (Math.max(sel === 'RW' ? 31.8 : 29.4, fr.top[k] * 3.6)).toFixed(1) + ' km/h';
+  let touches = c.touches, chances = c.chances, rating = c.rating, delta = '';
+  if (sel === 'RW') { if (t >= 4.5) touches += 1; if (t >= 6.5) { chances = 3; } }
+  if (sel === 'ST') { if (t >= 7.35) touches += 1; if (goalScored) { rating = 8.6; delta = '<span class="delta">▲ 1.7</span>'; } }
+  $('s3').textContent = touches; $('s4').textContent = sel === 'ST' && goalScored ? '1 goal' : chances;
+  $('rating').innerHTML = rating.toFixed(1);
+  $('pname').innerHTML = c.name + delta;
+  $('s4').nextElementSibling.textContent = sel === 'ST' && goalScored ? 'Goals' : 'Chances created';
+  $('read').innerHTML = sel === 'ST' && goalScored ? '<i>AI read:</i> Clinical — scored with his first touch in the box, finishing a 4-pass move that started in his own half.' : c.read;
+  $('hint').textContent = sel === 'RW' ? 'Ring: following #7 Okafor · press ⇥ to switch player' : 'Ring: switched to #9 Moretti';
+  // tag above selected player
+  const [hx, hy] = screenPos(new THREE.Vector3(sx, 2.35, sz));
+  const tag = $('tag'); tag.style.left = hx + 'px'; tag.style.top = hy + 'px'; tag.textContent = sel === 'RW' ? 'Okafor  #7' : 'Moretti  #9';
+  // sprint alert for RW while sprinting down the wing
+  const al = $('alert'); const showAlert = sel === 'RW' && t > 5.0 && t < 6.5;
+  al.style.display = showAlert ? 'block' : 'none'; if (showAlert) { al.style.left = hx + 'px'; al.style.top = (hy - 26) + 'px'; }
+  $('goal').style.display = goalScored && t < 10.2 ? 'block' : 'none';
+  $('score').textContent = goalScored ? '1 – 0' : '0 – 0';
+  const secs = 12 + Math.floor(t); $('clock').textContent = '67:' + String(secs).padStart(2, '0');
+};
+window.NFRAMES = N;
+window.renderFrame(0);
+</script>
+</body>
+</html>

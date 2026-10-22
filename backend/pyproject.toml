@@ -1,0 +1,34 @@
+[project]
+name = "livecards"
+version = "0.1.0"
+description = "Live Cards: explainable live player cards from synthetic match data"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.7",
+    "rich>=13.7",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+agents = [
+    "agent-framework-core>=1.22",
+    "agent-framework-foundry>=1.15",
+    "azure-identity>=1.17",
+]
+
+[project.scripts]
+livecards = "livecards.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

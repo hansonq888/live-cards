@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+# Node
+node_modules/
+dist/
+# Local data and secrets
+.env
+.env.*
+!.env.example
+data/
+*.mp4.tmp
+# Vision weights
+*.pt
+.DS_Store
