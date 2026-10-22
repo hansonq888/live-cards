@@ -1,0 +1,68 @@
+{
+  "properties": {
+    "cue": {
+      "title": "Cue",
+      "type": "string"
+    },
+    "start": {
+      "title": "Start",
+      "type": "number"
+    },
+    "duration": {
+      "title": "Duration",
+      "type": "number"
+    },
+    "type": {
+      "title": "Type",
+      "type": "string"
+    },
+    "player": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Player"
+    },
+    "ring": {
+      "default": false,
+      "title": "Ring",
+      "type": "boolean"
+    },
+    "text": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Text",
+      "type": "object"
+    },
+    "lang": {
+      "default": "en",
+      "title": "Lang",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence",
+      "type": "array"
+    }
+  },
+  "required": [
+    "cue",
+    "start",
+    "duration",
+    "type",
+    "text",
+    "evidence"
+  ],
+  "title": "OverlayCue",
+  "type": "object",
+  "$id": "https://github.com/livecards/overlay-cue.schema.json",
+  "description": "A timed overlay instruction. `start` and `duration` are match seconds from kickoff; `text` holds one verified line per audience; `evidence` lists the event ids (or trk-<player>-<tenths> tracking refs) every claim in `text` rests on."
+}

@@ -29,7 +29,7 @@ WORD_VALUES.update({"hundred": 100, "dozen": 12, "twice": 2, "brace": 2})
 
 # Ordinal words that are normal English, not numeric claims ("second half", "first touch").
 _ORDINAL_PHRASES_OK = re.compile(
-    r"\b(first|second)\s+(half|halves|touch|time|ball|phase|post|wave|yellow)\b", re.I)
+    r"\b(first|second)\s+(half|halves|touch|time|ball|phase|post|wave|yellow)\b", re.IGNORECASE)
 
 # word -> fact key that must be truthy for the word to be allowed
 SUPERLATIVES: dict[str, str | None] = {
@@ -43,8 +43,8 @@ _NUM_RE = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)(?:st|nd|rd|th)?(?![\w])")
 _SCORE_RE = re.compile(r"\b(\d+)\s*[-–]\s*(\d+)\b")
 _WORD_NUM_RE = re.compile(
     r"\b(" + "|".join(sorted(list(WORD_VALUES) + list(_TENS[2:]), key=len, reverse=True))
-    + r")(?:[\s-](" + "|".join(_UNITS[1:10]) + r"))?\b", re.I)
-_ORD_RE = re.compile(r"\b(" + "|".join(_ORDINAL_WORDS) + r")\b", re.I)
+    + r")(?:[\s-](" + "|".join(_UNITS[1:10]) + r"))?\b", re.IGNORECASE)
+_ORD_RE = re.compile(r"\b(" + "|".join(_ORDINAL_WORDS) + r")\b", re.IGNORECASE)
 
 
 @dataclass
