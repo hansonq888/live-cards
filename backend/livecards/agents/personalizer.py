@@ -132,7 +132,7 @@ class PersonalizerExec(Executor):
                     verdict.ok, verdict.problems = False, [r.reason()]
             self.sink(TraceEvent(mid, f"personalizer:{self.profile.key}",
                                  "ok" if verdict.ok else "rejected", _ms(start),
-                                 verdict.reason() or text, attempt))
+                                 verdict.reason() or text, attempt, text))
             if verdict.ok:
                 await ctx.send_message(Variant(self.profile.key, text, "model", attempt + 1,
                                                _ms(t0), []))

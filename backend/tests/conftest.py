@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import itertools
+import os
+
+os.environ.setdefault("AUDIT_DB", ":memory:")  # tests never touch the real audit log
 
 import pytest
 

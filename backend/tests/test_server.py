@@ -81,3 +81,17 @@ def test_seek_backwards_is_not_undone_by_the_clock(monkeypatch):
         return frames
     frames = asyncio.run(main())
     assert min(frames[-5:]) < 3920 and max(frames[-5:]) < 3920
+
+
+def test_console_kill_switch_and_audit():
+    from livecards.server.control import plane
+    with TestClient(app) as c, c.websocket_connect("/ws/console") as ws:
+        hello = ws.receive_json()
+        assert hello["type"] == "console_hello" and hello["controls"]["approval"] == "auto"
+        ws.send_json({"type": "controls", "patch": {"features": {"alerts": False}}})
+        assert ws.receive_json()["controls"]["features"]["alerts"] is False
+        plane().record(kind="blocked", text="Varenne 9.5", reason="number '9.5'", evidence=["e-1"])
+        assert ws.receive_json()["entry"]["kind"] == "blocked"
+        ws.send_json({"type": "controls", "patch": {"features": {"alerts": True}}})
+        ws.receive_json()
+        assert c.get("/api/audit?kind=blocked").json()["entries"][0]["text"] == "Varenne 9.5"

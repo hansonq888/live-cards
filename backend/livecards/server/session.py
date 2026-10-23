@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import copy
+import secrets
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict, dataclass
@@ -34,6 +35,7 @@ from livecards.agents.verifier import check
 from livecards.contracts import FPS, Moment
 from livecards.engine.engine import MatchEngine
 from livecards.replay import positions
+from livecards.server.control import plane
 from livecards.server.cues import make_cue
 from livecards.sim.match import Match
 from livecards.sim.simulator import simulate
@@ -48,6 +50,7 @@ MODEL_MOMENTS = {"goal", "rating_upgrade", "rating_downgrade", "big_chance", "mo
 MAX_MODEL_INFLIGHT = 6
 SHOWCASE_MOMENTS = {"goal", "rating_upgrade"}
 SNAPSHOT_EVERY_S = 300.0
+ALERT_TYPES = {"sprint", "fastest_sprint", "streak", "distance_milestone"}
 # Verified lines per moment. The match is deterministic, so a revisited (or re-watched)
 # moment reuses its verified line instead of calling, and paying for, the model again.
 LINE_CACHE: dict[tuple, Explained] = {}
@@ -131,7 +134,7 @@ class LiveSession:
         self.roster = {n for p in self.meta.players for n in (p.name, p.short)}
         self.speed = speed
         self.paused = False
-        self.model_enabled = explainer_agent() is not None
+        self.sid = secrets.token_hex(3)
         self.metrics = {"moments": 0, "cues": 0, "claims_checked": 0, "blocked": 0,
                         "model_lines": 0, "template_lines": 0, "rewrites": 0, "aired_unverified": 0,
                         "latency_ms": []}
@@ -142,6 +145,22 @@ class LiveSession:
         self.inflight = 0
         self.tasks: set[asyncio.Task] = set()
         self._reset(start)
+
+    @property
+    def model_enabled(self) -> bool:
+        """AI lines run only if Foundry is configured and the broadcaster allows them."""
+        return plane().controls.feature("ai_lines") and explainer_agent() is not None
+
+    def _audit(self, kind: str, m: Moment | None, **kw) -> None:
+        plane().record(kind=kind, session=self.sid, match_t=m.t if m else self.t,
+                       moment=m.id if m else None, moment_type=m.type if m else None,
+                       player=m.player if m else None, **kw)
+
+    def _audit_blocked(self, m: Moment, traces: list[TraceEvent]) -> None:
+        for ev in traces:
+            if ev.outcome == "rejected":
+                self._audit("blocked", m, text=ev.text, stage=ev.stage, reason=ev.detail,
+                            evidence=m.evidence)
 
     def _reset(self, start: float) -> None:
         """Jump to `start`: restore the nearest earlier snapshot, then fast-forward."""
@@ -182,7 +201,7 @@ class LiveSession:
         elif kind == "redteam":
             await self._redteam()
         elif kind == "model":
-            self.model_enabled = bool(msg.get("enabled")) and explainer_agent() is not None
+            plane().update({"features": {"ai_lines": bool(msg.get("enabled"))}})
             await self.send({"type": "model", "enabled": self.model_enabled})
 
     # ---- main loop ------------------------------------------------------------------
@@ -204,6 +223,9 @@ class LiveSession:
                 # Speed changed or the viewer jumped: restart the clock from here.
                 wall0, game0, speed0 = time.monotonic(), self.t, self.speed
                 self._reanchor = False
+            if not plane().controls.feature("director") and self.director.mode == "auto" \
+                    and self.director.current is not None:
+                self.director.mode = "manual"  # auto-director switched off: hold the ring
             target_t = game0 + (time.monotonic() - wall0) * self.speed
             await self._advance_to(target_t, live=True)
             now = time.monotonic()
@@ -246,12 +268,17 @@ class LiveSession:
     # moments, for the showcase profiles.
     def _on_moment(self, m: Moment, out: list[dict]) -> None:
         self.metrics["moments"] += 1
+        controls = plane().controls
+        if m.type in ALERT_TYPES and not controls.feature("alerts"):
+            return  # alerts switched off by the broadcaster
         msg = {"type": "moment", "moment": m.model_dump()}
         if m.player:
             msg["card"] = self.engine.card(m.player).model_dump()
         out.append(msg)
         if m.importance < 0.3 and m.type != "distance_milestone":
             return
+        if not controls.allowed(m.type):
+            return  # the card's numbers still update; no line airs for this insight type
         job = job_for(m, self.engine)
         ring = self.director.current.target if self.director.current else None
         self.cue_seq += 1
@@ -265,6 +292,8 @@ class LiveSession:
             self.metrics["template_lines"] += 1
             instant = Explained(m.id, job.template, "template", 1, verdict, ms)
             out.append(self._cue_msg(cue_id, m, instant, ring, phase="instant"))
+            self._audit("aired", m, text=job.template, source="template", stage="instant",
+                        evidence=m.evidence, lang="en")
         else:
             self.metrics["blocked"] += 1
         use_model = (self.model_enabled and m.type in MODEL_MOMENTS
@@ -278,7 +307,7 @@ class LiveSession:
         if m.player:
             self.last_job[m.player] = (m, job, ring, cue_id)
         self._spawn(self._explain(m, job, ring, cue_id))
-        if self.profile != DEFAULT:
+        if self.profile != DEFAULT and controls.feature("personalization"):
             # The viewer's own language starts now, from the verified stats line, in parallel
             # with the English story line, instead of waiting for it.
             self._spawn(self._personalize(m, job, job.template, cue_id, [self.profile]))
@@ -286,7 +315,15 @@ class LiveSession:
     async def _ask(self, qid: str, question: str) -> None:
         await self.send({"type": "answer_status", "id": qid, "question": question,
                          "stage": "checking the match data"})
+        if not plane().controls.feature("ask"):
+            await self.send({"type": "answer", "id": qid, "question": question,
+                             "text": "Ask is switched off by the broadcaster right now.",
+                             "verified": True, "source": "refusal", "evidence": [], "tools": [],
+                             "ms": 0, "problems": [], "minute": int(self.t // 60)})
+            return
         a = await ask(question, self.engine, self.roster, reviewer_agent())
+        self._audit("answer", None, text=f"Q: {question}\nA: {a.text}", source=a.source,
+                    stage=",".join(a.tools), reason="; ".join(a.problems), evidence=a.evidence)
         self.metrics["claims_checked"] += 1
         self.metrics["blocked"] += bool(a.problems)
         await self.send({"type": "answer", "id": qid, **asdict(a),
@@ -324,6 +361,9 @@ class LiveSession:
                          "player": m.player, "steps": [asdict(e) for e in traces]})
         if result is not None:
             self.metrics["aired_unverified"] += not result.verdict.ok
+        self._audit("redteam", m, text=attacker.injected, source=mode,
+                    stage=blocked.stage if blocked else "", reason=blocked.detail if blocked else "",
+                    evidence=m.evidence)
         await self.send({
             "type": "redteam", "stage": "result", "mode": mode, "moment": m.id,
             "player": m.player, "injected": attacker.injected,
@@ -363,15 +403,27 @@ class LiveSession:
                 self.metrics["blocked"] += ev.outcome == "rejected"
         await self.send({"type": "trace", "moment": m.id, "moment_type": m.type,
                          "player": m.player, "steps": [asdict(e) for e in traces]})
+        self._audit_blocked(m, traces)
         if result is None or result.source != "model":
             return  # the instant template line stands
+        if plane().controls.approval == "manual":
+            await self.send({"type": "awaiting_approval", "moment": m.id, "player": m.player})
+            approved = await plane().request_approval(
+                session=self.sid, match_t=m.t, moment=m.id, moment_type=m.type,
+                player=m.player, text=result.text, source="model", evidence=m.evidence,
+                lang="en")
+            if not approved:
+                return  # held back by the operator: the instant stats line stands
+        self._audit("aired", m, text=result.text, source="model", stage="story",
+                    evidence=m.evidence, lang="en")
         self.metrics["cues"] += 1
         self.metrics["aired_unverified"] += not result.verdict.ok  # must stay 0
         self.metrics["model_lines"] += 1
         self.metrics["rewrites"] += result.attempts > 1
         self.metrics["latency_ms"].append(result.ms)
         await self.send(self._cue_msg(cue_id, m, result, ring, phase="story"))
-        if m.type in SHOWCASE_MOMENTS and m.importance >= 0.55:
+        if (m.type in SHOWCASE_MOMENTS and m.importance >= 0.55
+                and plane().controls.feature("personalization")):
             # The side-by-side for the Fans view isn't on the live path, so it can build on
             # the finished English story line.
             await self._personalize(m, job, result.text, cue_id, SHOWCASE)
@@ -391,6 +443,9 @@ class LiveSession:
         for v in fresh:
             if v.source == "model":
                 VARIANT_CACHE[(self.seed, m.id, v.key, base)] = asdict(v)
+                self._audit("aired", m, text=v.text, source="model", stage=f"personalizer {v.key}",
+                            evidence=m.evidence, lang=v.key.split(".")[1])
+        self._audit_blocked(m, traces)
         variants_out = cached + [asdict(v) for v in fresh]
         for ev in traces:
             self.metrics["claims_checked"] += 1

@@ -6,7 +6,10 @@ GET  /api/health          liveness
 GET  /api/meta            match metadata (clubs, players, formulas)
 GET  /api/cue-schema      the overlay cue JSON Schema
 WS   /ws/live?speed=1&start=0   live stream; send {"type": "select" | "auto" | "speed" |
-                                "pause" | "play" | "seek" | "model", ...} to control it
+                                "pause" | "play" | "seek" | "model" | "profile" | "ask" |
+                                "redteam", ...} to control it
+WS   /ws/console               broadcaster console: audit log, approvals, kill switches
+GET  /api/audit?kind=blocked   the audit log
 In production the built web app is served from / as static files.
 """
 
@@ -21,6 +24,7 @@ from fastapi.staticfiles import StaticFiles
 
 from livecards.contracts import OverlayCue
 from livecards.engine.rating import WEIGHTS
+from livecards.server.control import plane
 from livecards.server.session import LiveSession, load_match, snapshots
 
 
@@ -74,6 +78,38 @@ async def live(ws: WebSocket, speed: float = 1.0, start: float = 0.0) -> None:
         # The viewer may already be gone: a send on a closed socket is not an error.
         with contextlib.suppress(asyncio.CancelledError, WebSocketDisconnect):
             await runner
+
+
+@app.get("/api/audit")
+async def audit(kind: str | None = None, limit: int = 200) -> dict:
+    return {"counts": plane().audit.counts(), "entries": plane().audit.recent(min(limit, 1000), kind)}
+
+
+@app.websocket("/ws/console")
+async def console(ws: WebSocket) -> None:
+    """Broadcaster console: live audit stream, approval queue and kill switches."""
+    await ws.accept()
+    p = plane()
+    q = p.subscribe()
+    await ws.send_json(p.snapshot())
+
+    async def pump() -> None:
+        while True:
+            await ws.send_json(await q.get())
+
+    pusher = asyncio.create_task(pump())
+    try:
+        while True:
+            msg = await ws.receive_json()
+            if msg.get("type") == "controls":
+                p.update(msg.get("patch") or {})
+            elif msg.get("type") == "decide":
+                p.decide(int(msg["id"]), bool(msg.get("approve")), str(msg.get("operator") or "operator"))
+    except WebSocketDisconnect:
+        pass
+    finally:
+        pusher.cancel()
+        p.unsubscribe(q)
 
 
 if WEB_DIST.exists():

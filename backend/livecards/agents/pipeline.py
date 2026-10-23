@@ -38,6 +38,7 @@ class TraceEvent:
     ms: float
     detail: str = ""
     attempt: int = 0
+    text: str = ""  # the draft that was checked (kept so blocked lines can be audited)
 
 
 TraceSink = Callable[[TraceEvent], None]
@@ -116,7 +117,7 @@ class VerifierExec(Executor):
         stage = "verifier" if draft.source == "model" else "template-check"
         self.sink(TraceEvent(draft.job.moment.id, stage, "ok" if verdict.ok else "rejected",
                              _ms(start), verdict.reason() or f"{verdict.checked} claims checked",
-                             draft.attempt))
+                             draft.attempt, draft.text))
         if _blocked(Checked(draft, verdict)):
             self.sink(TraceEvent(draft.job.moment.id, "publish", "blocked", _ms(draft.t0),
                                  verdict.reason(), draft.attempt))
@@ -139,7 +140,7 @@ class ReviewerExec(Executor):
         start = time.perf_counter()
         r = await review(self.agent, d.text, d.job.facts)
         self.sink(TraceEvent(d.job.moment.id, "reviewer", "ok" if r.ok else "rejected",
-                             _ms(start), r.reason() or "claims supported", d.attempt))
+                             _ms(start), r.reason() or "claims supported", d.attempt, d.text))
         verdict = c.verdict if r.ok else Verdict(False, [r.reason()], c.verdict.checked + 1)
         await ctx.send_message(Checked(d, verdict))
 
