@@ -69,3 +69,14 @@ Central US.
 Kept gpt-5-mini. Goal to screen, measured: instant stats line **0 ms** (the brief's under-3 s
 target, met by the explained stats line); AI story line ~5.7 s; viewer's own language ~6.9 s
 (now generated in parallel from the stats line instead of after the English one).
+
+## Oct 23 — three views over one engine
+
+Hanson's observation: it was "becoming like an IDE for a soccer match." Fans shouldn't
+feel that. Decided:
+1. **Fan view (default):** full-bleed broadcast only (pitch, ring, card, alerts, director
+   ticker), with a floating Ask button and the timeline on hover. It should feel like TV.
+2. **Studio view:** today's panels (feed, Fans, agent trace, metrics) for analysts and judges.
+3. **Console:** separate, for the producer.
+The video opens on the Fan view, then pulls back the curtain into Studio, then the Console.
+Scheduled after the Azure deployment (the public URL is the bigger risk).
