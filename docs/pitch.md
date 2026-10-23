@@ -69,3 +69,11 @@ personal, and verified."*
 2. **Tap any number for its evidence:** clicking a stat replays the events behind it
    (builds on Revisit). About 2 hours.
 3. **Fantasy points with reasons**, live on the card. About 2 hours.
+
+## Before making the repo public (Monday)
+
+- [ ] Decide whether `CLAUDE.md` (internal brief and competitive notes) stays, gets trimmed, or moves out.
+- [ ] Confirm the license of `vision/vision_test.jpg` allows redistribution, or remove it.
+- [ ] `git log` and the tree contain no secrets (`backend/.env` is ignored; check again).
+- [ ] README top: GIF, live URL, video link.
+- [ ] Repo, video and live URL all open in a logged-out browser.
