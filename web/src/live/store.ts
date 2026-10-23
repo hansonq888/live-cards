@@ -44,6 +44,10 @@ export interface Line {
   variants: Record<string, Variant>;
 }
 
+export interface KeyMoment { id: string; t: number; type: string; player: string | null; label: string }
+
+const KEY_TYPES = new Set(["goal", "big_chance", "fastest_sprint", "rating_upgrade", "rating_downgrade", "momentum_swing", "card", "substitution"]);
+
 export interface Pending {
   momentId: string;
   type: string;
@@ -63,6 +67,9 @@ export interface LiveState {
   // Latest verified line per player, and moments whose line is still being written.
   lines: Record<string, Line>;
   profile: string; // audience.lang.voice
+  keyMoments: KeyMoment[];
+  liveEdge: number; // furthest match time watched
+  revisit: KeyMoment | null;
   answers: { id: string; question: string; text?: string; source?: string; evidence?: string[]; tools?: string[]; ms?: number; problems?: string[]; minute?: number; pending: boolean }[];
   redteam: { stage: string; mode?: string; player?: string | null; injected?: string; blockedBy?: string | null; reason?: string; aired?: string | null; at: number } | null;
   showcase: { player: string | null; type: string; t: number; base: string; variants: Variant[]; at: number } | null;
@@ -85,6 +92,7 @@ export interface LiveState {
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
   director: null, cards: {}, stats: {}, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
+  keyMoments: [], liveEdge: 0, revisit: null,
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null,
 };
@@ -128,6 +136,18 @@ class LiveStore {
     if (msg.type === "profile") this.set({ profile: msg.key });
   }
 
+  /** Jump back to just before a key moment; the replay shows the ring and card as they were. */
+  revisitMoment(k: KeyMoment) {
+    this.set({ revisit: k, liveEdge: Math.max(this.state.liveEdge, this.state.t) });
+    this.send({ type: "seek", t: Math.max(0, k.t - 8) });
+  }
+
+  backToLive() {
+    const edge = this.state.liveEdge;
+    this.set({ revisit: null });
+    this.send({ type: "seek", t: edge });
+  }
+
   private name(id: string | null) {
     return this.state.meta?.players.find((p) => p.id === id)?.short ?? id ?? "";
   }
@@ -142,7 +162,7 @@ class LiveStore {
       case "frame":
         this.frames.push({ frame: m, at: now });
         if (this.frames.length > 40) this.frames.splice(0, this.frames.length - 40);
-        if (Math.floor(m.t) !== Math.floor(s.t)) this.set({ t: m.t });
+        if (Math.floor(m.t) !== Math.floor(s.t)) this.set({ t: m.t, liveEdge: s.revisit ? s.liveEdge : Math.max(s.liveEdge, m.t) });
         break;
       case "director":
         this.set({ director: { target: m.target, reason: m.reason, kind: m.kind, predicted: m.predicted, mode: m.mode, at: now } });
@@ -170,6 +190,13 @@ class LiveStore {
         }
         if (mo.type === "goal") {
           patch.banner = { text: "GOAL", sub: `${this.name(mo.player)} · ${mo.facts.score_home}–${mo.facts.score_away}`, at: now };
+        }
+        if ((KEY_TYPES.has(mo.type) && mo.importance >= 0.55) || mo.type === "goal") {
+          if (!s.keyMoments.some((k) => k.id === mo.id)) {
+            const who = this.name(mo.player);
+            const what = mo.type === "goal" ? "Goal" : mo.type === "rating_upgrade" ? `Card ▲ ${mo.facts.to}` : mo.type === "rating_downgrade" ? `Card ▼ ${mo.facts.to}` : mo.type === "fastest_sprint" ? `${mo.facts.speed_kmh} km/h` : mo.type === "momentum_swing" ? "Momentum swing" : mo.type === "big_chance" ? "Big chance" : mo.type === "card" ? "Yellow card" : "Substitution";
+            patch.keyMoments = [...s.keyMoments, { id: mo.id, t: mo.t, type: mo.type, player: mo.player, label: `${what}${who ? " · " + who : ""}` }].sort((a, b) => a.t - b.t);
+          }
         }
         if (mo.importance >= 0.45) {
           patch.feed = [{ id: mo.id, t: mo.t, kind: "moment" as const, type: mo.type, player: mo.player, text: mo.template, evidence: mo.evidence }, ...s.feed].slice(0, 40);

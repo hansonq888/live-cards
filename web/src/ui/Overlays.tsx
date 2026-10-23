@@ -172,6 +172,12 @@ export function RedTeamPanel() {
   );
 }
 
+export function RevisitBadge() {
+  const revisit = useLive((s) => s.revisit);
+  if (!revisit) return null;
+  return <div className="revisit-badge">REVISIT · {clock(revisit.t)} · {revisit.label}</div>;
+}
+
 export function GoalBanner() {
   const banner = useLive((s) => s.banner);
   const now = useTicker(200);

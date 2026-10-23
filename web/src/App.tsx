@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
-import { DirectorTicker, GoalBanner, PlayerCard, RedTeamPanel, ScoreBug } from "./ui/Overlays";
+import { DirectorTicker, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
 import { Controls, ProfilePicker, SidePanel } from "./ui/SidePanel";
 import { ScaledStage } from "./ui/ScaledStage";
+import { Timeline } from "./ui/Timeline";
 
 export default function App() {
   const meta = useLive((s) => s.meta);
@@ -28,7 +29,9 @@ export default function App() {
             <DirectorTicker />
             <GoalBanner />
             <RedTeamPanel />
+            <RevisitBadge />
           </ScaledStage>
+          <Timeline />
           <Controls />
         </section>
         <SidePanel />

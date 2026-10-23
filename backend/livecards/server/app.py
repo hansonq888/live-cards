@@ -21,12 +21,13 @@ from fastapi.staticfiles import StaticFiles
 
 from livecards.contracts import OverlayCue
 from livecards.engine.rating import WEIGHTS
-from livecards.server.session import LiveSession, load_match
+from livecards.server.session import LiveSession, load_match, snapshots
 
 
 @contextlib.asynccontextmanager
 async def lifespan(_: FastAPI):
     await asyncio.to_thread(load_match, 7)  # simulate once, share across viewers
+    await asyncio.to_thread(snapshots, 7)  # engine snapshots for instant jumps (Revisit)
     yield
 
 
@@ -70,7 +71,8 @@ async def live(ws: WebSocket, speed: float = 1.0, start: float = 0.0) -> None:
         runner.cancel()
         for t in list(session.tasks):
             t.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
+        # The viewer may already be gone: a send on a closed socket is not an error.
+        with contextlib.suppress(asyncio.CancelledError, WebSocketDisconnect):
             await runner
 
 

@@ -110,6 +110,23 @@ button { font: inherit; }
 .goal-sub { font-family: var(--display); font-size: 26px; font-weight: 700; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
 @keyframes goalin { from { transform: translate(-50%, -50%) scale(.4); opacity: 0; } }
 
+/* revisit timeline */
+.timeline { display: flex; align-items: center; gap: 12px; }
+.tl-track { position: relative; flex: 1; height: 30px; background: var(--panel); border: 1px solid var(--line); border-radius: 15px; }
+.tl-watched { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(57,229,255,.08); border-radius: 15px; }
+.tl-half { position: absolute; top: 4px; bottom: 4px; width: 1px; background: var(--line); }
+.tl-head { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--accent); box-shadow: 0 0 8px var(--accent); transform: translateX(-1px); transition: left .3s linear; }
+.tl-mark { position: absolute; top: 50%; transform: translate(-50%, -50%); background: var(--panel-2); border: 1px solid var(--line); border-radius: 50%; width: 20px; height: 20px; font-size: 10px; line-height: 1; padding: 0; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.tl-mark:hover, .tl-mark.on { border-color: var(--accent); transform: translate(-50%, -50%) scale(1.25); z-index: 2; }
+.tl-goal { width: 24px; height: 24px; font-size: 13px; border-color: #fff; }
+.tl-rating_upgrade { color: var(--good); } .tl-rating_downgrade { color: var(--bad); }
+.tl-fastest_sprint { color: var(--accent); } .tl-card { color: #facc15; } .tl-momentum_swing { color: #93c5fd; }
+.tl-side { display: flex; align-items: center; gap: 8px; font-size: 12px; min-width: 250px; justify-content: flex-end; }
+.tl-hint { color: var(--dim); }
+.tl-revisit { color: var(--warn); font-weight: 700; }
+.tl-side button { background: var(--accent); color: #04121a; border: 0; border-radius: 6px; padding: 5px 10px; font-weight: 700; cursor: pointer; }
+.revisit-badge { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); background: rgba(245,158,11,.92); color: #1a1204; font-family: var(--display); font-weight: 800; letter-spacing: 1px; padding: 4px 12px; border-radius: 5px; pointer-events: none; }
+
 /* ask */
 .ask { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 10px; gap: 8px; }
 .ask form { display: flex; gap: 6px; }

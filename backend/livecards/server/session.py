@@ -9,12 +9,13 @@ background tasks so a slow model never stalls the stream.
 from __future__ import annotations
 
 import asyncio
+import copy
 import time
 from collections.abc import Awaitable, Callable
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from functools import cache
 
-from livecards.agents.director import AutoDirector
+from livecards.agents.director import AutoDirector, Decision
 from livecards.agents.explainer import INSTRUCTIONS, job_for
 from livecards.agents.llm import make_agent
 from livecards.agents.personalizer import (
@@ -30,7 +31,7 @@ from livecards.agents.qa import ask
 from livecards.agents.redteam import RedTeamAgent
 from livecards.agents.reviewer import make_reviewer
 from livecards.agents.verifier import check
-from livecards.contracts import Moment
+from livecards.contracts import FPS, Moment
 from livecards.engine.engine import MatchEngine
 from livecards.replay import positions
 from livecards.server.cues import make_cue
@@ -46,11 +47,64 @@ MODEL_MOMENTS = {"goal", "rating_upgrade", "rating_downgrade", "big_chance", "mo
                  "fastest_sprint", "attr_upgrade", "attr_downgrade"}
 MAX_MODEL_INFLIGHT = 6
 SHOWCASE_MOMENTS = {"goal", "rating_upgrade"}
+SNAPSHOT_EVERY_S = 300.0
+# Verified lines per moment. The match is deterministic, so a revisited (or re-watched)
+# moment reuses its verified line instead of calling, and paying for, the model again.
+LINE_CACHE: dict[tuple, Explained] = {}
+VARIANT_CACHE: dict[tuple, dict] = {}
 
 
 @cache
 def load_match(seed: int = 7) -> Match:
     return simulate(seed)
+
+
+def tick(match: Match, engine: MatchEngine, director: AutoDirector, i: int,
+         ev_j: int) -> tuple[int, Decision, list[Moment]]:
+    """Advance one 10 Hz tick: events, then tracking, then the director. Returns the new
+    event cursor, the director's decision and the moments produced."""
+    t = float(match.times[i])
+    evs = match.events
+    events = []
+    while ev_j < len(evs) and evs[ev_j].t <= t + 1e-6:
+        events.append(evs[ev_j])
+        ev_j += 1
+    for e in events:
+        director.on_event(e)
+    moments: list[Moment] = []
+    for e in events:
+        moments += engine.on_event(e)
+    moments += engine.on_positions(t, positions(match, i))
+    for m in moments:
+        director.on_moment(m)
+    d = director.update(t, (float(match.ball[i, 0]), float(match.ball[i, 1])),
+                        list(positions(match, i)))
+    return ev_j, d, moments
+
+
+@dataclass
+class Snapshot:
+    t: float
+    i: int
+    ev_j: int
+    engine: MatchEngine
+    director: AutoDirector
+
+
+@cache
+def snapshots(seed: int = 7) -> list[Snapshot]:
+    """Engine + director state every SNAPSHOT_EVERY_S of match time, so a jump (Revisit)
+    is a short fast-forward instead of a replay from kickoff. Same seed, same states."""
+    match = load_match(seed)
+    engine, director = MatchEngine(match.meta), AutoDirector(match.meta)
+    out, ev_j = [], 0
+    step = int(SNAPSHOT_EVERY_S * FPS)
+    for i in range(len(match)):
+        if i % step == 0:
+            out.append(Snapshot(float(match.times[i]), i, ev_j,
+                                *copy.deepcopy((engine, director))))
+        ev_j, _, _ = tick(match, engine, director, i, ev_j)
+    return out
 
 
 @cache
@@ -71,6 +125,7 @@ def reviewer_agent():
 class LiveSession:
     def __init__(self, send: Send, seed: int = 7, speed: float = 1.0, start: float = 0.0) -> None:
         self.send = send
+        self.seed = seed
         self.match = load_match(seed)
         self.meta = self.match.meta
         self.roster = {n for p in self.meta.players for n in (p.name, p.short)}
@@ -89,10 +144,14 @@ class LiveSession:
         self._reset(start)
 
     def _reset(self, start: float) -> None:
-        self.engine = MatchEngine(self.meta)
-        self.director = AutoDirector(self.meta)
-        self.i = 0
+        """Jump to `start`: restore the nearest earlier snapshot, then fast-forward."""
+        snap = max((sn for sn in snapshots(self.seed) if sn.t <= start), key=lambda sn: sn.t)
+        self.engine, self.director = copy.deepcopy((snap.engine, snap.director))
+        self.i, self._ev_j = snap.i, snap.ev_j
+        self.director.mode = "auto"
+        self.director.current = None
         self._advance_to(start, live=False)
+        self._reanchor = True
 
     # ---- commands from the viewer -----------------------------------------------------
     async def command(self, msg: dict) -> None:
@@ -141,8 +200,10 @@ class LiveSession:
                 await asyncio.sleep(0.05)
                 wall0, game0 = time.monotonic(), self.t
                 continue
-            if self.speed != speed0:
+            if self.speed != speed0 or self._reanchor:
+                # Speed changed or the viewer jumped: restart the clock from here.
                 wall0, game0, speed0 = time.monotonic(), self.t, self.speed
+                self._reanchor = False
             target_t = game0 + (time.monotonic() - wall0) * self.speed
             await self._advance_to(target_t, live=True)
             now = time.monotonic()
@@ -162,26 +223,8 @@ class LiveSession:
         """Feed every tick up to target_t. Returns an awaitable when live."""
         out: list[dict] = []
         while self.i < len(self.match) and float(self.match.times[self.i]) <= target_t:
-            tick_i = self.i
-            t = float(self.match.times[tick_i])
-            events = []
-            j = getattr(self, "_ev_j", 0) if self.i else 0
-            evs = self.match.events
-            while j < len(evs) and evs[j].t <= t + 1e-6:
-                events.append(evs[j])
-                j += 1
-            self._ev_j = j
-            for e in events:
-                self.director.on_event(e)
-            moments = []
-            for e in events:
-                moments += self.engine.on_event(e)
-            moments += self.engine.on_positions(t, positions(self.match, tick_i))
-            for m in moments:
-                self.director.on_moment(m)
-            d = self.director.update(t, (float(self.match.ball[tick_i, 0]),
-                                         float(self.match.ball[tick_i, 1])),
-                                     list(positions(self.match, tick_i)))
+            self._ev_j, d, moments = tick(self.match, self.engine, self.director, self.i,
+                                          self._ev_j)
             if live:
                 if d.changed:
                     out.append(self._director_msg(d))
@@ -301,12 +344,19 @@ class LiveSession:
 
     async def _explain(self, m: Moment, job, ring: str | None, cue_id: int) -> None:
         traces: list[TraceEvent] = []
-        self.inflight += 1
-        try:
-            result = await explain(job, explainer_agent(), self.roster, traces.append,
-                                   reviewer_agent())
-        finally:
-            self.inflight -= 1
+        key = (self.seed, m.id, job.template)
+        if key in LINE_CACHE:
+            result = LINE_CACHE[key]
+            traces.append(TraceEvent(m.id, "cache", "ok", 0, "verified line reused", 0))
+        else:
+            self.inflight += 1
+            try:
+                result = await explain(job, explainer_agent(), self.roster, traces.append,
+                                       reviewer_agent())
+            finally:
+                self.inflight -= 1
+            if result is not None and result.source == "model":
+                LINE_CACHE[key] = result
         for ev in traces:
             if ev.stage in ("verifier", "reviewer"):
                 self.metrics["claims_checked"] += 1
@@ -332,9 +382,16 @@ class LiveSession:
         if not profiles:
             return
         traces: list[TraceEvent] = []
+        cached = [VARIANT_CACHE[k] for p in profiles
+                  if (k := (self.seed, m.id, p.key, base)) in VARIANT_CACHE]
+        todo = [p for p in profiles if (self.seed, m.id, p.key, base) not in VARIANT_CACHE]
         req = PersonalizeRequest(job, base, self.meta.home.name, self.meta.away.name)
-        variants = await personalize(req, profiles, personalizer_agent(), self.roster,
-                                     traces.append, reviewer_agent())
+        fresh = await personalize(req, todo, personalizer_agent(), self.roster,
+                                  traces.append, reviewer_agent()) if todo else []
+        for v in fresh:
+            if v.source == "model":
+                VARIANT_CACHE[(self.seed, m.id, v.key, base)] = asdict(v)
+        variants_out = cached + [asdict(v) for v in fresh]
         for ev in traces:
             self.metrics["claims_checked"] += 1
             self.metrics["blocked"] += ev.outcome == "rejected"
@@ -342,7 +399,7 @@ class LiveSession:
                          "player": m.player, "steps": [asdict(e) for e in traces]})
         await self.send({"type": "variants", "cue": f"o-{cue_id:04d}", "moment": m.id,
                          "moment_type": m.type, "player": m.player, "t": m.t, "base": base,
-                         "variants": [asdict(v) for v in variants]})
+                         "variants": variants_out})
 
     # ---- messages ---------------------------------------------------------------------
     def hello(self) -> dict:

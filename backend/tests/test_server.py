@@ -38,3 +38,46 @@ def test_live_stream_around_the_hero_goal(monkeypatch):
     assert goal["source"] == "template"
     assert any(d["target"] == "RIV-09" and d["predicted"] for d in seen["director"])
     assert all(s["stage"] for t in seen["trace"] for s in t["steps"])
+
+
+def test_snapshot_jump_matches_replay_from_kickoff(match):
+    """Revisit restores a snapshot and fast-forwards; the state must be identical."""
+    from livecards.engine.engine import MatchEngine
+    from livecards.replay import feed, ticks
+    from livecards.server.session import LiveSession
+
+    async def send(_):
+        return None
+
+    t = 3950.0
+    jumped = LiveSession(send, start=t).engine
+    replayed = MatchEngine(match.meta)
+    for tk in ticks(match, 0, t + 0.05):
+        feed(replayed, match, tk)
+    for pid in ("RIV-09", "RIV-07", "NGT-08"):
+        assert jumped.card(pid).model_dump() == replayed.card(pid).model_dump()
+    assert [m.id for m in jumped.moments] == [m.id for m in replayed.moments]
+
+
+def test_seek_backwards_is_not_undone_by_the_clock(monkeypatch):
+    """Regression: after a jump the playback clock must restart from the new position."""
+    import asyncio
+
+    from livecards.server import session as S
+    monkeypatch.setattr(S, "explainer_agent", lambda: None)
+
+    async def main():
+        frames = []
+
+        async def send(m):
+            if m["type"] == "frame":
+                frames.append(m["t"])
+        s = S.LiveSession(send, speed=5, start=4000)
+        task = asyncio.create_task(s.run())
+        await asyncio.sleep(1.0)
+        await s.command({"type": "seek", "t": 3900})
+        await asyncio.sleep(1.0)
+        task.cancel()
+        return frames
+    frames = asyncio.run(main())
+    assert min(frames[-5:]) < 3920 and max(frames[-5:]) < 3920
