@@ -20,7 +20,7 @@ export function ScaledStage({ children, fit = "width" }: { children: ReactNode; 
     return (
       <div ref={outer} className="stage-contain">
         <div className="stage-box" style={{ width: 1280 * scale, height: 720 * scale }}>
-          <div className="stage-1280" style={{ transform: `scale(${scale})` }}>{children}</div>
+          <div className="stage-1280" style={{ transform: `scale(${scale})`, ["--stage-scale" as string]: scale }}>{children}</div>
         </div>
       </div>
     );

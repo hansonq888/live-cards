@@ -133,6 +133,11 @@ button { font: inherit; }
 .fan-view .stage { cursor: inherit; }
 .fan-bar { position: absolute; left: 50%; bottom: 18px; transform: translate(-50%, 20px); width: min(1100px, calc(100vw - 32px)); display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(8,12,20,.82); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 14px; opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; }
 .fan-view.awake .fan-bar { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+/* While the control bar is up, lift the bottom overlays clear of it. The bar is ~76 screen px;
+   the overlays live on the scaled 1280x720 stage, so convert by the stage scale. */
+.fan-view .director, .fan-view .buildup, .fan-view .redteam { transition: transform .3s; }
+.fan-view.awake .director, .fan-view.awake .buildup { transform: translateY(calc(-84px / var(--stage-scale, 1))); }
+.fan-view.awake .redteam { transform: translate(-50%, calc(-84px / var(--stage-scale, 1))); }
 .fan-bar .timeline { flex: 1; }
 .fan-bar .tl-side { min-width: 0; }
 .fan-bar .tl-hint { display: none; }
