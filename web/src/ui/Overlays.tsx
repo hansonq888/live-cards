@@ -150,6 +150,28 @@ export function DirectorTicker() {
   );
 }
 
+export function RedTeamPanel() {
+  const rt = useLive((s) => s.redteam);
+  const now = useTicker(200);
+  if (!rt || now - rt.at > 14000) return null;
+  if (rt.stage === "unavailable") return <div className="redteam"><div className="rt-title">RED TEAM</div><div className="rt-row">Nothing to attack yet: wait for an explained moment.</div></div>;
+  const layer = rt.blockedBy === "reviewer" ? "Reviewer (gpt-5-mini)" : "Verifier (code)";
+  return (
+    <div className="redteam">
+      <div className="rt-title">RED TEAM · {rt.mode === "event" ? "made-up event" : "made-up number"}</div>
+      {rt.stage === "started" ? (
+        <div className="rt-row rt-wait"><i />Injecting a false claim into the Explainer…</div>
+      ) : (
+        <>
+          <div className="rt-row rt-lie"><b>INJECTED</b>{rt.injected}</div>
+          <div className="rt-row rt-block"><b>✕ BLOCKED</b>by {layer}: {rt.reason}</div>
+          <div className="rt-row rt-ok"><b>✓ AIRED</b>{rt.aired ?? "nothing (no verified line)"}</div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function GoalBanner() {
   const banner = useLive((s) => s.banner);
   const now = useTicker(200);

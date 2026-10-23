@@ -185,6 +185,7 @@ export function Controls() {
       <button className={modelEnabled ? "on" : "off"} onClick={() => live.send({ type: "model", enabled: !modelEnabled })}>
         AI model {modelEnabled ? "on" : "off"}
       </button>
+      <button className="danger" onClick={() => live.send({ type: "redteam" })}>⚠ Red-team: inject a false claim</button>
       <span className={`conn ${connected ? "up" : "down"}`}>{connected ? "live" : "offline"}</span>
       <span className="hint">Click a player or press Tab to follow · A = auto · Space = pause</span>
     </div>

@@ -110,7 +110,21 @@ button { font: inherit; }
 .goal-sub { font-family: var(--display); font-size: 26px; font-weight: 700; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
 @keyframes goalin { from { transform: translate(-50%, -50%) scale(.4); opacity: 0; } }
 
+/* red team */
+.redteam { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); width: 760px; background: rgba(12,8,14,.93); border: 1.5px solid var(--bad); border-radius: 10px; padding: 10px 14px; pointer-events: none; box-shadow: 0 0 30px rgba(244,63,94,.35); animation: pop .3s ease-out; }
+.rt-title { font-family: var(--display); font-weight: 800; letter-spacing: 1.5px; color: var(--bad); font-size: 15px; margin-bottom: 6px; }
+.rt-row { display: flex; gap: 10px; font-size: 14px; line-height: 1.35; padding: 4px 0; animation: pop .35s ease-out both; }
+.rt-row b { font-family: var(--display); letter-spacing: .8px; min-width: 92px; }
+.rt-lie { color: #fda4af; text-decoration: line-through; text-decoration-color: rgba(244,63,94,.7); }
+.rt-lie b { text-decoration: none; display: inline-block; }
+.rt-block { color: #fecaca; animation-delay: .6s; }
+.rt-ok { color: #bbf7d0; animation-delay: 1.2s; }
+.rt-ok b { color: var(--good); }
+.rt-wait { color: var(--warn); align-items: center; }
+.rt-wait i { width: 12px; height: 12px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+
 /* controls */
+.controls button.danger { border-color: rgba(244,63,94,.6); color: #fda4af; }
 .controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .controls button { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); padding: 6px 11px; border-radius: 6px; cursor: pointer; font-size: 12.5px; }
 .controls button:hover { border-color: rgba(57,229,255,.5); }

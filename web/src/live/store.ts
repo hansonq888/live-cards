@@ -63,6 +63,7 @@ export interface LiveState {
   // Latest verified line per player, and moments whose line is still being written.
   lines: Record<string, Line>;
   profile: string; // audience.lang.voice
+  redteam: { stage: string; mode?: string; player?: string | null; injected?: string; blockedBy?: string | null; reason?: string; aired?: string | null; at: number } | null;
   showcase: { player: string | null; type: string; t: number; base: string; variants: Variant[]; at: number } | null;
   pending: Record<string, Pending>;
   upgrades: Record<string, { from: number; to: number; type: string; at: number; label: string }>;
@@ -82,7 +83,7 @@ export interface LiveState {
 
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
-  director: null, cards: {}, stats: {}, lines: {}, profile: "casual.en.neutral", showcase: null,
+  director: null, cards: {}, stats: {}, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null,
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null,
 };
@@ -212,6 +213,9 @@ class LiveStore {
       }
       case "profile":
         this.set({ profile: m.key });
+        break;
+      case "redteam":
+        this.set({ redteam: { stage: m.stage, mode: m.mode, player: m.player, injected: m.injected, blockedBy: m.blocked_by, reason: m.reason, aired: m.aired, at: now } });
         break;
       case "trace":
         this.set({ traces: [{ moment: m.moment, type: m.moment_type, player: m.player, steps: m.steps, at: now }, ...s.traces].slice(0, 30) });

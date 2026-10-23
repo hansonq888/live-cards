@@ -26,6 +26,7 @@ from livecards.agents.personalizer import (
 )
 from livecards.agents.personalizer import INSTRUCTIONS as PERSONALIZER_INSTRUCTIONS
 from livecards.agents.pipeline import Explained, TraceEvent, explain
+from livecards.agents.redteam import RedTeamAgent
 from livecards.agents.reviewer import make_reviewer
 from livecards.agents.verifier import check
 from livecards.contracts import Moment
@@ -80,6 +81,8 @@ class LiveSession:
                         "latency_ms": []}
         self.cue_seq = 0
         self.profile = DEFAULT
+        self.last_job: dict[str, tuple] = {}  # player -> (moment, job, ring, cue_id)
+        self.redteam_mode = "number"
         self.inflight = 0
         self.tasks: set[asyncio.Task] = set()
         self._reset(start)
@@ -114,6 +117,8 @@ class LiveSession:
             except ValueError:
                 self.profile = DEFAULT
             await self.send({"type": "profile", "key": self.profile.key})
+        elif kind == "redteam":
+            await self._redteam()
         elif kind == "model":
             self.model_enabled = bool(msg.get("enabled")) and explainer_agent() is not None
             await self.send({"type": "model", "enabled": self.model_enabled})
@@ -224,9 +229,49 @@ class LiveSession:
                                                     "ok" if verdict.ok else "rejected", ms,
                                                     verdict.reason() or "instant line", 0))]})
             return
+        if m.player:
+            self.last_job[m.player] = (m, job, ring, cue_id)
         task = asyncio.create_task(self._explain(m, job, ring, cue_id))
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
+
+    async def _redteam(self) -> None:
+        """Re-explain the followed player's latest moment with a corrupted first draft."""
+        target = self.director.current.target if self.director.current else None
+        entry = self.last_job.get(target or "") or (
+            max(self.last_job.values(), key=lambda e: e[0].t) if self.last_job else None)
+        if entry is None or explainer_agent() is None:
+            await self.send({"type": "redteam", "stage": "unavailable",
+                             "reason": "no explained moment yet" if entry is None else "model off"})
+            return
+        m, job, ring, cue_id = entry
+        mode, self.redteam_mode = self.redteam_mode, ("event" if self.redteam_mode == "number"
+                                                      else "number")
+        attacker = RedTeamAgent(explainer_agent(), mode)
+        traces: list[TraceEvent] = []
+        await self.send({"type": "redteam", "stage": "started", "mode": mode, "moment": m.id,
+                         "player": m.player})
+        job.feedback = None
+        result = await explain(job, attacker, self.roster, traces.append, reviewer_agent())
+        blocked = next((e for e in traces if e.outcome == "rejected"), None)
+        for ev in traces:
+            if ev.stage in ("verifier", "reviewer"):
+                self.metrics["claims_checked"] += 1
+                self.metrics["blocked"] += ev.outcome == "rejected"
+        await self.send({"type": "trace", "moment": m.id, "moment_type": f"red team: {m.type}",
+                         "player": m.player, "steps": [asdict(e) for e in traces]})
+        if result is not None:
+            self.metrics["aired_unverified"] += not result.verdict.ok
+        await self.send({
+            "type": "redteam", "stage": "result", "mode": mode, "moment": m.id,
+            "player": m.player, "injected": attacker.injected,
+            "blocked_by": blocked.stage if blocked else None,
+            "reason": blocked.detail if blocked else "",
+            "aired": result.text if result else None,
+            "aired_source": result.source if result else None,
+        })
+        if result is not None and result.source == "model":
+            await self.send(self._cue_msg(cue_id, m, result, ring, phase="story"))
 
     def _cue_msg(self, cue_id: int, m: Moment, result: Explained, ring: str | None,
                  phase: str) -> dict:

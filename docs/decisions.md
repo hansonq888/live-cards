@@ -43,3 +43,15 @@ Central US.
 - Pace can only rise during a match. Tiredness shows in Engine.
 - Upgrades use the *net* change over the 10-minute window, to avoid flicker.
 - Role baselines are measured on 8 synthetic matches (`scripts/calibrate_baselines.py`).
+
+## Oct 23 — facts first, then the story; reviewer as a gate; red team
+
+- **Two-phase lines.** The engine's template line airs instantly (verified in well under a
+  millisecond). The AI line replaces it only after passing the code verifier *and* the
+  gpt-5-mini reviewer (low reasoning effort: 1.9–3.2 s measured; "minimal" was faster but
+  wrongly rejected a correct Spanish line). The screen never waits, and nothing unchecked airs.
+- **The reviewer fails closed** (error, timeout or non-JSON reply all count as rejections).
+- **Arabic keeps player names in Latin script**, enforced in code; otherwise the name check is blind.
+- **Red-team button.** It corrupts the Explainer's first draft, alternating a made-up number
+  (caught by code) and a made-up event (caught by the reviewer); the corrected line airs.
+  It goes through the normal workflow, with nothing special-cased.

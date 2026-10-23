@@ -112,6 +112,7 @@ export type ServerMsg =
   | { type: "cue"; cue: Cue; moment_type: string; phase: "instant" | "story"; source: string; attempts: number; latency_ms: number; claims_checked: number }
   | { type: "variants"; cue: string; moment: string; moment_type: string; player: string | null; t: number; base: string; variants: Variant[] }
   | { type: "profile"; key: string }
+  | { type: "redteam"; stage: "started" | "result" | "unavailable"; mode?: string; moment?: string; player?: string | null; injected?: string; blocked_by?: string | null; reason?: string; aired?: string | null; aired_source?: string | null }
   | { type: "trace"; moment: string; moment_type: string; player: string | null; steps: TraceStep[] }
   | {
       type: "team";
@@ -137,4 +138,5 @@ export type ClientMsg =
   | { type: "play" }
   | { type: "seek"; t: number }
   | { type: "model"; enabled: boolean }
-  | { type: "profile"; key: string };
+  | { type: "profile"; key: string }
+  | { type: "redteam" };

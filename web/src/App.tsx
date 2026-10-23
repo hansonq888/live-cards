@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
-import { DirectorTicker, GoalBanner, PlayerCard, ScoreBug } from "./ui/Overlays";
+import { DirectorTicker, GoalBanner, PlayerCard, RedTeamPanel, ScoreBug } from "./ui/Overlays";
 import { Controls, ProfilePicker, SidePanel } from "./ui/SidePanel";
 import { ScaledStage } from "./ui/ScaledStage";
 
@@ -27,6 +27,7 @@ export default function App() {
             <PlayerCard />
             <DirectorTicker />
             <GoalBanner />
+            <RedTeamPanel />
           </ScaledStage>
           <Controls />
         </section>
