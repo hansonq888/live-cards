@@ -69,6 +69,17 @@ async def status() -> dict:
     }
 
 
+@app.get("/api/model/default")
+async def default_model() -> dict:
+    """The default formula, with labels, for the 'Your model' editor."""
+    from livecards.engine.attributes import ATTRIBUTE_METRICS
+    from livecards.engine.model import ModelSpec
+    from livecards.engine.rating import LABELS
+
+    return {"spec": ModelSpec.default().model_dump(), "rating_labels": LABELS,
+            "metric_labels": {a: {m.key: m.label for m in ms} for a, ms in ATTRIBUTE_METRICS.items()}}
+
+
 @app.get("/api/meta")
 async def meta() -> dict:
     return {"match": load_match(7).meta.model_dump(), "rating_weights": WEIGHTS}

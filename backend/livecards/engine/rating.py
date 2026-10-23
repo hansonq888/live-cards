@@ -52,13 +52,14 @@ class LedgerEntry:
 class Rating:
     ledger: list[LedgerEntry] = field(default_factory=list)
     raw: float = START
+    weights: dict[str, float] = field(default_factory=lambda: WEIGHTS)
 
     @property
     def value(self) -> float:
         return round(min(CEILING, max(FLOOR, self.raw)), 2)
 
     def apply(self, t: float, event_id: str, kind: str) -> LedgerEntry:
-        entry = LedgerEntry(t, event_id, kind, WEIGHTS[kind])
+        entry = LedgerEntry(t, event_id, kind, self.weights[kind])
         self.ledger.append(entry)
         self.raw += entry.delta
         return entry

@@ -1,7 +1,7 @@
 // Live state: a tiny external store fed by the WebSocket. Frames go to a ring buffer
 // read by the render loop (no React re-render per frame); everything else is React state.
 import { useSyncExternalStore } from "react";
-import type { AnalystView, BuildStep, CardState, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
+import type { AnalystView, BuildStep, CardState, ModelSpec, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
 
 export interface Director {
   target: string;
@@ -65,6 +65,8 @@ export interface LiveState {
   cards: Record<string, CardState>;
   stats: Record<string, Record<string, number>>;
   analyst: Record<string, AnalystView>;
+  custom: Record<string, AnalystView & { name: string }>;
+  yourModel: { status: string; name?: string; error?: string; spec: ModelSpec | null };
   // Latest verified line per player, and moments whose line is still being written.
   lines: Record<string, Line>;
   profile: string; // audience.lang.voice
@@ -96,7 +98,7 @@ export interface LiveState {
 
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
-  director: null, cards: {}, stats: {}, analyst: {}, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
+  director: null, cards: {}, stats: {}, analyst: {}, custom: {}, yourModel: { status: "off", spec: null }, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
   keyMoments: [], liveEdge: 0, revisit: null, buildup: null,
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null,
@@ -145,6 +147,12 @@ class LiveStore {
   revisitMoment(k: KeyMoment) {
     this.set({ revisit: k, liveEdge: Math.max(this.state.liveEdge, this.state.t) });
     this.send({ type: "seek", t: Math.max(0, k.t - 8) });
+  }
+
+  applyModel(spec: ModelSpec | null) {
+    this.set({ yourModel: { ...this.state.yourModel, spec, status: spec ? "building" : "off" }, custom: {} });
+    this.send({ type: "your_model", spec });
+    try { if (spec) localStorage.setItem("livecards.model", JSON.stringify(spec)); else localStorage.removeItem("livecards.model"); } catch { /* storage may be blocked */ }
   }
 
   explainGoal(goal?: string) {
@@ -206,6 +214,7 @@ class LiveStore {
         this.set({
           cards: { ...s.cards, [m.card.player]: m.card }, stats: { ...s.stats, [m.card.player]: m.stats },
           ...(m.analyst ? { analyst: { ...s.analyst, [m.card.player]: m.analyst } } : {}),
+          ...(m.custom ? { custom: { ...s.custom, [m.card.player]: m.custom } } : {}),
         });
         break;
       case "moment": {
@@ -292,6 +301,9 @@ class LiveStore {
       }
       case "buildup_story":
         if (s.buildup?.goal === m.goal) this.set({ buildup: { ...s.buildup, story: m.text, storySource: m.source } });
+        break;
+      case "your_model":
+        this.set({ yourModel: { ...s.yourModel, status: m.status, name: m.name, error: m.error }, ...(m.status === "off" ? { custom: {} } : {}) });
         break;
       case "history": {
         const known = new Set(s.keyMoments.map((k) => k.id));

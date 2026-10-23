@@ -15,6 +15,7 @@ const fmtZ = (z: number) => `${z >= 0 ? "+" : ""}${z.toFixed(1)}σ`;
 export function AnalystCard({ pid }: { pid: string }) {
   const meta = useLive((s) => s.meta);
   const a = useLive((s) => s.analyst[pid]);
+  const mine = useLive((s) => s.custom[pid]);
   const line = useLive((s) => s.lines[pid]);
   const profile = useLive((s) => s.profile);
   if (!meta || !a) return null;
@@ -31,11 +32,22 @@ export function AnalystCard({ pid }: { pid: string }) {
           <div className="card-meta">{p.position} · {a.minutes.toFixed(0)}′ played · baseline: {a.role}</div>
         </div>
       </div>
-      <div className="ac-section">Rating = 6.00 start {a.breakdown.length ? "+" : ""}</div>
+      {mine && (
+        <div className="ac-compare">
+          <div><span>Live Cards</span><b>{a.rating.toFixed(2)}</b></div>
+          <div className="yours"><span>{mine.name}</span><b>{mine.rating.toFixed(2)}</b></div>
+          <div className={mine.rating >= a.rating ? "up" : "down"}><span>difference</span><b>{mine.rating >= a.rating ? "+" : ""}{(mine.rating - a.rating).toFixed(2)}</b></div>
+        </div>
+      )}
+      <div className="ac-section">Rating = 6.00 start {a.breakdown.length ? "+" : ""}{mine ? " · ours / yours" : ""}</div>
       <div className="ac-ledger">
         {a.breakdown.slice(0, 6).map((b) => (
           <div key={b.kind} className={b.total >= 0 ? "pos" : "neg"}>
-            <span>{b.label}{b.count > 1 ? ` ×${b.count}` : ""}</span><b>{b.total >= 0 ? "+" : ""}{b.total.toFixed(2)}</b>
+            <span>{b.label}{b.count > 1 ? ` ×${b.count}` : ""}</span>
+            <b>{b.total >= 0 ? "+" : ""}{b.total.toFixed(2)}{mine && (() => {
+              const y = mine.breakdown.find((x) => x.kind === b.kind)?.total ?? 0;
+              return <em className="yours"> / {y >= 0 ? "+" : ""}{y.toFixed(2)}</em>;
+            })()}</b>
           </div>
         ))}
         {a.breakdown.length > 6 && <div className="dim"><span>{a.breakdown.length - 6} more</span><b /></div>}

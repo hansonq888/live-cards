@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { clock, live, useLive } from "../live/store";
+import { YourModelPanel } from "./YourModel";
 
 const STAGE_LABEL: Record<string, string> = {
   explainer: "Explainer", verifier: "Verifier", "template-check": "Verifier", reviewer: "Reviewer",
@@ -193,17 +194,17 @@ export function ProfilePicker() {
 }
 
 export function SidePanel() {
-  const [tab, setTab] = useState<"feed" | "ask" | "fans" | "trace" | "metrics">("feed");
+  const [tab, setTab] = useState<"feed" | "ask" | "fans" | "trace" | "metrics" | "model">("feed");
   return (
     <aside className="side">
       <nav className="tabs">
-        {(["feed", "ask", "fans", "trace", "metrics"] as const).map((t) => (
+        {(["feed", "ask", "fans", "trace", "metrics", "model"] as const).map((t) => (
           <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-            {{ feed: "Live", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics" }[t]}
+            {{ feed: "Live", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics", model: "Model" }[t]}
           </button>
         ))}
       </nav>
-      {tab === "feed" ? <Feed /> : tab === "ask" ? <Ask /> : tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : <Metrics />}
+      {tab === "feed" ? <Feed /> : tab === "ask" ? <Ask /> : tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : tab === "model" ? <YourModelPanel /> : <Metrics />}
     </aside>
   );
 }

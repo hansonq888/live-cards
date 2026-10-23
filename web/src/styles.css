@@ -114,7 +114,7 @@ button { font: inherit; }
 .acard { position: absolute; top: 12px; right: 12px; width: 372px; max-height: 696px; overflow: hidden; background: linear-gradient(160deg, rgba(10,14,22,.95), rgba(20,28,44,.95)); border: 1.5px solid #a78bfa; border-radius: 12px; padding: 11px 13px 9px 18px; color: #fff; pointer-events: none; box-shadow: 0 0 20px rgba(167,139,250,.25); font-size: 11px; }
 .acard .card-stripe { background: var(--team); }
 .ac-head { display: flex; gap: 10px; align-items: center; }
-.ac-rating { font-family: var(--display); font-size: 38px; font-weight: 800; color: #c4b5fd; font-variant-numeric: tabular-nums; }
+.ac-rating { flex: none; min-width: 84px; font-family: var(--display); font-size: 38px; font-weight: 800; color: #c4b5fd; font-variant-numeric: tabular-nums; line-height: 1; }
 .ac-section { margin: 8px 0 4px; font-size: 9.5px; text-transform: uppercase; letter-spacing: .7px; color: var(--dim); }
 .ac-ledger div { display: flex; justify-content: space-between; padding: 1.5px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
 .ac-ledger .pos b { color: #86efac; } .ac-ledger .neg b { color: #fda4af; }
@@ -138,6 +138,28 @@ button { font: inherit; }
 .ts-cell.wide { width: 120px; }
 .ts-mom { position: relative; height: 6px; margin-top: 4px; border-radius: 3px; background: linear-gradient(90deg, rgba(29,78,216,.7), rgba(255,255,255,.1) 50%, rgba(200,16,46,.7)); }
 .ts-mom i { position: absolute; top: -3px; width: 3px; height: 12px; background: #fff; border-radius: 2px; transform: translateX(-50%); }
+
+/* your model */
+.ymodel { overflow-y: auto; padding: 10px 12px; flex: 1; font-size: 12px; }
+.ym-intro { color: var(--dim); margin: 0 0 8px; line-height: 1.4; }
+.ym-name { width: 100%; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); border-radius: 6px; padding: 6px 8px; font: inherit; }
+.ym-h { margin: 12px 0 5px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--dim); }
+.ym-w { display: grid; grid-template-columns: 1fr 110px 40px; align-items: center; gap: 8px; padding: 2px 0; }
+.ym-w span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ym-w b { text-align: right; font-variant-numeric: tabular-nums; } .ym-w b.changed { color: #c4b5fd; }
+.ym-w input { width: 100%; accent-color: #a78bfa; }
+.ym-attr { margin-bottom: 4px; } .ym-attr-name { text-transform: capitalize; font-weight: 700; margin-top: 4px; }
+.ym-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.ym-actions button, .ym-upload { background: var(--panel-2); border: 1px solid var(--line); color: var(--text); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 12px; }
+.ym-actions button.primary { background: #a78bfa; color: #160b2e; border: 0; font-weight: 700; }
+.ym-upload input { display: none; }
+.ym-status { margin-top: 10px; font-size: 12px; color: var(--dim); } .ym-status.s-ready { color: #c4b5fd; } .ym-status.s-error { color: var(--bad); } .ym-status.s-building { color: var(--warn); }
+.ac-compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 8px; }
+.ac-compare div { background: rgba(255,255,255,.05); border-radius: 6px; padding: 4px 6px; }
+.ac-compare span { display: block; font-size: 8.5px; color: var(--dim); text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ac-compare b { font-size: 16px; font-family: var(--display); }
+.ac-compare .yours b, em.yours { color: #f0abfc; font-style: normal; }
+.ac-compare .up b { color: #86efac; } .ac-compare .down b { color: #fda4af; }
 
 /* build-up */
 .buildup { position: absolute; right: 16px; bottom: 16px; width: 380px; background: rgba(8,12,20,.9); border: 1px solid rgba(57,229,255,.35); border-radius: 12px; padding: 12px 14px; pointer-events: none; animation: pop .3s ease-out; }

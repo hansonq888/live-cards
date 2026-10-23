@@ -21,7 +21,7 @@ from livecards.engine.attributes import (
     raw_value,
     z_scores,
 )
-from livecards.engine.rating import LABELS, Rating
+from livecards.engine.rating import LABELS, WEIGHTS, Rating
 from livecards.engine.stats import PlayerStats
 
 DT = 1.0 / FPS
@@ -105,13 +105,18 @@ class TeamState:
 
 
 class MatchEngine:
-    def __init__(self, meta: MatchMeta, *, compute_attrs: bool = True) -> None:
+    def __init__(self, meta: MatchMeta, *, compute_attrs: bool = True, model=None) -> None:
+        """`model`: an analyst's ModelSpec (rating and attribute weights); default formulas if None."""
         self.meta = meta
         self.compute_attrs = compute_attrs
+        self.model = model
+        self.weights = model.weights() if model else dict(WEIGHTS)
+        self.metrics = model.metrics() if model else ATTRIBUTE_METRICS
         self.home, self.away = meta.home.code, meta.away.code
         dirs = {self.home: meta.home.attack_dir, self.away: meta.away.attack_dir}
         self.dirs = dirs
-        self.players = {p.id: PlayerState(p, dirs[p.team], attrs=dict(p.base_attrs))
+        self.players = {p.id: PlayerState(p, dirs[p.team], attrs=dict(p.base_attrs),
+                                          rating=Rating(weights=self.weights))
                         for p in meta.players}
         for ps in self.players.values():
             ps.rating_hist.append((0.0, ps.rating.value))
@@ -488,8 +493,8 @@ class MatchEngine:
         for ps in self.players.values():
             if not ps.on_pitch and ps.stats.seconds_played == 0 and minute > 0:
                 continue
-            attrs = compute_attributes(ps.stats, ps.meta.role, ps.meta.base_attrs)
-            zs = z_scores(ps.stats, ps.meta.role)
+            attrs = compute_attributes(ps.stats, ps.meta.role, ps.meta.base_attrs, self.metrics)
+            zs = z_scores(ps.stats, ps.meta.role, self.metrics)
             ps.attrs = attrs
             ps.minute_hist.append((minute, attrs, zs, ps.stats.snapshot()))
             if ps.on_pitch and ps.stats.minutes >= MIN_ATTR_MINUTES:
@@ -501,7 +506,7 @@ class MatchEngine:
         if len(hist) < 2:
             return
         now_attrs, now_z, now_stats = hist[-1][1], hist[-1][2], hist[-1][3]
-        for attr in ATTRIBUTE_METRICS:
+        for attr in self.metrics:
             for direction in (1, -1):
                 key = f"{attr}_{'up' if direction > 0 else 'down'}"
                 t_fire = ps.fired_t.get(key, -1e9) / 60
@@ -519,7 +524,7 @@ class MatchEngine:
     def _fire_attr(self, ps: PlayerState, attr: str, direction: int, change: int, ref: tuple,
                    now_z: dict, now_stats: dict) -> None:
         since_min, ref_attrs, ref_z, ref_stats = ref
-        metric = max(ATTRIBUTE_METRICS[attr],
+        metric = max(self.metrics[attr],
                      key=lambda m: m.weight * (now_z[attr][m.key] - ref_z[attr][m.key]) * direction)
         driver, facts = self._describe_driver(metric.key, ref_stats, now_stats, since_min)
         evidence = [r for t, mk, r in ps.metric_log if mk == metric.key and t >= since_min * 60]
@@ -635,9 +640,9 @@ class MatchEngine:
         breakdown = [{"kind": k, "label": LABELS[k], "count": n, "total": round(t, 2)}
                      for k, (n, t) in sorted(totals.items(), key=lambda kv: -abs(kv[1][1]))]
         base = load_baselines()[ps.meta.role]
-        zs = z_scores(s, ps.meta.role)
+        zs = z_scores(s, ps.meta.role, self.metrics)
         attrs = {}
-        for attr, metrics in ATTRIBUTE_METRICS.items():
+        for attr, metrics in self.metrics.items():
             attrs[attr] = {
                 "value": ps.attrs.get(attr, ps.meta.base_attrs[attr]),
                 "base": ps.meta.base_attrs[attr],

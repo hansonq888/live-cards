@@ -97,6 +97,25 @@ def tick(match: Match, engine: MatchEngine, director: AutoDirector, i: int,
     return ev_j, d, moments
 
 
+def feed_engine(match: Match, engine: MatchEngine, i: int, ev_j: int) -> int:
+    """Advance a bare engine (no director) one tick; returns the new event cursor."""
+    t = float(match.times[i])
+    evs = match.events
+    while ev_j < len(evs) and evs[ev_j].t <= t + 1e-6:
+        engine.on_event(evs[ev_j])
+        ev_j += 1
+    engine.on_positions(t, positions(match, i))
+    return ev_j
+
+
+def build_shadow(match: Match, spec, until_i: int) -> tuple[MatchEngine, int]:
+    """An engine running the analyst's model, caught up to frame `until_i`."""
+    engine, ev_j = MatchEngine(match.meta, model=spec), 0
+    for i in range(until_i):
+        ev_j = feed_engine(match, engine, i, ev_j)
+    return engine, ev_j
+
+
 @dataclass
 class Snapshot:
     t: float
@@ -153,6 +172,11 @@ class LiveSession:
         self.cue_seq = 0
         self.profile = DEFAULT
         self.last_job: dict[str, tuple] = {}  # player -> (moment, job, ring, cue_id)
+        self.spec = None  # the analyst's ModelSpec, if any
+        self.shadow: MatchEngine | None = None  # their model, kept in lockstep with the match
+        self.shadow_i = 0
+        self.shadow_ev = 0
+        self._shadow_gen = 0
         self.redteam_mode = "number"
         self.inflight = 0
         self.tasks: set[asyncio.Task] = set()
@@ -204,6 +228,8 @@ class LiveSession:
             await self.send({"type": "seeked", "t": self.t})
             await self.send(self.history())
             await self._send_current()
+            if self.spec is not None:
+                self._spawn(self._set_model(self.spec.model_dump()))  # rebuild at the new position
         elif kind == "profile":
             try:
                 self.profile = Profile.parse(str(msg.get("key", "casual.en.neutral")))
@@ -214,6 +240,8 @@ class LiveSession:
             self._spawn(self._ask(str(msg.get("id", "")), str(msg["question"])[:300]))
         elif kind == "redteam":
             await self._redteam()
+        elif kind == "your_model":
+            self._spawn(self._set_model(msg.get("spec")))  # building takes a moment; don't block
         elif kind == "explain_goal":
             self._spawn(self._explain_goal(msg.get("goal")))
         elif kind == "model":
@@ -271,6 +299,10 @@ class LiveSession:
                 for m in moments:
                     self._on_moment(m, out)
             self.i += 1
+        if self.shadow is not None:  # keep the analyst's model in lockstep
+            while self.shadow_i < self.i:
+                self.shadow_ev = feed_engine(self.match, self.shadow, self.shadow_i, self.shadow_ev)
+                self.shadow_i += 1
         if not live:
             return None
 
@@ -354,6 +386,36 @@ class LiveSession:
         task = asyncio.create_task(coro)
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
+
+    async def _set_model(self, raw: dict | None) -> None:
+        """Validate an analyst's model and start a shadow engine running it."""
+        from pydantic import ValidationError
+
+        from livecards.engine.model import ModelSpec
+
+        if not raw:
+            self._shadow_gen += 1
+            self.spec, self.shadow = None, None
+            await self.send({"type": "your_model", "status": "off"})
+            return
+        try:
+            spec = ModelSpec.model_validate(raw)
+        except ValidationError as exc:  # a bad model never replaces a good one
+            await self.send({"type": "your_model", "status": "error",
+                             "error": "; ".join(e["msg"] for e in exc.errors())})
+            return
+        self._shadow_gen += 1
+        gen = self._shadow_gen
+        self.spec, self.shadow = spec, None
+        await self.send({"type": "your_model", "status": "building", "name": spec.name})
+        until = self.i
+        engine, ev_j = await asyncio.to_thread(build_shadow, self.match, spec, until)
+        if gen != self._shadow_gen:
+            return  # superseded by a newer model or a jump
+        self.shadow, self.shadow_i, self.shadow_ev = engine, until, ev_j
+        await self.send({"type": "your_model", "status": "ready", "name": spec.name})
+        if self.director.current:
+            await self._send_card(self.director.current.target)
 
     async def _explain_goal(self, goal_id: str | None) -> None:
         """Build-up of a goal (the latest so far, or a given one): steps now, AI story after."""
@@ -564,8 +626,11 @@ class LiveSession:
             await self._send_card(self.director.current.target)
 
     async def _send_card(self, pid: str) -> None:
-        await self.send({"type": "card", "card": self.engine.card(pid).model_dump(),
-                         "stats": self.engine.stats(pid), "analyst": self.engine.analyst(pid)})
+        msg = {"type": "card", "card": self.engine.card(pid).model_dump(),
+               "stats": self.engine.stats(pid), "analyst": self.engine.analyst(pid)}
+        if self.shadow is not None and self.spec is not None:
+            msg["custom"] = {"name": self.spec.name, **self.shadow.analyst(pid)}
+        await self.send(msg)
 
     def team_msg(self) -> dict:
         ts = self.engine.team_state()

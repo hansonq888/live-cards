@@ -142,3 +142,34 @@ def test_joining_mid_match_sends_the_current_pick(monkeypatch):
         return got
     got = asyncio.run(main())
     assert "director" in got[:5] and "card" in got[:6]
+
+
+def test_your_model_runs_in_lockstep(monkeypatch):
+    import asyncio
+
+    from livecards.server import session as S
+    monkeypatch.setattr(S, "explainer_agent", lambda: None)
+
+    async def main():
+        got = []
+
+        async def send(m):
+            got.append(m)
+        s = S.LiveSession(send, speed=20, start=3900)
+        task = asyncio.create_task(s.run())
+        await s.command({"type": "your_model", "spec": {"name": "Less passing", "rating_weights": {"pass_under_pressure": 0.0}}})
+        await s.command({"type": "your_model", "spec": {"rating_weights": {"backflip": 1}}})
+        for _ in range(100):
+            if any(m["type"] == "card" and "custom" in m for m in got):
+                break
+            await asyncio.sleep(0.05)
+        await asyncio.sleep(0.5)
+        task.cancel()
+        return s, got
+    s, got = asyncio.run(main())
+    statuses = [m.get("status") for m in got if m["type"] == "your_model"]
+    assert "error" in statuses
+    card = next(m for m in reversed(got) if m["type"] == "card" and "custom" in m)
+    assert card["custom"]["name"] == "Less passing"
+    assert all(b["kind"] != "pass_under_pressure" or b["total"] == 0 for b in card["custom"]["breakdown"])
+    assert s.shadow_i == s.i  # lockstep

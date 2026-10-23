@@ -89,6 +89,8 @@ export interface AnalystView {
   advanced: Record<string, number>;
 }
 
+export interface ModelSpec { name: string; rating_weights: Record<string, number>; attr_weights: Record<string, Record<string, number>> }
+
 export interface BuildStep { t: number; kind: string; player: string; text: string; evidence: string[] }
 
 export interface TraceStep {
@@ -117,7 +119,8 @@ export type ServerMsg =
   | { type: "hello"; meta: MatchMeta; speed: number; t: number; model_enabled: boolean }
   | ({ type: "frame" } & Frame)
   | { type: "director"; t: number; target: string; reason: string; kind: string; predicted: boolean; mode: string }
-  | { type: "card"; card: CardState; stats: Record<string, number>; analyst?: AnalystView }
+  | { type: "card"; card: CardState; stats: Record<string, number>; analyst?: AnalystView; custom?: AnalystView & { name: string } }
+  | { type: "your_model"; status: "off" | "building" | "ready" | "error"; name?: string; error?: string }
   | { type: "moment"; moment: Moment; card?: CardState }
   | { type: "cue"; cue: Cue; moment_type: string; phase: "instant" | "story"; source: string; attempts: number; latency_ms: number; claims_checked: number }
   | { type: "variants"; cue: string; moment: string; moment_type: string; player: string | null; t: number; base: string; variants: Variant[] }
@@ -159,4 +162,5 @@ export type ClientMsg =
   | { type: "profile"; key: string }
   | { type: "redteam" }
   | { type: "ask"; id: string; question: string }
-  | { type: "explain_goal"; goal?: string };
+  | { type: "explain_goal"; goal?: string }
+  | { type: "your_model"; spec: ModelSpec | null };

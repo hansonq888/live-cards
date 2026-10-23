@@ -96,10 +96,11 @@ def load_baselines() -> dict[str, dict[str, tuple[float, float]]]:
     return {role: {k: (v[0], v[1]) for k, v in ms.items()} for role, ms in data["roles"].items()}
 
 
-def z_scores(stats: PlayerStats, role: str) -> dict[str, dict[str, float]]:
+def z_scores(stats: PlayerStats, role: str,
+             model: dict[str, list[Metric]] | None = None) -> dict[str, dict[str, float]]:
     base = load_baselines()[role]
     out: dict[str, dict[str, float]] = {}
-    for attr, metrics in ATTRIBUTE_METRICS.items():
+    for attr, metrics in (model or ATTRIBUTE_METRICS).items():
         out[attr] = {}
         for m in metrics:
             mean, sd = base[m.key]
@@ -110,10 +111,12 @@ def z_scores(stats: PlayerStats, role: str) -> dict[str, dict[str, float]]:
     return out
 
 
-def compute_attributes(stats: PlayerStats, role: str, base_attrs: dict[str, int]) -> dict[str, int]:
-    zs = z_scores(stats, role)
+def compute_attributes(stats: PlayerStats, role: str, base_attrs: dict[str, int],
+                       model: dict[str, list[Metric]] | None = None) -> dict[str, int]:
+    metrics_by_attr = model or ATTRIBUTE_METRICS
+    zs = z_scores(stats, role, metrics_by_attr)
     out = {}
-    for attr, metrics in ATTRIBUTE_METRICS.items():
+    for attr, metrics in metrics_by_attr.items():
         adj = round(SCALE * sum(m.weight * zs[attr][m.key] for m in metrics))
         adj = max(-MAX_ADJ, min(MAX_ADJ, adj))
         out[attr] = max(1, min(99, base_attrs[attr] + adj))
