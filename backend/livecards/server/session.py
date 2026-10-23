@@ -65,7 +65,12 @@ def load_match(seed: int = 7) -> Match:
     """The match feed: ingested from Azure Event Hubs when configured, else simulated here."""
     from livecards.feed import load_via_event_hubs
 
-    return load_via_event_hubs(seed, simulate) or simulate(seed)
+    match = load_via_event_hubs(seed, simulate)
+    FEED_SOURCE[seed] = "Azure Event Hubs" if match is not None else "local simulator"
+    return match or simulate(seed)
+
+
+FEED_SOURCE: dict[int, str] = {}
 
 
 def tick(match: Match, engine: MatchEngine, director: AutoDirector, i: int,

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import logging
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -31,7 +32,9 @@ from livecards.server.session import LiveSession, load_match, snapshots
 
 @contextlib.asynccontextmanager
 async def lifespan(_: FastAPI):
-    telemetry.configure()
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger("azure").setLevel(logging.WARNING)
+    STATUS["tracing"] = "Azure Application Insights" if telemetry.configure() else "off"
     await asyncio.to_thread(load_match, 7)  # simulate once, share across viewers
     await asyncio.to_thread(snapshots, 7)  # engine snapshots for instant jumps (Revisit)
     yield
@@ -44,6 +47,25 @@ WEB_DIST = Path(__file__).resolve().parents[3] / "web" / "dist"
 @app.get("/api/health")
 async def health() -> dict:
     return {"ok": True}
+
+
+STATUS: dict[str, str] = {}
+
+
+@app.get("/api/status")
+async def status() -> dict:
+    """Which backend is live for each concern (the cloud deployment vs. local fallbacks)."""
+    from livecards.agents.llm import foundry_configured
+    from livecards.server.pubsub import broadcast
+    from livecards.server.session import FEED_SOURCE
+
+    return {
+        "match_feed": FEED_SOURCE.get(7, "not loaded"),
+        "models": "Microsoft Foundry (Agent Framework)" if foundry_configured() else "off (templates)",
+        "audit_log": type(plane().audit).__name__.replace("AuditLog", "") or "Sqlite",
+        "console_fanout": "Azure Web PubSub" if broadcast() else "app WebSocket",
+        "tracing": STATUS.get("tracing", "off"),
+    }
 
 
 @app.get("/api/meta")
