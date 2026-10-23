@@ -1,0 +1,14 @@
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/data
+**/.env
+**/.env.*
+.git
+.claude
+web/dist
+prototype
+vision
+docs
