@@ -22,6 +22,7 @@ from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 
+from livecards import telemetry
 from livecards.contracts import OverlayCue
 from livecards.engine.rating import WEIGHTS
 from livecards.server.control import plane
@@ -30,6 +31,7 @@ from livecards.server.session import LiveSession, load_match, snapshots
 
 @contextlib.asynccontextmanager
 async def lifespan(_: FastAPI):
+    telemetry.configure()
     await asyncio.to_thread(load_match, 7)  # simulate once, share across viewers
     await asyncio.to_thread(snapshots, 7)  # engine snapshots for instant jumps (Revisit)
     yield

@@ -80,6 +80,7 @@ def normalize(text: str, lang: str = "en") -> str:
 
 
 _NUM_RE = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)(?:st|nd|rd|th)?(?![\w])")
+_PCT_RE = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)\s*(?:%|per ?cent\b)")
 _SCORE_RE = re.compile(r"\b(\d+)\s*[-–]\s*(\d+)\b")
 _WORD_NUM_RE = re.compile(
     r"\b(" + "|".join(sorted(list(WORD_VALUES) + list(_TENS[2:]), key=len, reverse=True))
@@ -110,10 +111,9 @@ class Verdict:
 def number_variants(v: float) -> set[float]:
     """A fact may be written rounded: 33.96 can appear as 34.0 or 34."""
     v = abs(v)  # signs are words in prose ("down 0.5"), so match magnitudes
-    out = {round(v, 2), round(v, 1), float(round(v))}
-    if 0 < abs(v) < 1:  # 0.29 xG may be written as 29%
-        out.add(round(v * 100, 1))
-        out.add(float(round(v * 100)))
+    out = {round(v, 3), round(v, 2), round(v, 1), float(round(v))}
+    if 0 < v < 1:  # a fraction may be stated as a whole percentage: 0.286 -> "29%"
+        out.add(round(round(v * 100) / 100, 3))
     return out
 
 
@@ -158,6 +158,12 @@ def extract_numbers(text: str, lang: str = "en") -> list[tuple[str, float]]:
     if lang != "en":
         found += _lang_word_numbers(text, lang)
     t = text.replace(",", "")
+    # Percentages are matched as fractions ("29%" claims 0.29), and only when written with
+    # a % sign, so "16 m" can't borrow a 0.16 xG.
+    for m in _PCT_RE.finditer(t):
+        v = float(m.group(1)) / 100
+        found.append((m.group(0), round(v, 3)))
+    t = _PCT_RE.sub(" ", t)
     for m in _SCORE_RE.finditer(t):
         found += [(m.group(0), float(m.group(1))), (m.group(0), float(m.group(2)))]
     t2 = _SCORE_RE.sub(" ", t)

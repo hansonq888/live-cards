@@ -4,9 +4,9 @@
 FROM node:22.11-slim AS web
 WORKDIR /web
 COPY web/package.json web/package-lock.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --no-audit --no-fund --ignore-scripts
 COPY web/ ./
-RUN npm run build
+RUN npm run postinstall && npm run build
 
 # ---- api: Python 3.12 + uv ----
 FROM python:3.12-slim

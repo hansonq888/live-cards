@@ -39,6 +39,7 @@ from livecards.server.control import plane
 from livecards.server.cues import make_cue
 from livecards.sim.match import Match
 from livecards.sim.simulator import simulate
+from livecards.telemetry import tracer
 
 Send = Callable[[dict], Awaitable[None]]
 
@@ -325,7 +326,10 @@ class LiveSession:
                              "verified": True, "source": "refusal", "evidence": [], "tools": [],
                              "ms": 0, "problems": [], "minute": int(self.t // 60)})
             return
-        a = await ask(question, self.engine, self.roster, reviewer_agent())
+        with tracer.start_as_current_span("fan.ask") as span:
+            a = await ask(question, self.engine, self.roster, reviewer_agent())
+            span.set_attributes({"answer.source": a.source, "answer.ms": a.ms,
+                                 "answer.tools": ",".join(a.tools)})
         self._audit("answer", None, text=f"Q: {question}\nA: {a.text}", source=a.source,
                     stage=",".join(a.tools), reason="; ".join(a.problems), evidence=a.evidence)
         self.metrics["claims_checked"] += 1
@@ -387,6 +391,12 @@ class LiveSession:
                 "claims_checked": result.verdict.checked}
 
     async def _explain(self, m: Moment, job, ring: str | None, cue_id: int) -> None:
+        with tracer.start_as_current_span("moment.explain") as span:
+            span.set_attributes({"moment.id": m.id, "moment.type": m.type,
+                                 "moment.player": m.player or "", "session": self.sid})
+            await self._explain_traced(m, job, ring, cue_id, span)
+
+    async def _explain_traced(self, m: Moment, job, ring: str | None, cue_id: int, span) -> None:
         traces: list[TraceEvent] = []
         key = (self.seed, m.id, job.template)
         if key in LINE_CACHE:
@@ -408,6 +418,12 @@ class LiveSession:
         await self.send({"type": "trace", "moment": m.id, "moment_type": m.type,
                          "player": m.player, "steps": [asdict(e) for e in traces]})
         self._audit_blocked(m, traces)
+        span.set_attributes({
+            "result.source": result.source if result else "none",
+            "result.attempts": result.attempts if result else 0,
+            "result.latency_ms": result.ms if result else 0.0,
+            "verifier.rejections": sum(e.outcome == "rejected" for e in traces),
+        })
         if result is None or result.source != "model":
             return  # the instant template line stands
         if plane().controls.approval == "manual":

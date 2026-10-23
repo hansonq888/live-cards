@@ -39,7 +39,7 @@ We need the Azure CLI on Sunday anyway for Container Apps.
 ## 3. Let your account call it (Entra ID, no API keys)
 
 The SDK signs in as *you*. On the Foundry resource, open **Access control (IAM)**, choose
-**Add role assignment**, then grant **Azure AI User** to your account. The creator is often already
+**Add role assignment**, then grant **Foundry User** (formerly "Azure AI User") to your account. The creator is often already
 Owner, but data-plane calls still need this role. It can take 1–5 minutes to apply.
 
 ## 4. Run the smoke test

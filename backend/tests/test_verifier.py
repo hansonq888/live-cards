@@ -31,6 +31,13 @@ def test_rounding_and_percent_are_accepted():
     assert verdict("A 16% chance, struck at 104 km/h from 17 m.").ok
 
 
+def test_units_cannot_borrow_from_other_facts():
+    # Regression (seen live): xG 0.16 must not make "16 m" pass when the distance was 16.6 m.
+    assert not verdict("Varenne scores from 16 m.").ok
+    assert verdict("Varenne scores from 16.6 m.").ok and verdict("Varenne scores from 17 m.").ok
+    assert not verdict("A 17% chance.").ok
+
+
 @pytest.mark.parametrize("bad,claim", [
     ("Varenne finishes at 105 km/h.", "105"),
     ("His rating climbs from 7.2 to 8.9.", "8.9"),
