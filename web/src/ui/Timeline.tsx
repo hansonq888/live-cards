@@ -34,7 +34,7 @@ export function Timeline() {
             <button onClick={() => live.backToLive()}>Back to live ▸</button>
           </>
         ) : (
-          <span className="tl-hint">Key moments: click one to replay it as it happened</span>
+          <span className="tl-hint">{keys.length ? "Key moments: click one to replay it as it happened" : "Key moments appear here as they happen (first ones around 23′ and 30′)"}</span>
         )}
       </div>
     </div>

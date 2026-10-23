@@ -1,7 +1,7 @@
 // Live state: a tiny external store fed by the WebSocket. Frames go to a ring buffer
 // read by the render loop (no React re-render per frame); everything else is React state.
 import { useSyncExternalStore } from "react";
-import type { CardState, ClientMsg, Frame, MatchMeta, Metrics, ServerMsg, TraceStep, Variant } from "./protocol";
+import type { CardState, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
 
 export interface Director {
   target: string;
@@ -148,6 +148,12 @@ class LiveStore {
     this.send({ type: "seek", t: edge });
   }
 
+  private keyMoment(mo: Moment): KeyMoment {
+    const who = this.name(mo.player);
+    const what = mo.type === "goal" ? "Goal" : mo.type === "rating_upgrade" ? `Card ▲ ${mo.facts.to}` : mo.type === "rating_downgrade" ? `Card ▼ ${mo.facts.to}` : mo.type === "fastest_sprint" ? `${mo.facts.speed_kmh} km/h` : mo.type === "momentum_swing" ? "Momentum swing" : mo.type === "big_chance" ? "Big chance" : mo.type === "card" ? "Yellow card" : "Substitution";
+    return { id: mo.id, t: mo.t, type: mo.type, player: mo.player, label: `${what}${who ? " · " + who : ""}` };
+  }
+
   private name(id: string | null) {
     return this.state.meta?.players.find((p) => p.id === id)?.short ?? id ?? "";
   }
@@ -193,9 +199,7 @@ class LiveStore {
         }
         if ((KEY_TYPES.has(mo.type) && mo.importance >= 0.55) || mo.type === "goal") {
           if (!s.keyMoments.some((k) => k.id === mo.id)) {
-            const who = this.name(mo.player);
-            const what = mo.type === "goal" ? "Goal" : mo.type === "rating_upgrade" ? `Card ▲ ${mo.facts.to}` : mo.type === "rating_downgrade" ? `Card ▼ ${mo.facts.to}` : mo.type === "fastest_sprint" ? `${mo.facts.speed_kmh} km/h` : mo.type === "momentum_swing" ? "Momentum swing" : mo.type === "big_chance" ? "Big chance" : mo.type === "card" ? "Yellow card" : "Substitution";
-            patch.keyMoments = [...s.keyMoments, { id: mo.id, t: mo.t, type: mo.type, player: mo.player, label: `${what}${who ? " · " + who : ""}` }].sort((a, b) => a.t - b.t);
+            patch.keyMoments = [...s.keyMoments, this.keyMoment(mo)].sort((a, b) => a.t - b.t);
           }
         }
         if (mo.importance >= 0.45) {
@@ -242,6 +246,12 @@ class LiveStore {
       case "profile":
         this.set({ profile: m.key });
         break;
+      case "history": {
+        const known = new Set(s.keyMoments.map((k) => k.id));
+        const add = m.moments.filter((mo) => !known.has(mo.id)).map((mo) => this.keyMoment(mo));
+        if (add.length) this.set({ keyMoments: [...s.keyMoments, ...add].sort((a, b) => a.t - b.t) });
+        break;
+      }
       case "answer_status":
         this.set({ answers: [{ id: m.id, question: m.question, pending: true }, ...s.answers.filter((a) => a.id !== m.id)].slice(0, 12) });
         break;

@@ -50,6 +50,8 @@ MODEL_MOMENTS = {"goal", "rating_upgrade", "rating_downgrade", "big_chance", "mo
 MAX_MODEL_INFLIGHT = 6
 SHOWCASE_MOMENTS = {"goal", "rating_upgrade"}
 SNAPSHOT_EVERY_S = 300.0
+HISTORY_TYPES = {"goal", "big_chance", "fastest_sprint", "rating_upgrade", "rating_downgrade",
+                 "momentum_swing", "card", "substitution"}
 ALERT_TYPES = {"sprint", "fastest_sprint", "streak", "distance_milestone"}
 # Verified lines per moment. The match is deterministic, so a revisited (or re-watched)
 # moment reuses its verified line instead of calling, and paying for, the model again.
@@ -190,6 +192,7 @@ class LiveSession:
         elif kind == "seek":
             self._reset(max(0.0, min(float(msg.get("t", 0)), self.meta.duration - 1)))
             await self.send({"type": "seeked", "t": self.t})
+            await self.send(self.history())
         elif kind == "profile":
             try:
                 self.profile = Profile.parse(str(msg.get("key", "casual.en.neutral")))
@@ -211,6 +214,7 @@ class LiveSession:
 
     async def run(self) -> None:
         await self.send(self.hello())
+        await self.send(self.history())
         last_frame = last_card = last_team = 0.0
         wall0, game0 = time.monotonic(), self.t
         speed0 = self.speed
@@ -460,6 +464,12 @@ class LiveSession:
     def hello(self) -> dict:
         return {"type": "hello", "meta": self.meta.model_dump(), "speed": self.speed,
                 "t": self.t, "model_enabled": self.model_enabled}
+
+    def history(self) -> dict:
+        """Key moments so far (for the Revisit timeline when joining or jumping mid-match)."""
+        keep = [m.model_dump() for m in self.engine.moments
+                if m.type == "goal" or (m.type in HISTORY_TYPES and m.importance >= 0.55)]
+        return {"type": "history", "moments": keep}
 
     def frame_msg(self) -> dict:
         i = min(self.i, len(self.match)) - 1
