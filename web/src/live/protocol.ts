@@ -81,6 +81,8 @@ export interface Variant {
   problems: string[];
 }
 
+export interface BuildStep { t: number; kind: string; player: string; text: string; evidence: string[] }
+
 export interface TraceStep {
   moment_id: string;
   stage: string;
@@ -113,6 +115,8 @@ export type ServerMsg =
   | { type: "variants"; cue: string; moment: string; moment_type: string; player: string | null; t: number; base: string; variants: Variant[] }
   | { type: "profile"; key: string }
   | { type: "history"; moments: Moment[] }
+  | { type: "buildup"; error?: string; goal: string; team: string; scorer: string; start_t: number; goal_t: number; story: string; steps: BuildStep[] }
+  | { type: "buildup_story"; goal: string; text: string; source: string }
   | { type: "answer_status"; id: string; question: string; stage: string }
   | { type: "answer"; id: string; question: string; text: string; verified: boolean; source: string; evidence: string[]; tools: string[]; ms: number; problems: string[]; minute: number }
   | { type: "redteam"; stage: "started" | "result" | "unavailable"; mode?: string; moment?: string; player?: string | null; injected?: string; blocked_by?: string | null; reason?: string; aired?: string | null; aired_source?: string | null }
@@ -134,7 +138,7 @@ export type ServerMsg =
   | { type: "end"; score: Record<string, number> };
 
 export type ClientMsg =
-  | { type: "select"; player: string }
+  | { type: "select"; player: string; reason?: string }
   | { type: "auto" }
   | { type: "speed"; value: number }
   | { type: "pause" }
@@ -143,4 +147,5 @@ export type ClientMsg =
   | { type: "model"; enabled: boolean }
   | { type: "profile"; key: string }
   | { type: "redteam" }
-  | { type: "ask"; id: string; question: string };
+  | { type: "ask"; id: string; question: string }
+  | { type: "explain_goal"; goal?: string };

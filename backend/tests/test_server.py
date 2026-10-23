@@ -95,3 +95,28 @@ def test_console_kill_switch_and_audit():
         ws.send_json({"type": "controls", "patch": {"features": {"alerts": True}}})
         ws.receive_json()
         assert c.get("/api/audit?kind=blocked").json()["entries"][0]["text"] == "Varenne 9.5"
+
+
+def test_explain_goal_returns_build_up_and_story(monkeypatch):
+    import asyncio
+
+    from livecards.server import session as S
+    monkeypatch.setattr(S, "explainer_agent", lambda: None)
+
+    async def main():
+        got = []
+
+        async def send(m):
+            got.append(m)
+        s = S.LiveSession(send, start=3960)
+        await s.command({"type": "explain_goal"})
+        for _ in range(50):
+            if any(m["type"] == "buildup_story" for m in got):
+                break
+            await asyncio.sleep(0.05)
+        return got
+    got = asyncio.run(main())
+    b = next(m for m in got if m["type"] == "buildup")
+    assert b["scorer"] == "RIV-09" and b["steps"][0]["kind"] == "win"
+    story = next(m for m in got if m["type"] == "buildup_story")
+    assert story["text"].startswith("3 passes in")  # template when the model is off

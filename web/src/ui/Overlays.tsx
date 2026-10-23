@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { clock, useLive } from "../live/store";
+import { clock, live, useLive } from "../live/store";
 
 const STORY_TYPES = new Set(["goal", "rating_upgrade", "rating_downgrade", "big_chance", "momentum_swing", "fastest_sprint", "attr_upgrade", "attr_downgrade"]);
 
@@ -144,7 +144,7 @@ export function DirectorTicker() {
   const fresh = now - director.at < 1500;
   return (
     <div className={`director ${fresh ? "director-fresh" : ""} ${director.predicted ? "director-predict" : ""}`}>
-      <span className="director-label">{director.mode === "manual" ? "YOUR PICK" : director.predicted ? "AUTO-DIRECTOR · PREDICTED" : "AUTO-DIRECTOR"}</span>
+      <span className="director-label">{director.mode === "replay" ? "BUILD-UP REPLAY" : director.mode === "manual" ? "YOUR PICK" : director.predicted ? "AUTO-DIRECTOR · PREDICTED" : "AUTO-DIRECTOR"}</span>
       <span className="director-reason">{director.reason}</span>
     </div>
   );
@@ -188,4 +188,35 @@ export function GoalBanner() {
       <div className="goal-sub">{banner.sub}</div>
     </div>
   );
+}
+
+/** "How the goal was built": steps tick off as the replay passes them. */
+export function BuildUpPanel() {
+  const b = useLive((s) => s.buildup);
+  const t = useLive((s) => s.t);
+  const now = useTicker(200);
+  useEffect(() => { live.stepBuildup(t); }, [t]);
+  if (!b || (!b.playing && now - b.at > 60000)) return null;
+  const cur = [...b.steps].reverse().find((s) => s.t <= t);
+  return (
+    <div className="buildup">
+      <div className="bu-title">HOW THE GOAL WAS BUILT</div>
+      <div className="bu-story">{b.story}{b.storySource === "model" && <span className="verified"> ✓ verified</span>}</div>
+      <ol>
+        {b.steps.map((s, i) => (
+          <li key={i} className={`bu-${s.kind} ${s.t <= t ? "done" : ""} ${s === cur ? "cur" : ""}`}>
+            <span className="bu-time">{(s.t - b.goalT).toFixed(1)}s</span>{s.text}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+export function ExplainGoalButton({ className = "" }: { className?: string }) {
+  const keys = useLive((s) => s.keyMoments);
+  const t = useLive((s) => s.t);
+  const goals = keys.filter((k) => k.type === "goal" && k.t <= t + 1);
+  if (!goals.length) return null;
+  return <button className={`explain-goal ${className}`} onClick={() => live.explainGoal()}>⚽ Explain the goal</button>;
 }

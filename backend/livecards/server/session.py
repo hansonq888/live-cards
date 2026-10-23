@@ -17,7 +17,7 @@ from dataclasses import asdict, dataclass
 from functools import cache
 
 from livecards.agents.director import AutoDirector, Decision
-from livecards.agents.explainer import INSTRUCTIONS, job_for
+from livecards.agents.explainer import INSTRUCTIONS, ExplainJob, job_for
 from livecards.agents.llm import make_agent
 from livecards.agents.personalizer import (
     DEFAULT,
@@ -33,6 +33,7 @@ from livecards.agents.redteam import RedTeamAgent
 from livecards.agents.reviewer import make_reviewer
 from livecards.agents.verifier import check
 from livecards.contracts import FPS, Moment
+from livecards.engine.buildup import build_up
 from livecards.engine.engine import MatchEngine
 from livecards.replay import positions
 from livecards.server.control import plane
@@ -187,7 +188,7 @@ class LiveSession:
     async def command(self, msg: dict) -> None:
         kind = msg.get("type")
         if kind == "select" and msg.get("player"):
-            d = self.director.select(msg["player"], self.t)
+            d = self.director.select(msg["player"], self.t, msg.get("reason"))
             await self._send_director(d)
             await self._send_card(d.target)
         elif kind == "auto":
@@ -212,6 +213,8 @@ class LiveSession:
             self._spawn(self._ask(str(msg.get("id", "")), str(msg["question"])[:300]))
         elif kind == "redteam":
             await self._redteam()
+        elif kind == "explain_goal":
+            self._spawn(self._explain_goal(msg.get("goal")))
         elif kind == "model":
             plane().update({"features": {"ai_lines": bool(msg.get("enabled"))}})
             await self.send({"type": "model", "enabled": self.model_enabled})
@@ -349,6 +352,43 @@ class LiveSession:
         task = asyncio.create_task(coro)
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
+
+    async def _explain_goal(self, goal_id: str | None) -> None:
+        """Build-up of a goal (the latest so far, or a given one): steps now, AI story after."""
+        goals = [m for m in self.engine.moments if m.type == "goal"]
+        if goal_id:
+            goals = [m for m in goals if m.evidence and m.evidence[0] == goal_id] or goals
+        if not goals:
+            await self.send({"type": "buildup", "error": "no goal yet"})
+            return
+        gm = goals[-1]
+        goal_ev = self.engine.events[gm.evidence[0]]
+        b = build_up(list(self.engine.events.values()), goal_ev, self.meta, self.engine.moments)
+        if b is None:
+            await self.send({"type": "buildup", "error": "no build-up found"})
+            return
+        await self.send({"type": "buildup", **b})
+        key = (self.seed, b["goal"], "story")
+        if key not in LINE_CACHE and self.model_enabled:
+            names = {n for p in self.meta.players if p.id in b["players"] for n in (p.name, p.short)}
+            story_moment = Moment(id=f"{gm.id}-story", t=gm.t, minute=gm.minute, type="goal",
+                                  player=gm.player, team=gm.team, importance=gm.importance,
+                                  facts=b["facts"], evidence=[s["evidence"][0] for s in b["steps"]],
+                                  template=b["story"])
+            job = ExplainJob(moment=story_moment, facts=b["facts"], names=names,
+                             template=b["story"])
+            traces: list[TraceEvent] = []
+            result = await explain(job, explainer_agent(), self.roster, traces.append,
+                                   reviewer_agent())
+            self._audit_blocked(story_moment, traces)
+            if result is not None and result.source == "model":
+                LINE_CACHE[key] = result
+                self._audit("aired", story_moment, text=result.text, source="model",
+                            stage="goal story", evidence=story_moment.evidence, lang="en")
+        result = LINE_CACHE.get(key)
+        await self.send({"type": "buildup_story", "goal": b["goal"],
+                         "text": result.text if result else b["story"],
+                         "source": result.source if result else "template"})
 
     async def _redteam(self) -> None:
         """Re-explain the followed player's latest moment with a corrupted first draft."""
@@ -506,8 +546,9 @@ class LiveSession:
                 "ring": self.director.current.target if self.director.current else None}
 
     def _director_msg(self, d) -> dict:
+        mode = "replay" if d.kind == "replay" else self.director.mode
         return {"type": "director", "t": round(self.t, 1), "target": d.target, "reason": d.reason,
-                "kind": d.kind, "predicted": d.predicted, "mode": self.director.mode}
+                "kind": d.kind, "predicted": d.predicted, "mode": mode}
 
     async def _send_director(self, d) -> None:
         await self.send(self._director_msg(d))

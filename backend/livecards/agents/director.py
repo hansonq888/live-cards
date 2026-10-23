@@ -104,16 +104,18 @@ class AutoDirector:
             w, life, reason = table[m.type]
             self._add(m.player, w, m.t + life, reason, m.type)
 
-    def select(self, player: str, t: float) -> Decision:
-        """Manual pick (click or keyboard): the director stops until set back to auto."""
+    def select(self, player: str, t: float, reason: str | None = None) -> Decision:
+        """Manual pick (click, keyboard, or a replay): the director stops until set back to auto."""
         self.mode = "manual"
         changed = self.current is None or self.current.target != player
-        self.current = Decision(player, f"Following {self.names[player]} (your pick)", "manual",
-                                t, changed)
+        self.current = Decision(player, reason or f"Following {self.names[player]} (your pick)",
+                                "replay" if reason else "manual", t, changed)
         return self.current
 
     def set_auto(self) -> None:
+        """Back to auto: decide afresh from the current play rather than keep the manual pick."""
         self.mode = "auto"
+        self.current = None
 
     def _add(self, player: str, weight: float, until: float, reason: str, kind: str) -> None:
         self.signals.append(Signal(player, weight, until, reason, kind))

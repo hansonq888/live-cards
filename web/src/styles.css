@@ -110,6 +110,21 @@ button { font: inherit; }
 .goal-sub { font-family: var(--display); font-size: 26px; font-weight: 700; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
 @keyframes goalin { from { transform: translate(-50%, -50%) scale(.4); opacity: 0; } }
 
+/* build-up */
+.buildup { position: absolute; right: 16px; bottom: 16px; width: 380px; background: rgba(8,12,20,.9); border: 1px solid rgba(57,229,255,.35); border-radius: 12px; padding: 12px 14px; pointer-events: none; animation: pop .3s ease-out; }
+.bu-title { font-family: var(--display); font-weight: 800; letter-spacing: 1.5px; color: var(--accent); font-size: 14px; }
+.bu-story { font-size: 14px; line-height: 1.35; margin: 5px 0 8px; color: #fff; }
+.buildup ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.buildup li { font-size: 12.5px; color: rgba(255,255,255,.45); display: flex; gap: 8px; padding: 3px 6px; border-radius: 5px; transition: all .25s; }
+.buildup li.done { color: #dbeafe; }
+.buildup li.cur { background: rgba(57,229,255,.16); color: #fff; font-weight: 600; }
+.buildup li.bu-sprint.done { color: #fed7aa; }
+.buildup li.bu-goal.done { color: #bbf7d0; font-weight: 700; }
+.bu-time { font-variant-numeric: tabular-nums; color: var(--dim); min-width: 44px; text-align: right; }
+.explain-goal { background: rgba(57,229,255,.14); border: 1px solid var(--accent); color: var(--accent); border-radius: 7px; padding: 6px 10px; font-weight: 700; cursor: pointer; white-space: nowrap; font-size: 12.5px; }
+.studio-row { display: flex; gap: 10px; align-items: center; }
+.studio-row .timeline { flex: 1; }
+
 /* fan view */
 .stage-contain { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; }
 .stage-box { position: relative; overflow: hidden; }

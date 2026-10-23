@@ -1,7 +1,7 @@
 // Live state: a tiny external store fed by the WebSocket. Frames go to a ring buffer
 // read by the render loop (no React re-render per frame); everything else is React state.
 import { useSyncExternalStore } from "react";
-import type { CardState, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
+import type { BuildStep, CardState, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
 
 export interface Director {
   target: string;
@@ -68,6 +68,7 @@ export interface LiveState {
   lines: Record<string, Line>;
   profile: string; // audience.lang.voice
   keyMoments: KeyMoment[];
+  buildup: { goal: string; steps: BuildStep[]; start: number; goalT: number; story: string; storySource: string; playing: boolean; at: number; resumeSpeed: number } | null;
   liveEdge: number; // furthest match time watched
   revisit: KeyMoment | null;
   answers: { id: string; question: string; text?: string; source?: string; evidence?: string[]; tools?: string[]; ms?: number; problems?: string[]; minute?: number; pending: boolean }[];
@@ -92,7 +93,7 @@ export interface LiveState {
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
   director: null, cards: {}, stats: {}, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
-  keyMoments: [], liveEdge: 0, revisit: null,
+  keyMoments: [], liveEdge: 0, revisit: null, buildup: null,
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null,
 };
@@ -142,7 +143,31 @@ class LiveStore {
     this.send({ type: "seek", t: Math.max(0, k.t - 8) });
   }
 
+  explainGoal(goal?: string) {
+    this.send({ type: "explain_goal", goal });
+  }
+
+  /** Called as the build-up replays: follow each step's player; hand back control at the end. */
+  stepBuildup(t: number) {
+    const b = this.state.buildup;
+    if (!b || !b.playing) return;
+    if (t > b.goalT + 3) {
+      this.set({ buildup: { ...b, playing: false } });
+      this.send({ type: "speed", value: b.resumeSpeed || 1 });
+      this.send({ type: "auto" });
+      return;
+    }
+    const step = [...b.steps].reverse().find((s) => s.t <= t);
+    if (step && step.player !== this.lastBuildPlayer) {
+      this.lastBuildPlayer = step.player;
+      this.send({ type: "select", player: step.player, reason: `Build-up: ${step.text}` });
+    }
+  }
+  private lastBuildPlayer: string | null = null;
+
   backToLive() {
+    this.set({ buildup: null });
+    this.lastBuildPlayer = null;
     const edge = this.state.liveEdge;
     this.set({ revisit: null });
     this.send({ type: "seek", t: edge });
@@ -245,6 +270,21 @@ class LiveStore {
       }
       case "profile":
         this.set({ profile: m.key });
+        break;
+      case "buildup": {
+        if (m.error) break;
+        const resume = s.speed;
+        this.set({
+          buildup: { goal: m.goal, steps: m.steps, start: m.start_t, goalT: m.goal_t, story: m.story, storySource: "stats", playing: true, at: now, resumeSpeed: resume },
+          revisit: { id: m.goal, t: m.goal_t, type: "goal", player: m.scorer, label: `Build-up · ${this.name(m.scorer)}` },
+          liveEdge: Math.max(s.liveEdge, s.t),
+        });
+        this.send({ type: "seek", t: Math.max(0, m.start_t - 2) });
+        this.send({ type: "speed", value: 0.5 });
+        break;
+      }
+      case "buildup_story":
+        if (s.buildup?.goal === m.goal) this.set({ buildup: { ...s.buildup, story: m.text, storySource: m.source } });
         break;
       case "history": {
         const known = new Set(s.keyMoments.map((k) => k.id));

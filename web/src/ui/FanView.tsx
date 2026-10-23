@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { live, useLive } from "../live/store";
 import { Viewer } from "../viewer/Viewer";
-import { DirectorTicker, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./Overlays";
+import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./Overlays";
 import { ScaledStage } from "./ScaledStage";
 import { Ask, ProfilePicker } from "./SidePanel";
 import { Timeline } from "./Timeline";
@@ -28,10 +28,12 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
         <GoalBanner />
         <RedTeamPanel />
         <RevisitBadge />
+        <BuildUpPanel />
       </ScaledStage>
       <div className="fan-bar" onMouseMove={(e) => e.stopPropagation()} onMouseEnter={() => { window.clearTimeout(timer.current); setActive(true); }}>
         <button className="round" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}>{paused ? "▶" : "❚❚"}</button>
         <Timeline />
+        <ExplainGoalButton />
         <ProfilePicker />
         <button className="ghost" onClick={onStudio}>Studio view</button>
         <span className="fan-note">Synthetic match · fictional clubs</span>
