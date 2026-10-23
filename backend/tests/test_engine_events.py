@@ -160,3 +160,21 @@ def test_every_moment_number_is_in_facts(engine, ev):
     for m in engine.on_event(ev("goal", 101.5, team="RIV", player="RIV-09", x=41.5, y=0)):
         assert m.evidence, m
         assert m.facts, m
+
+
+def test_analyst_view_explains_the_rating_exactly(played):
+    a = played.analyst("RIV-09")
+    assert round(a["start"] + sum(b["total"] for b in a["breakdown"]), 2) == round(a["rating"], 2) \
+        or a["rating"] in (3.0, 10.0)  # unless capped
+    goal = next(b for b in a["breakdown"] if b["kind"] == "goal")
+    assert goal["count"] == 1 and goal["total"] == 1.0
+    pace = a["attrs"]["pace"]
+    assert {m["key"] for m in pace["metrics"]} == {"top_speed_kmh", "sprints"}
+    assert all(isinstance(m["z"], float) for m in pace["metrics"])
+
+
+def test_team_xg_matches_player_xg(played):
+    ts = played.team_state()
+    for team in ("RIV", "NGT"):
+        players = sum(ps.stats.xg for ps in played.players.values() if ps.meta.team == team)
+        assert abs(ts.xg[team] - players) < 0.02 and ts.shots[team] >= ts.shots_on_target[team]

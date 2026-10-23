@@ -1,7 +1,7 @@
 // Live state: a tiny external store fed by the WebSocket. Frames go to a ring buffer
 // read by the render loop (no React re-render per frame); everything else is React state.
 import { useSyncExternalStore } from "react";
-import type { BuildStep, CardState, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
+import type { AnalystView, BuildStep, CardState, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
 
 export interface Director {
   target: string;
@@ -64,6 +64,7 @@ export interface LiveState {
   director: Director | null;
   cards: Record<string, CardState>;
   stats: Record<string, Record<string, number>>;
+  analyst: Record<string, AnalystView>;
   // Latest verified line per player, and moments whose line is still being written.
   lines: Record<string, Line>;
   profile: string; // audience.lang.voice
@@ -86,13 +87,16 @@ export interface LiveState {
     momentum: number;
     chaos: number;
     score: Record<string, number>;
+    xg: Record<string, number>;
+    shots: Record<string, number>;
+    shots_on_target: Record<string, number>;
   } | null;
   metrics: Metrics | null;
 }
 
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
-  director: null, cards: {}, stats: {}, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
+  director: null, cards: {}, stats: {}, analyst: {}, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
   keyMoments: [], liveEdge: 0, revisit: null, buildup: null,
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null,
@@ -199,7 +203,10 @@ class LiveStore {
         this.set({ director: { target: m.target, reason: m.reason, kind: m.kind, predicted: m.predicted, mode: m.mode, at: now } });
         break;
       case "card":
-        this.set({ cards: { ...s.cards, [m.card.player]: m.card }, stats: { ...s.stats, [m.card.player]: m.stats } });
+        this.set({
+          cards: { ...s.cards, [m.card.player]: m.card }, stats: { ...s.stats, [m.card.player]: m.stats },
+          ...(m.analyst ? { analyst: { ...s.analyst, [m.card.player]: m.analyst } } : {}),
+        });
         break;
       case "moment": {
         const mo = m.moment;
@@ -306,7 +313,7 @@ class LiveStore {
         break;
       case "team":
         this.set({
-          team: { possession: m.possession, possession_5m: m.possession_5m, momentum: m.momentum, chaos: m.chaos, score: m.score },
+          team: { possession: m.possession, possession_5m: m.possession_5m, momentum: m.momentum, chaos: m.chaos, score: m.score, xg: m.xg, shots: m.shots, shots_on_target: m.shots_on_target },
           metrics: m.metrics, speed: m.speed, modelEnabled: m.model_enabled,
         });
         break;

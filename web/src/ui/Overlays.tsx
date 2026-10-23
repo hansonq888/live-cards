@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { clock, live, useLive } from "../live/store";
+import { AnalystCard, TeamStrip } from "./Analyst";
 
 const STORY_TYPES = new Set(["goal", "rating_upgrade", "rating_downgrade", "big_chance", "momentum_swing", "fastest_sprint", "attr_upgrade", "attr_downgrade"]);
 
@@ -68,6 +69,7 @@ export function PlayerCard() {
   const card = pid ? cards[pid] : undefined;
   const rating = useAnimated(card?.rating ?? 6.0);
   if (!meta || !pid || !card) return null;
+  if (profile.startsWith("analyst.")) return <><AnalystCard pid={pid} /><TeamStrip /></>;
   const p = meta.players.find((x) => x.id === pid)!;
   const team = p.team === meta.home.code ? meta.home : meta.away;
   const st = stats[pid] ?? {};

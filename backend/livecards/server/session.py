@@ -203,6 +203,7 @@ class LiveSession:
             self._reset(max(0.0, min(float(msg.get("t", 0)), self.meta.duration - 1)))
             await self.send({"type": "seeked", "t": self.t})
             await self.send(self.history())
+            await self._send_current()
         elif kind == "profile":
             try:
                 self.profile = Profile.parse(str(msg.get("key", "casual.en.neutral")))
@@ -227,6 +228,7 @@ class LiveSession:
     async def run(self) -> None:
         await self.send(self.hello())
         await self.send(self.history())
+        await self._send_current()
         last_frame = last_card = last_team = 0.0
         wall0, game0 = time.monotonic(), self.t
         speed0 = self.speed
@@ -553,9 +555,17 @@ class LiveSession:
     async def _send_director(self, d) -> None:
         await self.send(self._director_msg(d))
 
+    async def _send_current(self) -> None:
+        """Who the ring is on right now. After a jump or a mid-match join the director has
+        already decided during the fast-forward, so tell the viewer instead of waiting for
+        the next switch (which can be 40 s away after a goal)."""
+        if self.director.current is not None:
+            await self.send(self._director_msg(self.director.current))
+            await self._send_card(self.director.current.target)
+
     async def _send_card(self, pid: str) -> None:
         await self.send({"type": "card", "card": self.engine.card(pid).model_dump(),
-                         "stats": self.engine.stats(pid)})
+                         "stats": self.engine.stats(pid), "analyst": self.engine.analyst(pid)})
 
     def team_msg(self) -> dict:
         ts = self.engine.team_state()

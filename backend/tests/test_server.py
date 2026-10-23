@@ -120,3 +120,25 @@ def test_explain_goal_returns_build_up_and_story(monkeypatch):
     assert b["scorer"] == "RIV-09" and b["steps"][0]["kind"] == "win"
     story = next(m for m in got if m["type"] == "buildup_story")
     assert story["text"].startswith("3 passes in")  # template when the model is off
+
+
+def test_joining_mid_match_sends_the_current_pick(monkeypatch):
+    """Regression: right after a goal the ring holds the scorer for 40 s; a viewer joining
+    then must still get the director and a card immediately."""
+    import asyncio
+
+    from livecards.server import session as S
+    monkeypatch.setattr(S, "explainer_agent", lambda: None)
+
+    async def main():
+        got = []
+
+        async def send(m):
+            got.append(m["type"])
+        s = S.LiveSession(send, start=3955)
+        task = asyncio.create_task(s.run())
+        await asyncio.sleep(0.3)
+        task.cancel()
+        return got
+    got = asyncio.run(main())
+    assert "director" in got[:5] and "card" in got[:6]

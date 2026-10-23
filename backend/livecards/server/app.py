@@ -33,7 +33,8 @@ from livecards.server.session import LiveSession, load_match, snapshots
 @contextlib.asynccontextmanager
 async def lifespan(_: FastAPI):
     logging.basicConfig(level=logging.INFO)
-    logging.getLogger("azure").setLevel(logging.WARNING)
+    for noisy in ("azure", "agent_framework", "httpx", "httpx2"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
     STATUS["tracing"] = "Azure Application Insights" if telemetry.configure() else "off"
     await asyncio.to_thread(load_match, 7)  # simulate once, share across viewers
     await asyncio.to_thread(snapshots, 7)  # engine snapshots for instant jumps (Revisit)

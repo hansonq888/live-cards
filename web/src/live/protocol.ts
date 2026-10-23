@@ -81,6 +81,14 @@ export interface Variant {
   problems: string[];
 }
 
+export interface AnalystMetric { key: string; label: string; weight: number; per90: boolean; count: number | null; value: number; role_mean: number; z: number }
+export interface AnalystView {
+  rating: number; start: number; role: string; minutes: number;
+  breakdown: { kind: string; label: string; count: number; total: number }[];
+  attrs: Record<string, { value: number; base: number; metrics: AnalystMetric[] }>;
+  advanced: Record<string, number>;
+}
+
 export interface BuildStep { t: number; kind: string; player: string; text: string; evidence: string[] }
 
 export interface TraceStep {
@@ -109,7 +117,7 @@ export type ServerMsg =
   | { type: "hello"; meta: MatchMeta; speed: number; t: number; model_enabled: boolean }
   | ({ type: "frame" } & Frame)
   | { type: "director"; t: number; target: string; reason: string; kind: string; predicted: boolean; mode: string }
-  | { type: "card"; card: CardState; stats: Record<string, number> }
+  | { type: "card"; card: CardState; stats: Record<string, number>; analyst?: AnalystView }
   | { type: "moment"; moment: Moment; card?: CardState }
   | { type: "cue"; cue: Cue; moment_type: string; phase: "instant" | "story"; source: string; attempts: number; latency_ms: number; claims_checked: number }
   | { type: "variants"; cue: string; moment: string; moment_type: string; player: string | null; t: number; base: string; variants: Variant[] }
@@ -129,6 +137,9 @@ export type ServerMsg =
       momentum: number;
       chaos: number;
       score: Record<string, number>;
+      xg: Record<string, number>;
+      shots: Record<string, number>;
+      shots_on_target: Record<string, number>;
       metrics: Metrics;
       speed: number;
       model_enabled: boolean;

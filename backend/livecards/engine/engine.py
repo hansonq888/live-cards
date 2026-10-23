@@ -14,7 +14,13 @@ from dataclasses import dataclass, field
 
 from livecards.contracts import FPS, CardState, Event, Frame, MatchMeta, Moment, PlayerMeta
 from livecards.engine import metrics as mx
-from livecards.engine.attributes import ATTRIBUTE_METRICS, compute_attributes, z_scores
+from livecards.engine.attributes import (
+    ATTRIBUTE_METRICS,
+    compute_attributes,
+    load_baselines,
+    raw_value,
+    z_scores,
+)
 from livecards.engine.rating import LABELS, Rating
 from livecards.engine.stats import PlayerStats
 
@@ -93,6 +99,9 @@ class TeamState:
     chaos: int  # 0 calm/controlled .. 100 end-to-end chaos
     turnovers_5m: int
     score: dict[str, int]
+    xg: dict[str, float] = field(default_factory=dict)
+    shots: dict[str, int] = field(default_factory=dict)
+    shots_on_target: dict[str, int] = field(default_factory=dict)
 
 
 class MatchEngine:
@@ -108,6 +117,9 @@ class MatchEngine:
             ps.rating_hist.append((0.0, ps.rating.value))
         self.t = 0.0
         self.score = {self.home: 0, self.away: 0}
+        self.team_xg = {self.home: 0.0, self.away: 0.0}
+        self.team_shots = {self.home: 0, self.away: 0}
+        self.team_sot = {self.home: 0, self.away: 0}
         self.poss: str | None = None
         self.poss_time = {self.home: 0.0, self.away: 0.0}
         self.poss_secs: deque[str] = deque(maxlen=int(TEAM_WINDOW_S))
@@ -232,6 +244,9 @@ class MatchEngine:
         s.shots += 1
         s.touches += 1
         s.xg += q
+        self.team_xg[e.team] += q
+        self.team_shots[e.team] += 1
+        self.team_sot[e.team] += e.outcome in ("goal", "saved")
         s.max_shot_kmh = max(s.max_shot_kmh, e.speed_kmh or 0.0)
         self._log(e.player, "shots", e.id)
         self._log(e.player, "xg", e.id)
@@ -596,6 +611,9 @@ class MatchEngine:
             chaos=int(min(100, round(rate / 8 * 100))),
             turnovers_5m=len(recent),
             score=dict(self.score),
+            xg={k: round(v, 2) for k, v in self.team_xg.items()},
+            shots=dict(self.team_shots),
+            shots_on_target=dict(self.team_sot),
         )
 
     def card(self, pid: str) -> CardState:
@@ -603,6 +621,48 @@ class MatchEngine:
         return CardState(player=pid, t=round(self.t, 1), rating=round(ps.rating.value, 1),
                          delta=round(ps.last_delta, 1), attrs=dict(ps.attrs),
                          reason=ps.last_reason, evidence=list(ps.last_evidence), verified=True)
+
+    def analyst(self, pid: str) -> dict:
+        """Everything behind a card: the rating ledger by kind, and each attribute's metrics
+        against the role baseline. Numbers only; the screen shows the working."""
+        ps = self.players[pid]
+        s = ps.stats
+        totals: dict[str, list] = {}
+        for en in ps.rating.ledger:
+            c = totals.setdefault(en.kind, [0, 0.0])
+            c[0] += 1
+            c[1] += en.delta
+        breakdown = [{"kind": k, "label": LABELS[k], "count": n, "total": round(t, 2)}
+                     for k, (n, t) in sorted(totals.items(), key=lambda kv: -abs(kv[1][1]))]
+        base = load_baselines()[ps.meta.role]
+        zs = z_scores(s, ps.meta.role)
+        attrs = {}
+        for attr, metrics in ATTRIBUTE_METRICS.items():
+            attrs[attr] = {
+                "value": ps.attrs.get(attr, ps.meta.base_attrs[attr]),
+                "base": ps.meta.base_attrs[attr],
+                "metrics": [{
+                    "key": m.key, "label": m.label, "weight": m.weight,
+                    "per90": m.kind in ("rate", "lift"),
+                    "count": getattr(s, m.key) if m.kind in ("rate", "lift") else None,
+                    "value": round(raw_value(s, m.key), 2),
+                    "role_mean": round(base[m.key][0], 2),
+                    "z": round(zs[attr][m.key], 2),
+                } for m in metrics],
+            }
+        return {
+            "rating": round(ps.rating.value, 2), "start": 6.0, "breakdown": breakdown,
+            "attrs": attrs, "role": ps.meta.role, "minutes": round(s.minutes, 1),
+            "advanced": {
+                "pass_pct": round(s.pass_pct, 1), "passes": s.passes,
+                "avg_difficulty": round(s.avg_difficulty, 1), "forward_passes": s.forward_passes,
+                "xg": round(s.xg, 2), "shots": s.shots, "shots_on_target": s.shots_on_target,
+                "chances_created": s.chances_created, "tackles_won": s.tackles_won,
+                "interceptions": s.interceptions, "pressures_won": s.pressures_won,
+                "sprints": s.sprints, "hi_runs": s.hi_runs,
+                "turnovers_own_half": s.turnovers_own_half,
+            },
+        }
 
     def stats(self, pid: str) -> dict:
         return self.players[pid].stats.public()

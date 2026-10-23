@@ -110,6 +110,35 @@ button { font: inherit; }
 .goal-sub { font-family: var(--display); font-size: 26px; font-weight: 700; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
 @keyframes goalin { from { transform: translate(-50%, -50%) scale(.4); opacity: 0; } }
 
+/* analyst mode */
+.acard { position: absolute; top: 12px; right: 12px; width: 372px; max-height: 696px; overflow: hidden; background: linear-gradient(160deg, rgba(10,14,22,.95), rgba(20,28,44,.95)); border: 1.5px solid #a78bfa; border-radius: 12px; padding: 11px 13px 9px 18px; color: #fff; pointer-events: none; box-shadow: 0 0 20px rgba(167,139,250,.25); font-size: 11px; }
+.acard .card-stripe { background: var(--team); }
+.ac-head { display: flex; gap: 10px; align-items: center; }
+.ac-rating { font-family: var(--display); font-size: 38px; font-weight: 800; color: #c4b5fd; font-variant-numeric: tabular-nums; }
+.ac-section { margin: 8px 0 4px; font-size: 9.5px; text-transform: uppercase; letter-spacing: .7px; color: var(--dim); }
+.ac-ledger div { display: flex; justify-content: space-between; padding: 1.5px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
+.ac-ledger .pos b { color: #86efac; } .ac-ledger .neg b { color: #fda4af; }
+.ac-attr { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.ac-attr-head { display: flex; justify-content: space-between; font-weight: 600; }
+.ac-attr-head em { font-style: normal; } .ac-attr-head em.up { color: #86efac; } .ac-attr-head em.down { color: #fda4af; }
+.ac-metrics { display: flex; flex-wrap: wrap; gap: 3px 8px; color: #cbd5e1; font-size: 10px; margin-top: 1px; }
+.ac-metrics .hi { color: #a7f3d0; } .ac-metrics .lo { color: #fecaca; }
+.ac-adv { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 8px; }
+.ac-adv div { background: rgba(255,255,255,.05); border-radius: 5px; padding: 3px 4px; text-align: center; }
+.ac-adv b { display: block; font-size: 12px; font-variant-numeric: tabular-nums; }
+.ac-adv span { font-size: 8.5px; color: var(--dim); text-transform: uppercase; letter-spacing: .3px; }
+.ac-line { margin-top: 8px; font-size: 11.5px; line-height: 1.35; color: #e9d5ff; border-top: 1px solid rgba(167,139,250,.3); padding-top: 6px; }
+.ac-formula { margin-top: 5px; font-family: ui-monospace, monospace; font-size: 9px; color: var(--dim); }
+.team-strip { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: flex; gap: 2px; background: rgba(8,12,20,.88); border: 1px solid rgba(167,139,250,.4); border-radius: 8px; padding: 5px 6px; pointer-events: none; }
+.team-strip ~ .revisit-badge { top: 64px; }
+.ts-cell { padding: 0 9px; border-right: 1px solid var(--line); display: flex; flex-direction: column; justify-content: center; }
+.ts-cell:last-child { border-right: 0; }
+.ts-cell span { font-size: 8.5px; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+.ts-cell b { font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ts-cell.wide { width: 120px; }
+.ts-mom { position: relative; height: 6px; margin-top: 4px; border-radius: 3px; background: linear-gradient(90deg, rgba(29,78,216,.7), rgba(255,255,255,.1) 50%, rgba(200,16,46,.7)); }
+.ts-mom i { position: absolute; top: -3px; width: 3px; height: 12px; background: #fff; border-radius: 2px; transform: translateX(-50%); }
+
 /* build-up */
 .buildup { position: absolute; right: 16px; bottom: 16px; width: 380px; background: rgba(8,12,20,.9); border: 1px solid rgba(57,229,255,.35); border-radius: 12px; padding: 12px 14px; pointer-events: none; animation: pop .3s ease-out; }
 .bu-title { font-family: var(--display); font-weight: 800; letter-spacing: 1.5px; color: var(--accent); font-size: 14px; }
