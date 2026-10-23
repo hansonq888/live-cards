@@ -1,10 +1,13 @@
 """The explanation workflow (Microsoft Agent Framework).
 
-    moment -> Explainer -> Verifier --ok--> Publish
-                  ^           |
-                  +-rejected--+   (one rewrite with the verifier's feedback)
+    moment -> Explainer -> Verifier (code) --ok--> Reviewer (gpt-5-mini) --ok--> Publish
+                  ^           |                         |
+                  +-rejected--+-------------------------+   (one rewrite with the feedback)
                               |
                               +--rejected again / model down--> Template -> Verifier -> Publish
+
+The verifier guarantees numbers, names and superlatives; the reviewer catches claimed
+events the facts don't support. The reviewer fails closed.
 
 Every step reports to a trace sink (stage, outcome, milliseconds) so the console can
 show each moment moving through the agents, and why a line was blocked.
@@ -21,6 +24,7 @@ from agent_framework import Executor, WorkflowBuilder, WorkflowContext, handler
 
 from livecards.agents.explainer import ExplainJob
 from livecards.agents.llm import RunsPrompt
+from livecards.agents.reviewer import review
 from livecards.agents.verifier import Verdict, check
 
 MODEL_TIMEOUT_S = 4.0
@@ -119,6 +123,27 @@ class VerifierExec(Executor):
         await ctx.send_message(Checked(draft, verdict))
 
 
+class ReviewerExec(Executor):
+    def __init__(self, agent: RunsPrompt | None, sink: TraceSink) -> None:
+        super().__init__(id="reviewer")
+        self.agent, self.sink = agent, sink
+
+    @handler
+    async def audit(self, c: Checked, ctx: WorkflowContext[Checked]) -> None:
+        d = c.draft
+        if self.agent is None:
+            self.sink(TraceEvent(d.job.moment.id, "reviewer", "skipped", 0, "no reviewer",
+                                 d.attempt))
+            await ctx.send_message(c)
+            return
+        start = time.perf_counter()
+        r = await review(self.agent, d.text, d.job.facts)
+        self.sink(TraceEvent(d.job.moment.id, "reviewer", "ok" if r.ok else "rejected",
+                             _ms(start), r.reason() or "claims supported", d.attempt))
+        verdict = c.verdict if r.ok else Verdict(False, [r.reason()], c.verdict.checked + 1)
+        await ctx.send_message(Checked(d, verdict))
+
+
 class TemplateExec(Executor):
     def __init__(self, sink: TraceSink) -> None:
         super().__init__(id="template")
@@ -163,26 +188,32 @@ def _blocked(c: Checked) -> bool:
     return not c.verdict.ok and c.draft.source == "template"
 
 
-def build_workflow(agent: RunsPrompt | None, roster: set[str], sink: TraceSink):
+def build_workflow(agent: RunsPrompt | None, roster: set[str], sink: TraceSink,
+                   reviewer: RunsPrompt | None = None):
     explainer = ExplainerExec(agent, sink)
     verifier = VerifierExec(roster, sink)
+    auditor = ReviewerExec(reviewer, sink)
     template = TemplateExec(sink)
     publish = PublishExec(sink)
     return (
-        WorkflowBuilder(start_executor=explainer, name="explain-verify")
+        WorkflowBuilder(start_executor=explainer, name="explain-verify-review")
         .add_edge(explainer, verifier)
         .add_edge(verifier, explainer, condition=_needs_rewrite)
         .add_edge(verifier, template, condition=_needs_template)
         .add_edge(template, verifier)
-        .add_edge(verifier, publish, condition=lambda c: c.verdict.ok)
+        .add_edge(verifier, auditor, condition=lambda c: c.verdict.ok and c.draft.source == "model")
+        .add_edge(verifier, publish, condition=lambda c: c.verdict.ok and c.draft.source != "model")
+        .add_edge(auditor, explainer, condition=_needs_rewrite)
+        .add_edge(auditor, template, condition=_needs_template)
+        .add_edge(auditor, publish, condition=lambda c: c.verdict.ok)
         .build()
     )
 
 
 async def explain(job: ExplainJob, agent: RunsPrompt | None, roster: set[str],
-                  sink: TraceSink) -> Explained | None:
+                  sink: TraceSink, reviewer: RunsPrompt | None = None) -> Explained | None:
     """Run one moment through the workflow. Returns None if nothing verifiable came out."""
-    wf = build_workflow(agent, roster, sink)
+    wf = build_workflow(agent, roster, sink, reviewer)
     result = await wf.run(job)
     outs = result.get_outputs()
     return outs[0] if outs else None

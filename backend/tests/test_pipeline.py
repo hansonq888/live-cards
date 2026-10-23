@@ -22,7 +22,7 @@ class FakeModel:
         self.replies = list(replies)
         self.prompts = []
 
-    async def run(self, prompt):
+    async def run(self, prompt, **_):
         self.prompts.append(prompt)
         r = self.replies.pop(0)
         if isinstance(r, Exception):
@@ -50,7 +50,7 @@ def run(model, job=None):
 def test_good_model_line_airs():
     out, trace = run(FakeModel("Varenne's goal lifts him from 7.2 to 8.7."))
     assert out.source == "model" and out.attempts == 1 and out.verdict.ok
-    assert [t.stage for t in trace] == ["explainer", "verifier", "publish"]
+    assert [t.stage for t in trace] == ["explainer", "verifier", "reviewer", "publish"]
 
 
 def test_rejected_line_is_rewritten_with_feedback():
@@ -85,3 +85,20 @@ def test_a_bad_template_never_airs():
     out, trace = run(None, make_job(template="Varenne 7.2 -> 9.9 in 2 minutes"))
     assert out is None
     assert any(t.outcome == "blocked" for t in trace)
+
+
+def test_reviewer_rejection_triggers_rewrite_and_names_the_claim():
+    model = FakeModel("Varenne's goal and assist lift him to 8.7.", "Varenne's goal lifts him to 8.7.")
+    reviewer = FakeModel('{"ok": false, "claim": "assist"}', '{"ok": true}')
+    trace = []
+    out = asyncio.run(pipeline.explain(make_job(), model, ROSTER, trace.append, reviewer))
+    assert out.source == "model" and out.attempts == 2
+    assert "assist" in model.prompts[1]
+    assert [t.outcome for t in trace if t.stage == "reviewer"] == ["rejected", "ok"]
+
+
+def test_reviewer_fails_closed():
+    trace = []
+    out = asyncio.run(pipeline.explain(make_job(), FakeModel("Varenne lifts to 8.7.", "Varenne, 8.7."),
+                                       ROSTER, trace.append, FakeModel("not json", "still not json")))
+    assert out.source == "template"  # the model line never aired

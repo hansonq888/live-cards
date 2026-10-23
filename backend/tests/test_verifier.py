@@ -102,3 +102,27 @@ def test_mutated_templates_are_all_blocked(all_jobs):
                 blocked += not check(mutant, bundle, roster).ok
     assert mutants > 500
     assert blocked == mutants
+
+
+@pytest.mark.parametrize("lang,text,ok", [
+    ("es", "Gol de Varenne a 104 km/h; su nota sube de 7,2 a 8,7.", True),
+    ("es", "Varenne marca en el minuto sesenta y cinco.", True),
+    ("es", "Varenne marca en el minuto sesenta y seis.", False),
+    ("es", "Varenne, el más rápido del partido.", False),
+    ("fr", "Varenne marque à 104 km/h, sa note passe à 8,7.", True),
+    ("fr", "Varenne marque à 105 km/h.", False),
+    ("pt", "Varenne marca e sobe de 7,2 para 8,7.", True),
+    ("pt", "O melhor gol de Varenne na temporada.", False),
+    ("ar", "Varenne يسجل بسرعة ١٠٤ كم/س", True),
+    ("ar", "Varenne يسجل بسرعة ١٠٥ كم/س", False),
+    ("ar", "Halden يسجل", False),
+])
+def test_other_languages(lang, text, ok):
+    v = check(text, build_bundle(FACTS, NAMES), ROSTER, lang)
+    assert v.ok is ok, v.problems
+
+
+def test_arabic_names_must_stay_in_latin_script():
+    b = build_bundle(FACTS, NAMES)
+    assert not check("لوقا فارين يسجل بسرعة ١٠٤ كم/س", b, ROSTER, "ar").ok
+    assert check("Varenne يسجل بسرعة ١٠٤ كم/س", b, ROSTER, "ar").ok
