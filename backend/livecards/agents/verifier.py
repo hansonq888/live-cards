@@ -35,7 +35,8 @@ _ORDINAL_PHRASES_OK = re.compile(
 SUPERLATIVES: dict[str, str | None] = {
     "fastest": "fastest_of_match", "quickest": "fastest_of_match",
     "record": None, "season": None, "career": None, "hat-trick": None, "hattrick": None,
-    "best": None, "worst": None, "most": None, "highest": None, "lowest": None,
+    "best": None, "worst": None, "most": "is_leader_stat", "highest": "is_leader_stat",
+    "lowest": None,
     "never": None, "always": None, "ever": None, "unbeaten": None, "debut": None,
 }
 

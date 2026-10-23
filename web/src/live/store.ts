@@ -63,6 +63,7 @@ export interface LiveState {
   // Latest verified line per player, and moments whose line is still being written.
   lines: Record<string, Line>;
   profile: string; // audience.lang.voice
+  answers: { id: string; question: string; text?: string; source?: string; evidence?: string[]; tools?: string[]; ms?: number; problems?: string[]; minute?: number; pending: boolean }[];
   redteam: { stage: string; mode?: string; player?: string | null; injected?: string; blockedBy?: string | null; reason?: string; aired?: string | null; at: number } | null;
   showcase: { player: string | null; type: string; t: number; base: string; variants: Variant[]; at: number } | null;
   pending: Record<string, Pending>;
@@ -83,7 +84,7 @@ export interface LiveState {
 
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
-  director: null, cards: {}, stats: {}, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null,
+  director: null, cards: {}, stats: {}, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null,
 };
@@ -213,6 +214,12 @@ class LiveStore {
       }
       case "profile":
         this.set({ profile: m.key });
+        break;
+      case "answer_status":
+        this.set({ answers: [{ id: m.id, question: m.question, pending: true }, ...s.answers.filter((a) => a.id !== m.id)].slice(0, 12) });
+        break;
+      case "answer":
+        this.set({ answers: s.answers.map((a) => a.id === m.id ? { id: m.id, question: m.question, text: m.text, source: m.source, evidence: m.evidence, tools: m.tools, ms: m.ms, problems: m.problems, minute: m.minute, pending: false } : a) });
         break;
       case "redteam":
         this.set({ redteam: { stage: m.stage, mode: m.mode, player: m.player, injected: m.injected, blockedBy: m.blocked_by, reason: m.reason, aired: m.aired, at: now } });

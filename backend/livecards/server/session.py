@@ -26,6 +26,7 @@ from livecards.agents.personalizer import (
 )
 from livecards.agents.personalizer import INSTRUCTIONS as PERSONALIZER_INSTRUCTIONS
 from livecards.agents.pipeline import Explained, TraceEvent, explain
+from livecards.agents.qa import ask
 from livecards.agents.redteam import RedTeamAgent
 from livecards.agents.reviewer import make_reviewer
 from livecards.agents.verifier import check
@@ -117,6 +118,8 @@ class LiveSession:
             except ValueError:
                 self.profile = DEFAULT
             await self.send({"type": "profile", "key": self.profile.key})
+        elif kind == "ask" and str(msg.get("question", "")).strip():
+            self._spawn(self._ask(str(msg.get("id", "")), str(msg["question"])[:300]))
         elif kind == "redteam":
             await self._redteam()
         elif kind == "model":
@@ -236,6 +239,15 @@ class LiveSession:
             # The viewer's own language starts now, from the verified stats line, in parallel
             # with the English story line, instead of waiting for it.
             self._spawn(self._personalize(m, job, job.template, cue_id, [self.profile]))
+
+    async def _ask(self, qid: str, question: str) -> None:
+        await self.send({"type": "answer_status", "id": qid, "question": question,
+                         "stage": "checking the match data"})
+        a = await ask(question, self.engine, self.roster, reviewer_agent())
+        self.metrics["claims_checked"] += 1
+        self.metrics["blocked"] += bool(a.problems)
+        await self.send({"type": "answer", "id": qid, **asdict(a),
+                         "minute": int(self.t // 60)})
 
     def _spawn(self, coro) -> None:
         task = asyncio.create_task(coro)

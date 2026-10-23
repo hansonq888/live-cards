@@ -124,6 +124,50 @@ function Fans() {
   );
 }
 
+const SUGGESTIONS = [
+  "Why did Varenne's rating jump?", "Who has been the fastest player?", "How is Hearne doing?",
+  "Who controls the game right now?", "¿Quién ha corrido más?",
+];
+
+function Ask() {
+  const answers = useLive((s) => s.answers);
+  const [q, setQ] = useState("");
+  const send = (question: string) => {
+    if (!question.trim()) return;
+    live.send({ type: "ask", id: Math.random().toString(36).slice(2), question });
+    setQ("");
+  };
+  return (
+    <div className="ask">
+      <form onSubmit={(e) => { e.preventDefault(); send(q); }}>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask about any player or the match…" />
+        <button type="submit">Ask</button>
+      </form>
+      <div className="chips">{SUGGESTIONS.map((s) => <button key={s} onClick={() => send(s)}>{s}</button>)}</div>
+      <div className="answers">
+        {answers.length === 0 && <div className="empty">Answers come only from the match data, checked by the Verifier and the Reviewer. If it can't be proven, it says so.</div>}
+        {answers.map((a) => (
+          <div key={a.id} className="answer">
+            <div className="q">{a.question}</div>
+            {a.pending ? (
+              <div className="explaining"><i />Checking the match data…</div>
+            ) : (
+              <>
+                <div className={`a ${a.source === "refusal" ? "refusal" : ""}`}>{a.text}</div>
+                <div className="a-meta">
+                  {a.source === "model" ? <span className="verified">✓ verified</span> : <span className="src src-template">refused to guess</span>}
+                  <span className="evidence">{(a.tools ?? []).join(" · ")} · {Math.round((a.ms ?? 0) / 100) / 10}s</span>
+                  {a.evidence && a.evidence.length > 0 && <span className="evidence">{a.evidence.slice(0, 4).join(" ")}{a.evidence.length > 4 ? " …" : ""}</span>}
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ProfilePicker() {
   const profile = useLive((s) => s.profile);
   const meta = useLive((s) => s.meta);
@@ -149,17 +193,17 @@ export function ProfilePicker() {
 }
 
 export function SidePanel() {
-  const [tab, setTab] = useState<"feed" | "fans" | "trace" | "metrics">("feed");
+  const [tab, setTab] = useState<"feed" | "ask" | "fans" | "trace" | "metrics">("feed");
   return (
     <aside className="side">
       <nav className="tabs">
-        {(["feed", "fans", "trace", "metrics"] as const).map((t) => (
+        {(["feed", "ask", "fans", "trace", "metrics"] as const).map((t) => (
           <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-            {t === "feed" ? "Live feed" : t === "fans" ? "Fans" : t === "trace" ? "Agent trace" : "Metrics"}
+            {{ feed: "Live", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics" }[t]}
           </button>
         ))}
       </nav>
-      {tab === "feed" ? <Feed /> : tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : <Metrics />}
+      {tab === "feed" ? <Feed /> : tab === "ask" ? <Ask /> : tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : <Metrics />}
     </aside>
   );
 }
