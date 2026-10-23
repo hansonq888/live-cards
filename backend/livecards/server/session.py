@@ -231,7 +231,14 @@ class LiveSession:
             return
         if m.player:
             self.last_job[m.player] = (m, job, ring, cue_id)
-        task = asyncio.create_task(self._explain(m, job, ring, cue_id))
+        self._spawn(self._explain(m, job, ring, cue_id))
+        if self.profile != DEFAULT:
+            # The viewer's own language starts now, from the verified stats line, in parallel
+            # with the English story line, instead of waiting for it.
+            self._spawn(self._personalize(m, job, job.template, cue_id, [self.profile]))
+
+    def _spawn(self, coro) -> None:
+        task = asyncio.create_task(coro)
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
 
@@ -302,12 +309,13 @@ class LiveSession:
         self.metrics["rewrites"] += result.attempts > 1
         self.metrics["latency_ms"].append(result.ms)
         await self.send(self._cue_msg(cue_id, m, result, ring, phase="story"))
-        await self._personalize(m, job, result.text, cue_id)
-
-    async def _personalize(self, m: Moment, job, base: str, cue_id: int) -> None:
-        profiles = [self.profile]
         if m.type in SHOWCASE_MOMENTS and m.importance >= 0.55:
-            profiles += SHOWCASE
+            # The side-by-side for the Fans view isn't on the live path, so it can build on
+            # the finished English story line.
+            await self._personalize(m, job, result.text, cue_id, SHOWCASE)
+
+    async def _personalize(self, m: Moment, job, base: str, cue_id: int,
+                           profiles: list[Profile]) -> None:
         profiles = [p for p in dict.fromkeys(profiles) if p != DEFAULT]
         if not profiles:
             return

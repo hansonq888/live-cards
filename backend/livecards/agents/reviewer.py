@@ -19,9 +19,12 @@ from livecards.agents.llm import RunsPrompt, make_agent
 REVIEW_TIMEOUT_S = 6.0
 INSTRUCTIONS = """You audit one line of live football copy against the facts. Reply with JSON only:
 {"ok": true} or {"ok": false, "claim": "<the unsupported claim, quoted from the line>"}.
-Reject only claims of events or actions that the facts do not support (for example an assist,
-a save or a tackle that is not in the facts). Paraphrase is fine: an interception may be called
-winning or recovering the ball. Wording, tone, partisanship, language and omissions are fine."""
+Reject claims of events or actions that the facts do not support (for example an assist,
+a save or a tackle that is not in the facts), and invented specifics of HOW something happened
+(a header, a volley, a corner, a free kick, a counter-attack, "first touch") unless a fact says so.
+Paraphrase is fine: an interception may be called winning or recovering the ball; a goal may be
+called a finish or a strike; a pass that led to a goal is an assist. Wording, tone,
+partisanship, language and omissions are fine."""
 
 
 @dataclass

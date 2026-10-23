@@ -55,3 +55,17 @@ Central US.
 - **Red-team button.** It corrupts the Explainer's first draft, alternating a made-up number
   (caught by code) and a made-up event (caught by the reviewer); the corrected line airs.
   It goes through the normal workflow, with nothing special-cased.
+
+## Oct 23 — reviewer model and latency, measured
+
+10 hand-labelled lines (lies and correct paraphrases, 3 languages):
+
+| Reviewer | Accuracy | p50 | Errors |
+|---|---|---|---|
+| gpt-4.1-mini | 7/10 | 0.9 s | let lies through and rejected correct lines |
+| gpt-5-mini, low effort (first prompt) | 9/10 | 2.3 s | let one lie through (an invented header from a corner) |
+| gpt-5-mini, low effort (prompt also rejects invented "how") | 9/10 | 2.1 s | **only on the cautious side** (rejected a correct paraphrase) |
+
+Kept gpt-5-mini. Goal to screen, measured: instant stats line **0 ms** (the brief's under-3 s
+target, met by the explained stats line); AI story line ~5.7 s; viewer's own language ~6.9 s
+(now generated in parallel from the stats line instead of after the English one).
