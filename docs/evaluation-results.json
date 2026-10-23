@@ -1,0 +1,107 @@
+{
+  "safety": {
+    "cases": 330,
+    "lies": 275,
+    "seconds": 376.6,
+    "by_kind": {
+      "supported": {
+        "n": 55,
+        "code_ok": 55,
+        "review_ok": 50,
+        "both_ok": 50
+      },
+      "number": {
+        "n": 55,
+        "code_ok": 47,
+        "review_ok": 55,
+        "both_ok": 55
+      },
+      "word_number": {
+        "n": 55,
+        "code_ok": 55,
+        "review_ok": 55,
+        "both_ok": 55
+      },
+      "wrong_player": {
+        "n": 55,
+        "code_ok": 55,
+        "review_ok": 55,
+        "both_ok": 55
+      },
+      "superlative": {
+        "n": 55,
+        "code_ok": 55,
+        "review_ok": 55,
+        "both_ok": 55
+      },
+      "invented": {
+        "n": 55,
+        "code_ok": 0,
+        "review_ok": 55,
+        "both_ok": 55
+      }
+    },
+    "unsupported_aired": 0,
+    "supported_blocked": 5,
+    "examples_blocked_by_reviewer_only": [
+      "Brennick's passing rises from 62 to 66, after winning a penalty.",
+      "Ferreday's passing rises from 67 to 71, with a header.",
+      "Whitcombe's engine rises from 82 to 89, with a header.",
+      "Okelani's defending rises from 41 to 41."
+    ],
+    "examples_aired": [],
+    "examples_false_reject": [
+      "Halloway's engine rises from 71 to 74.",
+      "Halden rises to 7.0 after a chance created.",
+      "Penberthy's threat rises from 71 to 74.",
+      "Halden's engine rises from 72 to 75.",
+      "Halden rises to 8.2 after a goal."
+    ]
+  },
+  "foundry": {
+    "explainer": {
+      "status": "completed",
+      "passed": 12,
+      "failed": 3,
+      "total": 15,
+      "report_url": "https://ai.azure.com/nextgen/r/crfue7SiToGmD4rgb0rEsw,rg-hansonq888-1273,,livecards-resource,livecards/build/evaluations/eval_b4df219cd5044883a22894e1fdeff12f/run/evalrun_56f745afc9534df09d75348d8599edcc",
+      "per_evaluator": {
+        "groundedness": {
+          "passed": 14,
+          "failed": 1
+        },
+        "fluency": {
+          "passed": 13,
+          "failed": 2
+        },
+        "coherence": {
+          "passed": 15,
+          "failed": 0
+        }
+      }
+    },
+    "qa_agent": [
+      {
+        "status": "completed",
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "report_url": "https://ai.azure.com/nextgen/r/crfue7SiToGmD4rgb0rEsw,rg-hansonq888-1273,,livecards-resource,livecards/build/evaluations/eval_210f72624e674a848392abdd0c1722fe/run/evalrun_7ca20f3fde5b4064acdbc67db0d4738c",
+        "per_evaluator": {
+          "intent_resolution": {
+            "passed": 5,
+            "failed": 0
+          },
+          "task_adherence": {
+            "passed": 5,
+            "failed": 0
+          },
+          "tool_call_accuracy": {
+            "passed": 5,
+            "failed": 0
+          }
+        }
+      }
+    ]
+  }
+}

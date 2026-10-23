@@ -52,15 +52,19 @@ def parse(text: str) -> Review:
     return Review(bool(data.get("ok")), str(data.get("claim", "")))
 
 
-async def review(agent: RunsPrompt, line: str, facts: dict) -> Review:
-    """Fails closed: any error or timeout is a rejection."""
-    try:
-        res = await asyncio.wait_for(
-            agent.run(f"Facts: {json.dumps(facts, ensure_ascii=False)}\nLine: {line}",
-                      options={"reasoning": {"effort": "low"}}),
-            REVIEW_TIMEOUT_S)
-    except TimeoutError:
-        return Review(False, error="reviewer timed out")
-    except Exception as exc:  # noqa: BLE001 - fail closed on any model failure
-        return Review(False, error=f"reviewer error: {type(exc).__name__}")
-    return parse(res.text)
+async def review(agent: RunsPrompt, line: str, facts: dict, retries: int = 1) -> Review:
+    """Fails closed: an error or timeout is a rejection, after one retry with backoff
+    (a burst of lines at a goal can hit the model's rate limit for a moment)."""
+    prompt = f"Facts: {json.dumps(facts, ensure_ascii=False)}\nLine: {line}"
+    for attempt in range(retries + 1):
+        try:
+            res = await asyncio.wait_for(
+                agent.run(prompt, options={"reasoning": {"effort": "low"}}), REVIEW_TIMEOUT_S)
+            return parse(res.text)
+        except TimeoutError:
+            error = "reviewer timed out"
+        except Exception as exc:  # noqa: BLE001 - fail closed on any model failure
+            error = f"reviewer error: {type(exc).__name__}"
+        if attempt < retries:
+            await asyncio.sleep(1.5 * (attempt + 1))
+    return Review(False, error=error)

@@ -46,6 +46,17 @@ def foundry_configured() -> bool:
     return bool(os.environ.get("FOUNDRY_PROJECT_ENDPOINT") and os.environ.get("FOUNDRY_MODEL"))
 
 
+def make_client(model_env: str = "FOUNDRY_MODEL"):
+    """A Foundry chat client signed in with our credential chain (None if not configured)."""
+    if not foundry_configured():
+        return None
+    from agent_framework.foundry import FoundryChatClient
+
+    model = os.environ.get(model_env) or os.environ["FOUNDRY_MODEL"]
+    return FoundryChatClient(project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
+                             model=model, credential=_credential())
+
+
 def make_agent(name: str, instructions: str, model_env: str = "FOUNDRY_MODEL",
                tools: list | None = None) -> RunsPrompt | None:
     """An Agent Framework agent on a Foundry deployment, or None if Foundry isn't set up."""
