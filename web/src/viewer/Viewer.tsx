@@ -55,7 +55,7 @@ export function Viewer() {
         scene.ringTarget = targetRef.current;
         const gameDt = Math.max(0, Math.min(1, st.t - lastT));
         lastT = st.t;
-        scene.update(st.poses, st.ball, dt, gameDt);
+        scene.update(st.poses, st.ball, dt, gameDt, st.t);
         const pos = scene.ringScreenPos();
         const p = targetRef.current ? names.get(targetRef.current) : undefined;
         if (tag.current) {

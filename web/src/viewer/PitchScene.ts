@@ -6,6 +6,8 @@ import type { MatchMeta } from "../live/protocol";
 export interface PlayerPose { id: string; x: number; y: number; v: number }
 
 const RING = "#39e5ff";
+const TRAIL_POINTS = 48;
+const TRAIL_MS = 2200;
 
 function pitchTexture(): THREE.CanvasTexture {
   const PX = 20, pad = 6 * PX;
@@ -76,6 +78,14 @@ export class PitchScene {
   private camZ = 0;
   private poses = new Map<string, PlayerPose>();
   ringTarget: string | null = null;
+  private ringFor: string | null = null; // glide for 0.6 s after a switch, then lock on
+  private ringSince = 0;
+  // Speed trail behind the followed player: a ground ribbon, wider and hotter with speed.
+  private trail: { x: number; z: number; v: number; at: number }[] = [];
+  // Recent path of every player, so a newly followed player's trail appears at once.
+  private history = new Map<string, { x: number; z: number; v: number; at: number }[]>();
+  private trailGeom = new THREE.BufferGeometry();
+  private trailMesh: THREE.Mesh;
 
   constructor(container: HTMLElement, meta: MatchMeta) {
     const r = new THREE.WebGLRenderer({ antialias: true });
@@ -147,6 +157,66 @@ export class PitchScene {
     for (const m of [ring1, this.ring2]) { m.rotation.x = -Math.PI / 2; this.ring.add(m); }
     this.ring.position.y = 0.04;
     s.add(this.ring);
+
+    const max = TRAIL_POINTS * 2;
+    this.trailGeom.setAttribute("position", new THREE.BufferAttribute(new Float32Array(max * 3), 3));
+    this.trailGeom.setAttribute("color", new THREE.BufferAttribute(new Float32Array(max * 3), 3));
+    const idx: number[] = [];
+    for (let i = 0; i < TRAIL_POINTS - 1; i++) {
+      const a = i * 2, b = a + 1, c = a + 2, d = a + 3;
+      idx.push(a, b, c, b, d, c);
+    }
+    this.trailGeom.setIndex(idx);
+    this.trailMesh = new THREE.Mesh(this.trailGeom, new THREE.MeshBasicMaterial({
+      vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+      side: THREE.DoubleSide,
+    }));
+    this.trailMesh.frustumCulled = false;
+    s.add(this.trailMesh);
+  }
+
+  /** Rebuild the ribbon from recent positions: width and colour from speed, fading with age. */
+  private recordHistory(players: PlayerPose[], now: number) {
+    for (const p of players) {
+      let h = this.history.get(p.id);
+      // A real jump back (Revisit), not the interpolated clock wobbling by a few milliseconds.
+      if (!h || (h.length && now < h[h.length - 1].at - 2000)) { h = []; this.history.set(p.id, h); }
+      const last = h[h.length - 1];
+      if (!last || Math.hypot(p.x - last.x, -p.y - last.z) > 0.2) h.push({ x: p.x, z: -p.y, v: p.v, at: now });
+      while (h.length && (now - h[0].at > TRAIL_MS || h.length > TRAIL_POINTS)) h.shift();
+    }
+  }
+
+  private updateTrail(target: PlayerPose | undefined, now: number) {
+    this.trail = target ? (this.history.get(target.id) ?? []).filter((p) => now - p.at < TRAIL_MS) : [];
+    const pos = this.trailGeom.getAttribute("position") as THREE.BufferAttribute;
+    const col = this.trailGeom.getAttribute("color") as THREE.BufferAttribute;
+    const n = this.trail.length;
+    const cool = new THREE.Color("#39e5ff"), hot = new THREE.Color("#ff9b4a"), white = new THREE.Color("#ffffff");
+    for (let i = 0; i < TRAIL_POINTS; i++) {
+      if (n < 2 || i >= n) {  // unused slots collapse onto the newest point (zero-area triangles)
+        const q = this.trail[n - 1] ?? { x: 0, z: 0 };
+        pos.setXYZ(i * 2, q.x, -0.5, q.z); pos.setXYZ(i * 2 + 1, q.x, -0.5, q.z);
+        col.setXYZ(i * 2, 0, 0, 0); col.setXYZ(i * 2 + 1, 0, 0, 0);
+        continue;
+      }
+      const p = this.trail[i];
+      const a = this.trail[Math.max(0, i - 1)], b = this.trail[Math.min(n - 1, i + 1)];
+      let dx = b.x - a.x, dz = b.z - a.z;
+      const len = Math.hypot(dx, dz) || 1;
+      dx /= len; dz /= len;
+      const fresh = 1 - (now - p.at) / TRAIL_MS;            // 1 new .. 0 old
+      const kmh = p.v * 3.6;
+      const heat = Math.min(1, Math.max(0, (kmh - 18) / 14)); // 18 km/h cool .. 32 km/h hot
+      const w = (0.18 + 0.75 * heat) * Math.max(0.15, fresh) * (i / Math.max(1, n - 1));
+      pos.setXYZ(i * 2, p.x - dz * w, 0.03, p.z + dx * w);
+      pos.setXYZ(i * 2 + 1, p.x + dz * w, 0.03, p.z - dx * w);
+      const c = heat < 0.7 ? cool.clone().lerp(white, heat / 0.7) : white.clone().lerp(hot, (heat - 0.7) / 0.3);
+      c.multiplyScalar(Math.max(0, fresh) * (0.35 + 0.65 * heat));
+      col.setXYZ(i * 2, c.r, c.g, c.b); col.setXYZ(i * 2 + 1, c.r, c.g, c.b);
+    }
+    pos.needsUpdate = true;
+    col.needsUpdate = true;
   }
 
   private makePlayer(shirt: string, shorts: string, gk: boolean, id: string): Body {
@@ -189,7 +259,7 @@ export class PitchScene {
   }
 
   /** Apply one interpolated pose set; dt is wall seconds since the last render. */
-  update(players: PlayerPose[], ball: [number, number, number], dt: number, gameDt: number) {
+  update(players: PlayerPose[], ball: [number, number, number], dt: number, gameDt: number, gameT = 0) {
     const seen = new Set<string>();
     for (const p of players) {
       seen.add(p.id);
@@ -218,11 +288,16 @@ export class PitchScene {
     // Ring glides toward the followed player (critically damped, ~0.4 s).
     const target = this.ringTarget ? this.poses.get(this.ringTarget) : undefined;
     if (target) {
-      const k = 1 - Math.exp(-dt * 9);
+      // Glide on a switch; once it has arrived, lock on so a sprinter doesn't outrun it.
+      const nowMs = performance.now();
+      if (target.id !== this.ringFor) { this.ringFor = target.id; this.ringSince = nowMs; }
+      const k = nowMs - this.ringSince > 600 ? 1 : 1 - Math.exp(-dt * 9);
       this.ringPos.x += (target.x - this.ringPos.x) * k;
       this.ringPos.z += (-target.y - this.ringPos.z) * k;
     }
     this.ring.visible = !!target;
+    this.recordHistory(players, gameT * 1000);
+    this.updateTrail(target, gameT * 1000);
     this.ring.position.set(this.ringPos.x, 0.04, this.ringPos.z);
     const pulse = 1 + 0.08 * Math.sin(performance.now() / 160);
     this.ring2.scale.set(pulse, pulse, pulse);
