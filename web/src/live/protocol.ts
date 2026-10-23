@@ -91,7 +91,7 @@ export interface AnalystView {
 
 export interface ModelSpec { name: string; rating_weights: Record<string, number>; attr_weights: Record<string, Record<string, number>> }
 
-export interface BuildStep { t: number; kind: string; player: string; text: string; evidence: string[] }
+export interface BuildStep { t: number; kind: string; player: string; text: string; evidence: string[]; args?: Record<string, string | number | boolean | null> }
 
 export interface TraceStep {
   moment_id: string;
@@ -118,16 +118,16 @@ export interface Metrics {
 export type ServerMsg =
   | { type: "hello"; meta: MatchMeta; speed: number; t: number; model_enabled: boolean }
   | ({ type: "frame" } & Frame)
-  | { type: "director"; t: number; target: string; reason: string; kind: string; predicted: boolean; mode: string }
+  | { type: "director"; t: number; target: string; reason: string; kind: string; predicted: boolean; mode: string; key?: string; args?: Record<string, string | number | boolean | null> }
   | { type: "card"; card: CardState; stats: Record<string, number>; analyst?: AnalystView; custom?: AnalystView & { name: string } }
   | { type: "your_model"; status: "off" | "building" | "ready" | "error"; name?: string; error?: string }
   | { type: "moment"; moment: Moment; card?: CardState }
-  | { type: "cue"; cue: Cue; moment_type: string; phase: "instant" | "story"; source: string; attempts: number; latency_ms: number; claims_checked: number }
+  | { type: "cue"; cue: Cue; moment_type: string; phase: "instant" | "story"; facts?: Record<string, string | number>; source: string; attempts: number; latency_ms: number; claims_checked: number }
   | { type: "variants"; cue: string; moment: string; moment_type: string; player: string | null; t: number; base: string; variants: Variant[] }
   | { type: "profile"; key: string }
   | { type: "history"; moments: Moment[] }
-  | { type: "buildup"; error?: string; goal: string; team: string; scorer: string; start_t: number; goal_t: number; story: string; steps: BuildStep[] }
-  | { type: "buildup_story"; goal: string; text: string; source: string }
+  | { type: "buildup"; error?: string; goal: string; team: string; scorer: string; start_t: number; goal_t: number; story: string; story_args?: Record<string, string | number>; steps: BuildStep[] }
+  | { type: "buildup_story"; goal: string; text: string; source: string; localized?: string | null; lang?: string }
   | { type: "answer_status"; id: string; question: string; stage: string }
   | { type: "answer"; id: string; question: string; text: string; verified: boolean; source: string; evidence: string[]; tools: string[]; ms: number; problems: string[]; minute: number }
   | { type: "redteam"; stage: "started" | "result" | "unavailable"; mode?: string; moment?: string; player?: string | null; injected?: string; blocked_by?: string | null; reason?: string; aired?: string | null; aired_source?: string | null }

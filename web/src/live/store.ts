@@ -1,6 +1,7 @@
 // Live state: a tiny external store fed by the WebSocket. Frames go to a ring buffer
 // read by the render loop (no React re-render per frame); everything else is React state.
 import { useSyncExternalStore } from "react";
+import { stepCaption, type Lang } from "../i18n";
 import type { AnalystView, BuildStep, CardState, ModelSpec, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
 
 export interface Director {
@@ -10,6 +11,8 @@ export interface Director {
   predicted: boolean;
   mode: string;
   at: number; // wall ms
+  key?: string;
+  args?: Record<string, string | number | boolean | null>;
 }
 
 export interface FeedItem {
@@ -34,6 +37,7 @@ export interface TraceItem {
 
 export interface Line {
   cue: string;
+  facts?: Record<string, string | number>;
   text: string;
   source: string;
   phase: "instant" | "story";
@@ -71,7 +75,7 @@ export interface LiveState {
   lines: Record<string, Line>;
   profile: string; // audience.lang.voice
   keyMoments: KeyMoment[];
-  buildup: { goal: string; steps: BuildStep[]; start: number; goalT: number; story: string; storySource: string; playing: boolean; at: number; resumeSpeed: number } | null;
+  buildup: { goal: string; steps: BuildStep[]; start: number; goalT: number; story: string; storyArgs?: Record<string, string | number>; localized?: string | null; storySource: string; playing: boolean; at: number; resumeSpeed: number } | null;
   liveEdge: number; // furthest match time watched
   revisit: KeyMoment | null;
   answers: { id: string; question: string; text?: string; source?: string; evidence?: string[]; tools?: string[]; ms?: number; problems?: string[]; minute?: number; pending: boolean }[];
@@ -79,7 +83,7 @@ export interface LiveState {
   showcase: { player: string | null; type: string; t: number; base: string; variants: Variant[]; at: number } | null;
   pending: Record<string, Pending>;
   upgrades: Record<string, { from: number; to: number; type: string; at: number; label: string }>;
-  alerts: { id: string; player: string; text: string; type: string; at: number }[];
+  alerts: { id: string; player: string; text: string; type: string; at: number; kmh?: number; count?: number }[];
   banner: { text: string; sub: string; at: number } | null;
   feed: FeedItem[];
   traces: TraceItem[];
@@ -172,7 +176,7 @@ class LiveStore {
     const step = [...b.steps].reverse().find((s) => s.t <= t);
     if (step && step.player !== this.lastBuildPlayer) {
       this.lastBuildPlayer = step.player;
-      this.send({ type: "select", player: step.player, reason: `Build-up: ${step.text}` });
+      this.send({ type: "select", player: step.player, reason: stepCaption(this.lang(), step) });
     }
   }
   private lastBuildPlayer: string | null = null;
@@ -189,6 +193,10 @@ class LiveStore {
     const who = this.name(mo.player);
     const what = mo.type === "goal" ? "Goal" : mo.type === "rating_upgrade" ? `Card ▲ ${mo.facts.to}` : mo.type === "rating_downgrade" ? `Card ▼ ${mo.facts.to}` : mo.type === "fastest_sprint" ? `${mo.facts.speed_kmh} km/h` : mo.type === "momentum_swing" ? "Momentum swing" : mo.type === "big_chance" ? "Big chance" : mo.type === "card" ? "Yellow card" : "Substitution";
     return { id: mo.id, t: mo.t, type: mo.type, player: mo.player, label: `${what}${who ? " · " + who : ""}` };
+  }
+
+  lang(): Lang {
+    return (this.state.profile.split(".")[1] as Lang) || "en";
   }
 
   private name(id: string | null) {
@@ -208,7 +216,7 @@ class LiveStore {
         if (Math.floor(m.t) !== Math.floor(s.t)) this.set({ t: m.t, liveEdge: s.revisit ? s.liveEdge : Math.max(s.liveEdge, m.t) });
         break;
       case "director":
-        this.set({ director: { target: m.target, reason: m.reason, kind: m.kind, predicted: m.predicted, mode: m.mode, at: now } });
+        this.set({ director: { target: m.target, reason: m.reason, kind: m.kind, predicted: m.predicted, mode: m.mode, at: now, key: m.key, args: m.args } });
         break;
       case "card":
         this.set({
@@ -233,7 +241,7 @@ class LiveStore {
         }
         if (mo.player && ["fastest_sprint", "sprint", "streak"].includes(mo.type)) {
           const text = mo.type === "streak" ? `🔥 ${mo.facts.count} IN A ROW` : `⚡ ${Number(mo.facts.speed_kmh).toFixed(1)} KM/H${mo.type === "fastest_sprint" ? " · FASTEST" : ""}`;
-          patch.alerts = [...s.alerts.filter((a) => now - a.at < 6000), { id: mo.id, player: mo.player, text, type: mo.type, at: now }];
+          patch.alerts = [...s.alerts.filter((a) => now - a.at < 6000), { id: mo.id, player: mo.player, text, type: mo.type, at: now, kmh: Number(mo.facts.speed_kmh), count: Number(mo.facts.count) }];
         }
         if (mo.type === "goal") {
           patch.banner = { text: "GOAL", sub: `${this.name(mo.player)} · ${mo.facts.score_home}–${mo.facts.score_away}`, at: now };
@@ -262,7 +270,7 @@ class LiveStore {
           const prev = s.lines[c.player];
           // An instant line never overwrites a newer story line from another moment.
           if (m.phase === "story" || !prev || prev.cue !== c.cue) {
-            patch.lines = { ...s.lines, [c.player]: { cue: c.cue, text, source: m.source, phase: m.phase, type: m.moment_type, at: now, evidence: c.evidence, latency: m.latency_ms, variants: prev?.cue === c.cue ? prev.variants : {} } };
+            patch.lines = { ...s.lines, [c.player]: { cue: c.cue, facts: m.facts, text, source: m.source, phase: m.phase, type: m.moment_type, at: now, evidence: c.evidence, latency: m.latency_ms, variants: prev?.cue === c.cue ? prev.variants : {} } };
           }
           const p = { ...s.pending };
           delete p[c.player];
@@ -291,7 +299,7 @@ class LiveStore {
         if (m.error) break;
         const resume = s.speed;
         this.set({
-          buildup: { goal: m.goal, steps: m.steps, start: m.start_t, goalT: m.goal_t, story: m.story, storySource: "stats", playing: true, at: now, resumeSpeed: resume },
+          buildup: { goal: m.goal, steps: m.steps, start: m.start_t, goalT: m.goal_t, story: m.story, storyArgs: m.story_args, storySource: "stats", playing: true, at: now, resumeSpeed: resume },
           revisit: { id: m.goal, t: m.goal_t, type: "goal", player: m.scorer, label: `Build-up · ${this.name(m.scorer)}` },
           liveEdge: Math.max(s.liveEdge, s.t),
         });
@@ -300,7 +308,7 @@ class LiveStore {
         break;
       }
       case "buildup_story":
-        if (s.buildup?.goal === m.goal) this.set({ buildup: { ...s.buildup, story: m.text, storySource: m.source } });
+        if (s.buildup?.goal === m.goal) this.set({ buildup: { ...s.buildup, story: m.text, storySource: m.source, localized: m.localized } });
         break;
       case "your_model":
         this.set({ yourModel: { ...s.yourModel, status: m.status, name: m.name, error: m.error }, ...(m.status === "off" ? { custom: {} } : {}) });
@@ -344,6 +352,10 @@ export const live = new LiveStore();
 
 export function useLive<T>(select: (s: LiveState) => T): T {
   return useSyncExternalStore(live.subscribe, () => select(live.get()));
+}
+
+export function useLang(): Lang {
+  return (useLive((s) => s.profile).split(".")[1] as Lang) || "en";
 }
 
 export function clock(t: number) {

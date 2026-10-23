@@ -1,6 +1,7 @@
 // Fan view: the broadcast, full screen, nothing else. Controls appear when you move the mouse.
 import { useEffect, useRef, useState } from "react";
-import { live, useLive } from "../live/store";
+import { live, useLang, useLive } from "../live/store";
+import { t as tr } from "../i18n";
 import { Viewer } from "../viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./Overlays";
 import { ScaledStage } from "./ScaledStage";
@@ -9,6 +10,7 @@ import { Timeline } from "./Timeline";
 
 export function FanView({ onStudio }: { onStudio: () => void }) {
   const paused = useLive((s) => s.paused);
+  const lang = useLang();
   const [active, setActive] = useState(true);
   const [askOpen, setAskOpen] = useState(false);
   const timer = useRef<number>();
@@ -35,10 +37,10 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
         <Timeline />
         <ExplainGoalButton />
         <ProfilePicker />
-        <button className="ghost" onClick={onStudio}>Studio view</button>
-        <span className="fan-note">Synthetic match · fictional clubs</span>
+        <button className="ghost" onClick={onStudio}>{tr(lang, "studio")}</button>
+        <span className="fan-note">{tr(lang, "synthetic")}</span>
       </div>
-      <button className={`ask-fab ${askOpen ? "open" : ""}`} onClick={() => setAskOpen((o) => !o)}>{askOpen ? "✕" : "Ask"}</button>
+      <button className={`ask-fab ${askOpen ? "open" : ""}`} onClick={() => setAskOpen((o) => !o)}>{askOpen ? "✕" : tr(lang, "ask")}</button>
       {askOpen && <div className="ask-drawer"><Ask /></div>}
     </div>
   );

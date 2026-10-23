@@ -1,4 +1,5 @@
-import { clock, live, useLive } from "../live/store";
+import { clock, live, useLang, useLive } from "../live/store";
+import { t as tr } from "../i18n";
 
 const ICON: Record<string, string> = {
   goal: "⚽", big_chance: "◎", fastest_sprint: "⚡", rating_upgrade: "▲", rating_downgrade: "▼",
@@ -12,6 +13,7 @@ export function Timeline() {
   const edge = useLive((s) => s.liveEdge);
   const revisit = useLive((s) => s.revisit);
   const meta = useLive((s) => s.meta);
+  const lang = useLang();
   const dur = meta?.duration ?? 5400;
   return (
     <div className="timeline">
@@ -30,11 +32,11 @@ export function Timeline() {
       <div className="tl-side">
         {revisit ? (
           <>
-            <span className="tl-revisit">REVISIT · {clock(revisit.t)} · {revisit.label}</span>
-            <button onClick={() => live.backToLive()}>Back to live ▸</button>
+            <span className="tl-revisit">{tr(lang, "revisit")} · {clock(revisit.t)} · {revisit.label}</span>
+            <button onClick={() => live.backToLive()}>{tr(lang, "back_live")}</button>
           </>
         ) : (
-          <span className="tl-hint">{keys.length ? "Key moments: click one to replay it as it happened" : "Key moments appear here as they happen (first ones around 23′ and 30′)"}</span>
+          <span className="tl-hint">{tr(lang, keys.length ? "key_hint" : "key_empty")}</span>
         )}
       </div>
     </div>

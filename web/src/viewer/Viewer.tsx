@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { live, useLive } from "../live/store";
+import { live, useLang, useLive } from "../live/store";
+import { t as tr } from "../i18n";
 import type { Frame } from "../live/protocol";
 import { PitchScene, type PlayerPose } from "./PitchScene";
 
@@ -29,6 +30,7 @@ export function Viewer() {
   const meta = useLive((s) => s.meta);
   const director = useLive((s) => s.director);
   const alerts = useLive((s) => s.alerts);
+  const lang = useLang();
   const host = useRef<HTMLDivElement>(null);
   const tag = useRef<HTMLDivElement>(null);
   const alertEl = useRef<HTMLDivElement>(null);
@@ -116,7 +118,7 @@ export function Viewer() {
       <div ref={host} className="canvas-host" />
       <div ref={tag} className="name-tag" />
       <div ref={alertEl} className="alert-badge" style={{ display: alert ? "block" : "none" }}>
-        {alert?.text}
+        {alert ? (alert.type === "streak" ? `🔥 ${alert.count} ${tr(lang, "in_a_row")}` : `⚡ ${alert.kmh?.toFixed(1)} KM/H${alert.type === "fastest_sprint" ? ` · ${tr(lang, "fastest")}` : ""}`) : ""}
       </div>
     </div>
   );

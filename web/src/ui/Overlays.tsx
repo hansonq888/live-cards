@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { clock, live, useLive } from "../live/store";
+import { clock, live, useLang, useLive } from "../live/store";
+import { directorReason, isRtl, statsLine, stepCaption, storyLine, t as tr, type Lang } from "../i18n";
 import { AnalystCard, TeamStrip } from "./Analyst";
 
 const STORY_TYPES = new Set(["goal", "rating_upgrade", "rating_downgrade", "big_chance", "momentum_swing", "fastest_sprint", "attr_upgrade", "attr_downgrade"]);
 
-const ATTRS: [string, string][] = [
-  ["pace", "Pace"], ["passing", "Passing"], ["threat", "Threat"], ["defending", "Defending"], ["engine", "Engine"],
-];
+const ATTRS = ["pace", "passing", "threat", "defending", "engine"];
+
+function useLangFrom(profile: string): Lang {
+  return (profile.split(".")[1] as Lang) || "en";
+}
 
 function useTicker(ms = 250) {
   const [, set] = useState(0);
@@ -80,8 +83,12 @@ export function PlayerCard() {
   const waiting = !line && pending[pid] && now - pending[pid].at < 6000;
   const personal = profile !== "casual.en.neutral";
   const variant = line && personal ? line.variants[profile] : undefined;
-  const shown = variant && variant.source === "model" ? variant.text : line?.text;
-  const lang = profile.split(".")[1];
+  const lang = useLangFrom(profile);
+  // Until the verified AI line in your language arrives, show the stats line in your language
+  // (rendered from the engine's facts), never a line in a language you didn't pick.
+  const localStats = line ? statsLine(lang, line.type, line.facts ?? {}, p.short, line.text, meta.home.code, meta.away.code) : "";
+  const shown = variant && variant.source === "model" ? variant.text : lang === "en" ? line?.text : localStats;
+  const rtl = isRtl(lang);
   const storyComing = line?.phase === "instant" && modelEnabled && STORY_TYPES.has(line.type) && now - line.at < 6000;
   const translating = personal && line?.phase === "story" && !variant && now - line.at < 6000;
   return (
@@ -98,7 +105,8 @@ export function PlayerCard() {
         </div>
       </div>
       <div className="attrs">
-        {ATTRS.map(([k, label]) => {
+        {ATTRS.map((k) => {
+          const label = tr(lang, k);
           const v = card.attrs[k] ?? 0;
           const hot = fresh && up.label === k;
           return (
@@ -111,28 +119,27 @@ export function PlayerCard() {
         })}
       </div>
       <div className="stats">
-        <div><b>{(st.distance_km ?? 0).toFixed(2)}</b><span>km</span></div>
-        <div><b>{(st.top_speed_kmh ?? 0).toFixed(1)}</b><span>top km/h</span></div>
-        <div><b>{st.passes_completed ?? 0}/{st.passes ?? 0}</b><span>passes</span></div>
-        <div><b>{st.shots ?? 0}</b><span>shots</span></div>
+        <div><b>{(st.distance_km ?? 0).toFixed(2)}</b><span>{tr(lang, "km")}</span></div>
+        <div><b>{(st.top_speed_kmh ?? 0).toFixed(1)}</b><span>{tr(lang, "top")}</span></div>
+        <div><b>{st.passes_completed ?? 0}/{st.passes ?? 0}</b><span>{tr(lang, "passes")}</span></div>
+        <div><b>{st.shots ?? 0}</b><span>{tr(lang, "shots")}</span></div>
       </div>
       <div className="reason">
         {waiting ? (
-          <span className="explaining"><i />Explaining and verifying…</span>
+          <span className="explaining"><i />{tr(lang, "explaining")}</span>
         ) : line ? (
           <>
-            <span className={`reason-text ${line.phase === "instant" ? "instant" : ""}`} dir={variant && lang === "ar" ? "rtl" : undefined}>{shown}</span>
+            <span className={`reason-text ${line.phase === "instant" && !(variant?.source === "model") ? "instant" : ""}`} dir={rtl ? "rtl" : undefined}>{shown}</span>
             <span className="reason-meta">
-              <span className="verified">✓ verified</span>
-              <span className={`src src-${line.source}`}>{line.source === "model" ? (variant?.source === "model" ? `AI · ${lang.toUpperCase()}` : "AI") : "stats"}</span>
-              {storyComing && <span className="coming"><i />AI line being checked</span>}
-              {translating && <span className="coming"><i />{lang.toUpperCase()} version being checked</span>}
-              {variant?.source === "fallback" && <span className="evidence">kept English: {lang.toUpperCase()} failed checks</span>}
-              <span className="evidence" title={line.evidence.join(", ")}>{line.evidence.length} evidence</span>
+              <span className="verified">{tr(lang, "verified")}</span>
+              <span className={`src src-${variant?.source === "model" ? "model" : line.source}`}>{variant?.source === "model" ? `${tr(lang, "ai")} · ${lang.toUpperCase()}` : line.source === "model" && lang === "en" ? tr(lang, "ai") : tr(lang, "stats")}</span>
+              {storyComing && <span className="coming"><i />{tr(lang, "ai_checking")}</span>}
+              {translating && <span className="coming"><i />{tr(lang, "lang_checking", { L: lang.toUpperCase() })}</span>}
+              <span className="evidence" title={line.evidence.join(", ")}>{line.evidence.length} {tr(lang, "evidence")}</span>
             </span>
           </>
         ) : (
-          <span className="reason-text dim">{card.reason || "Card starts at 6.0. Every change explains itself."}</span>
+          <span className="reason-text dim" dir={rtl ? "rtl" : undefined}>{lang === "en" && card.reason ? card.reason : tr(lang, "card_intro")}</span>
         )}
       </div>
     </div>
@@ -141,13 +148,15 @@ export function PlayerCard() {
 
 export function DirectorTicker() {
   const director = useLive((s) => s.director);
+  const lang = useLang();
   const now = useTicker();
   if (!director) return null;
   const fresh = now - director.at < 1500;
+  const label = director.mode === "replay" ? "replay" : director.mode === "manual" ? "your_pick" : director.predicted ? "predicted" : "auto";
   return (
     <div className={`director ${fresh ? "director-fresh" : ""} ${director.predicted ? "director-predict" : ""}`}>
-      <span className="director-label">{director.mode === "replay" ? "BUILD-UP REPLAY" : director.mode === "manual" ? "YOUR PICK" : director.predicted ? "AUTO-DIRECTOR · PREDICTED" : "AUTO-DIRECTOR"}</span>
-      <span className="director-reason">{director.reason}</span>
+      <span className="director-label">{tr(lang, label)}</span>
+      <span className="director-reason" dir={isRtl(lang) ? "rtl" : undefined}>{directorReason(lang, director.key, director.args, director.reason)}</span>
     </div>
   );
 }
@@ -176,17 +185,19 @@ export function RedTeamPanel() {
 
 export function RevisitBadge() {
   const revisit = useLive((s) => s.revisit);
+  const lang = useLang();
   if (!revisit) return null;
-  return <div className="revisit-badge">REVISIT · {clock(revisit.t)} · {revisit.label}</div>;
+  return <div className="revisit-badge">{tr(lang, "revisit")} · {clock(revisit.t)} · {revisit.label}</div>;
 }
 
 export function GoalBanner() {
   const banner = useLive((s) => s.banner);
+  const lang = useLang();
   const now = useTicker(200);
   if (!banner || now - banner.at > 4500) return null;
   return (
     <div className="goal-banner">
-      <div className="goal-word">GOAL</div>
+      <div className="goal-word">{tr(lang, "goal")}</div>
       <div className="goal-sub">{banner.sub}</div>
     </div>
   );
@@ -196,18 +207,22 @@ export function GoalBanner() {
 export function BuildUpPanel() {
   const b = useLive((s) => s.buildup);
   const t = useLive((s) => s.t);
+  const lang = useLang();
   const now = useTicker(200);
   useEffect(() => { live.stepBuildup(t); }, [t]);
   if (!b || (!b.playing && now - b.at > 60000)) return null;
   const cur = [...b.steps].reverse().find((s) => s.t <= t);
+  // Story: the AI line in your language if it passed the checks; else the facts-based line.
+  const aiStory = lang === "en" ? (b.storySource === "model" ? b.story : null) : b.localized;
+  const story = aiStory ?? storyLine(lang, b.storyArgs, b.story);
   return (
-    <div className="buildup">
-      <div className="bu-title">HOW THE GOAL WAS BUILT</div>
-      <div className="bu-story">{b.story}{b.storySource === "model" && <span className="verified"> ✓ verified</span>}</div>
+    <div className="buildup" dir={isRtl(lang) ? "rtl" : undefined}>
+      <div className="bu-title">{tr(lang, "how_built")}</div>
+      <div className="bu-story">{story}{aiStory && <span className="verified"> {tr(lang, "verified")}</span>}</div>
       <ol>
         {b.steps.map((s, i) => (
           <li key={i} className={`bu-${s.kind} ${s.t <= t ? "done" : ""} ${s === cur ? "cur" : ""}`}>
-            <span className="bu-time">{(s.t - b.goalT).toFixed(1)}s</span>{s.text}
+            <span className="bu-time">{(s.t - b.goalT).toFixed(1)}s</span>{stepCaption(lang, s)}
           </li>
         ))}
       </ol>
@@ -218,7 +233,8 @@ export function BuildUpPanel() {
 export function ExplainGoalButton({ className = "" }: { className?: string }) {
   const keys = useLive((s) => s.keyMoments);
   const t = useLive((s) => s.t);
+  const lang = useLang();
   const goals = keys.filter((k) => k.type === "goal" && k.t <= t + 1);
   if (!goals.length) return null;
-  return <button className={`explain-goal ${className}`} onClick={() => live.explainGoal()}>⚽ Explain the goal</button>;
+  return <button className={`explain-goal ${className}`} onClick={() => live.explainGoal()}>{tr(lang, "explain_goal")}</button>;
 }

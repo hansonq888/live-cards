@@ -97,6 +97,17 @@ def tick(match: Match, engine: MatchEngine, director: AutoDirector, i: int,
     return ev_j, d, moments
 
 
+def job_for_story(b: dict, meta) -> ExplainJob:
+    """The explain job for a goal's one-line story: its facts and the players involved."""
+    names = {n for p in meta.players if p.id in b["players"] for n in (p.name, p.short)}
+    goal_step = b["steps"][-1]
+    story_moment = Moment(id=f"{b['goal']}-story", t=b["goal_t"], minute=int(b["goal_t"] // 60),
+                          type="goal", player=b["scorer"], team=b["team"], importance=1.0,
+                          facts=b["facts"], evidence=[s["evidence"][0] for s in b["steps"]] or
+                          goal_step["evidence"], template=b["story"])
+    return ExplainJob(moment=story_moment, facts=b["facts"], names=names, template=b["story"])
+
+
 def feed_engine(match: Match, engine: MatchEngine, i: int, ev_j: int) -> int:
     """Advance a bare engine (no director) one tick; returns the new event cursor."""
     t = float(match.times[i])
@@ -172,6 +183,7 @@ class LiveSession:
         self.cue_seq = 0
         self.profile = DEFAULT
         self.last_job: dict[str, tuple] = {}  # player -> (moment, job, ring, cue_id)
+        self._sent_key = ""  # last director reason sent to the viewer
         self.spec = None  # the analyst's ModelSpec, if any
         self.shadow: MatchEngine | None = None  # their model, kept in lockstep with the match
         self.shadow_i = 0
@@ -294,7 +306,10 @@ class LiveSession:
             self._ev_j, d, moments = tick(self.match, self.engine, self.director, self.i,
                                           self._ev_j)
             if live:
-                if d.changed:
+                # Re-send when the player changes, or when the reason for following them does
+                # ("cross incoming" -> "scores").
+                if d.changed or d.key != self._sent_key:
+                    self._sent_key = d.key
                     out.append(self._director_msg(d))
                 for m in moments:
                     self._on_moment(m, out)
@@ -434,13 +449,8 @@ class LiveSession:
         await self.send({"type": "buildup", **b})
         key = (self.seed, b["goal"], "story")
         if key not in LINE_CACHE and self.model_enabled:
-            names = {n for p in self.meta.players if p.id in b["players"] for n in (p.name, p.short)}
-            story_moment = Moment(id=f"{gm.id}-story", t=gm.t, minute=gm.minute, type="goal",
-                                  player=gm.player, team=gm.team, importance=gm.importance,
-                                  facts=b["facts"], evidence=[s["evidence"][0] for s in b["steps"]],
-                                  template=b["story"])
-            job = ExplainJob(moment=story_moment, facts=b["facts"], names=names,
-                             template=b["story"])
+            job = job_for_story(b, self.meta)
+            story_moment = job.moment
             traces: list[TraceEvent] = []
             result = await explain(job, explainer_agent(), self.roster, traces.append,
                                    reviewer_agent())
@@ -450,9 +460,23 @@ class LiveSession:
                 self._audit("aired", story_moment, text=result.text, source="model",
                             stage="goal story", evidence=story_moment.evidence, lang="en")
         result = LINE_CACHE.get(key)
-        await self.send({"type": "buildup_story", "goal": b["goal"],
-                         "text": result.text if result else b["story"],
-                         "source": result.source if result else "template"})
+        text = result.text if result else b["story"]
+        localized = None
+        if result is not None and self.profile.lang != "en" and self.model_enabled:
+            # The viewer's language, through the Personalizer: re-verified in that language.
+            vkey = (self.seed, b["goal"], self.profile.key, text)
+            if vkey not in VARIANT_CACHE:
+                req = PersonalizeRequest(job_for_story(b, self.meta), text, self.meta.home.name,
+                                         self.meta.away.name)
+                vs = await personalize(req, [self.profile], personalizer_agent(), self.roster,
+                                       lambda _e: None, reviewer_agent())
+                if vs and vs[0].source == "model":
+                    VARIANT_CACHE[vkey] = asdict(vs[0])
+            if vkey in VARIANT_CACHE:
+                localized = VARIANT_CACHE[vkey]["text"]
+        await self.send({"type": "buildup_story", "goal": b["goal"], "text": text,
+                         "source": result.source if result else "template",
+                         "localized": localized, "lang": self.profile.lang})
 
     async def _redteam(self) -> None:
         """Re-explain the followed player's latest moment with a corrupted first draft."""
@@ -499,6 +523,7 @@ class LiveSession:
                  phase: str) -> dict:
         cue = make_cue(cue_id, m, result, ring)
         return {"type": "cue", "cue": cue.model_dump(), "moment_type": m.type, "phase": phase,
+                "facts": m.facts,
                 "source": result.source, "attempts": result.attempts, "latency_ms": result.ms,
                 "claims_checked": result.verdict.checked}
 
@@ -612,7 +637,8 @@ class LiveSession:
     def _director_msg(self, d) -> dict:
         mode = "replay" if d.kind == "replay" else self.director.mode
         return {"type": "director", "t": round(self.t, 1), "target": d.target, "reason": d.reason,
-                "kind": d.kind, "predicted": d.predicted, "mode": mode}
+                "kind": d.kind, "predicted": d.predicted, "mode": mode, "key": d.key,
+                "args": d.args}
 
     async def _send_director(self, d) -> None:
         await self.send(self._director_msg(d))
