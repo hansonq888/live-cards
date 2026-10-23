@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { clock, useLive } from "../live/store";
 
+const STORY_TYPES = new Set(["goal", "rating_upgrade", "rating_downgrade", "big_chance", "momentum_swing", "fastest_sprint", "attr_upgrade", "attr_downgrade"]);
+
 const ATTRS: [string, string][] = [
   ["pace", "Pace"], ["passing", "Passing"], ["threat", "Threat"], ["defending", "Defending"], ["engine", "Engine"],
 ];
@@ -58,6 +60,8 @@ export function PlayerCard() {
   const stats = useLive((s) => s.stats);
   const lines = useLive((s) => s.lines);
   const pending = useLive((s) => s.pending);
+  const profile = useLive((s) => s.profile);
+  const modelEnabled = useLive((s) => s.modelEnabled);
   const upgrades = useLive((s) => s.upgrades);
   const now = useTicker();
   const pid = director?.target;
@@ -71,7 +75,13 @@ export function PlayerCard() {
   const fresh = up && now - up.at < 5000;
   const isUp = fresh && up.to >= up.from;
   const line = lines[pid];
-  const waiting = pending[pid] && now - pending[pid].at < 6000;
+  const waiting = !line && pending[pid] && now - pending[pid].at < 6000;
+  const personal = profile !== "casual.en.neutral";
+  const variant = line && personal ? line.variants[profile] : undefined;
+  const shown = variant && variant.source === "model" ? variant.text : line?.text;
+  const lang = profile.split(".")[1];
+  const storyComing = line?.phase === "instant" && modelEnabled && STORY_TYPES.has(line.type) && now - line.at < 6000;
+  const translating = personal && line?.phase === "story" && !variant && now - line.at < 6000;
   return (
     <div className={`card ${fresh ? (isUp ? "card-up" : "card-down") : ""}`} style={{ ["--team" as string]: team.color }}>
       <div className="card-stripe" />
@@ -109,10 +119,13 @@ export function PlayerCard() {
           <span className="explaining"><i />Explaining and verifying…</span>
         ) : line ? (
           <>
-            <span className="reason-text">{line.text}</span>
+            <span className={`reason-text ${line.phase === "instant" ? "instant" : ""}`} dir={variant && lang === "ar" ? "rtl" : undefined}>{shown}</span>
             <span className="reason-meta">
               <span className="verified">✓ verified</span>
-              <span className={`src src-${line.source}`}>{line.source === "model" ? "AI" : "template"}</span>
+              <span className={`src src-${line.source}`}>{line.source === "model" ? (variant?.source === "model" ? `AI · ${lang.toUpperCase()}` : "AI") : "stats"}</span>
+              {storyComing && <span className="coming"><i />AI line being checked</span>}
+              {translating && <span className="coming"><i />{lang.toUpperCase()} version being checked</span>}
+              {variant?.source === "fallback" && <span className="evidence">kept English: {lang.toUpperCase()} failed checks</span>}
               <span className="evidence" title={line.evidence.join(", ")}>{line.evidence.length} evidence</span>
             </span>
           </>

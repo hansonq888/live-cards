@@ -1,7 +1,7 @@
 // Live state: a tiny external store fed by the WebSocket. Frames go to a ring buffer
 // read by the render loop (no React re-render per frame); everything else is React state.
 import { useSyncExternalStore } from "react";
-import type { CardState, ClientMsg, Cue, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep } from "./protocol";
+import type { CardState, ClientMsg, Frame, MatchMeta, Metrics, ServerMsg, TraceStep, Variant } from "./protocol";
 
 export interface Director {
   target: string;
@@ -32,6 +32,18 @@ export interface TraceItem {
   at: number;
 }
 
+export interface Line {
+  cue: string;
+  text: string;
+  source: string;
+  phase: "instant" | "story";
+  type: string;
+  at: number;
+  evidence: string[];
+  latency: number;
+  variants: Record<string, Variant>;
+}
+
 export interface Pending {
   momentId: string;
   type: string;
@@ -49,7 +61,9 @@ export interface LiveState {
   cards: Record<string, CardState>;
   stats: Record<string, Record<string, number>>;
   // Latest verified line per player, and moments whose line is still being written.
-  lines: Record<string, { text: string; source: string; type: string; at: number; evidence: string[]; latency: number }>;
+  lines: Record<string, Line>;
+  profile: string; // audience.lang.voice
+  showcase: { player: string | null; type: string; t: number; base: string; variants: Variant[]; at: number } | null;
   pending: Record<string, Pending>;
   upgrades: Record<string, { from: number; to: number; type: string; at: number; label: string }>;
   alerts: { id: string; player: string; text: string; type: string; at: number }[];
@@ -68,7 +82,8 @@ export interface LiveState {
 
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
-  director: null, cards: {}, stats: {}, lines: {}, pending: {}, upgrades: {}, alerts: [],
+  director: null, cards: {}, stats: {}, lines: {}, profile: "casual.en.neutral", showcase: null,
+  pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null,
 };
 
@@ -108,6 +123,7 @@ class LiveStore {
     if (msg.type === "play") this.set({ paused: false });
     if (msg.type === "speed") this.set({ speed: msg.value });
     if (msg.type === "seek") { this.frames = []; }
+    if (msg.type === "profile") this.set({ profile: msg.key });
   }
 
   private name(id: string | null) {
@@ -165,11 +181,15 @@ class LiveStore {
         const patch: Partial<LiveState> = {
           feed: [
             { id: c.cue, t: c.start, kind: "cue" as const, type: m.moment_type, player: c.player, text, source: m.source, latency: m.latency_ms, evidence: c.evidence },
-            ...s.feed.filter((f) => !(f.kind === "moment" && f.type === m.moment_type && f.t === c.start)),
+            ...s.feed.filter((f) => f.id !== c.cue && !(f.kind === "moment" && f.type === m.moment_type && f.t === c.start)),
           ].slice(0, 40),
         };
         if (c.player) {
-          patch.lines = { ...s.lines, [c.player]: { text, source: m.source, type: m.moment_type, at: now, evidence: c.evidence, latency: m.latency_ms } };
+          const prev = s.lines[c.player];
+          // An instant line never overwrites a newer story line from another moment.
+          if (m.phase === "story" || !prev || prev.cue !== c.cue) {
+            patch.lines = { ...s.lines, [c.player]: { cue: c.cue, text, source: m.source, phase: m.phase, type: m.moment_type, at: now, evidence: c.evidence, latency: m.latency_ms, variants: prev?.cue === c.cue ? prev.variants : {} } };
+          }
           const p = { ...s.pending };
           delete p[c.player];
           patch.pending = p;
@@ -177,6 +197,22 @@ class LiveStore {
         this.set(patch);
         break;
       }
+      case "variants": {
+        const byKey = Object.fromEntries(m.variants.map((v) => [v.key, v]));
+        const patch: Partial<LiveState> = {};
+        const line = m.player ? s.lines[m.player] : undefined;
+        if (m.player && line && line.cue === m.cue) {
+          patch.lines = { ...s.lines, [m.player]: { ...line, variants: { ...line.variants, ...byKey } } };
+        }
+        if (m.variants.length > 1) {
+          patch.showcase = { player: m.player, type: m.moment_type, t: m.t, base: m.base, variants: m.variants, at: now };
+        }
+        this.set(patch);
+        break;
+      }
+      case "profile":
+        this.set({ profile: m.key });
+        break;
       case "trace":
         this.set({ traces: [{ moment: m.moment, type: m.moment_type, player: m.player, steps: m.steps, at: now }, ...s.traces].slice(0, 30) });
         break;

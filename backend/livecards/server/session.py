@@ -17,7 +17,17 @@ from functools import cache
 from livecards.agents.director import AutoDirector
 from livecards.agents.explainer import INSTRUCTIONS, job_for
 from livecards.agents.llm import make_agent
-from livecards.agents.pipeline import TraceEvent, explain
+from livecards.agents.personalizer import (
+    DEFAULT,
+    SHOWCASE,
+    PersonalizeRequest,
+    Profile,
+    personalize,
+)
+from livecards.agents.personalizer import INSTRUCTIONS as PERSONALIZER_INSTRUCTIONS
+from livecards.agents.pipeline import Explained, TraceEvent, explain
+from livecards.agents.reviewer import make_reviewer
+from livecards.agents.verifier import check
 from livecards.contracts import Moment
 from livecards.engine.engine import MatchEngine
 from livecards.replay import positions
@@ -32,7 +42,8 @@ CARD_INTERVAL_S = 0.5
 TEAM_INTERVAL_S = 1.0
 MODEL_MOMENTS = {"goal", "rating_upgrade", "rating_downgrade", "big_chance", "momentum_swing",
                  "fastest_sprint", "attr_upgrade", "attr_downgrade"}
-MAX_MODEL_INFLIGHT = 4
+MAX_MODEL_INFLIGHT = 6
+SHOWCASE_MOMENTS = {"goal", "rating_upgrade"}
 
 
 @cache
@@ -43,6 +54,16 @@ def load_match(seed: int = 7) -> Match:
 @cache
 def explainer_agent():
     return make_agent("Explainer", INSTRUCTIONS)
+
+
+@cache
+def personalizer_agent():
+    return make_agent("Personalizer", PERSONALIZER_INSTRUCTIONS)
+
+
+@cache
+def reviewer_agent():
+    return make_reviewer()
 
 
 class LiveSession:
@@ -58,6 +79,7 @@ class LiveSession:
                         "model_lines": 0, "template_lines": 0, "rewrites": 0, "aired_unverified": 0,
                         "latency_ms": []}
         self.cue_seq = 0
+        self.profile = DEFAULT
         self.inflight = 0
         self.tasks: set[asyncio.Task] = set()
         self._reset(start)
@@ -86,6 +108,12 @@ class LiveSession:
         elif kind == "seek":
             self._reset(max(0.0, min(float(msg.get("t", 0)), self.meta.duration - 1)))
             await self.send({"type": "seeked", "t": self.t})
+        elif kind == "profile":
+            try:
+                self.profile = Profile.parse(str(msg.get("key", "casual.en.neutral")))
+            except ValueError:
+                self.profile = DEFAULT
+            await self.send({"type": "profile", "key": self.profile.key})
         elif kind == "model":
             self.model_enabled = bool(msg.get("enabled")) and explainer_agent() is not None
             await self.send({"type": "model", "enabled": self.model_enabled})
@@ -161,6 +189,10 @@ class LiveSession:
         return flush()
 
     # ---- moments -> agents -> cues ---------------------------------------------------------
+    # Facts first, then the story: the engine's template line airs instantly (code-built,
+    # verified in microseconds); the AI line replaces it once it has passed the verifier and
+    # the reviewer. Personalized variants follow for the viewer's profile and, on big
+    # moments, for the showcase profiles.
     def _on_moment(self, m: Moment, out: list[dict]) -> None:
         self.metrics["moments"] += 1
         msg = {"type": "moment", "moment": m.model_dump()}
@@ -169,46 +201,83 @@ class LiveSession:
         out.append(msg)
         if m.importance < 0.3 and m.type != "distance_milestone":
             return
-        use_model = (self.model_enabled and m.type in MODEL_MOMENTS
-                     and self.inflight < MAX_MODEL_INFLIGHT)
         job = job_for(m, self.engine)
         ring = self.director.current.target if self.director.current else None
-        task = asyncio.create_task(self._explain(m, job, use_model, ring))
+        self.cue_seq += 1
+        cue_id = self.cue_seq
+        t0 = time.perf_counter()
+        verdict = check(job.template, job.bundle(), self.roster)
+        ms = round((time.perf_counter() - t0) * 1000, 3)
+        self.metrics["claims_checked"] += 1
+        if verdict.ok:
+            self.metrics["cues"] += 1
+            self.metrics["template_lines"] += 1
+            instant = Explained(m.id, job.template, "template", 1, verdict, ms)
+            out.append(self._cue_msg(cue_id, m, instant, ring, phase="instant"))
+        else:
+            self.metrics["blocked"] += 1
+        use_model = (self.model_enabled and m.type in MODEL_MOMENTS
+                     and self.inflight < MAX_MODEL_INFLIGHT)
+        if not use_model:
+            out.append({"type": "trace", "moment": m.id, "moment_type": m.type, "player": m.player,
+                        "steps": [asdict(TraceEvent(m.id, "template-check",
+                                                    "ok" if verdict.ok else "rejected", ms,
+                                                    verdict.reason() or "instant line", 0))]})
+            return
+        task = asyncio.create_task(self._explain(m, job, ring, cue_id))
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
 
-    async def _explain(self, m: Moment, job, use_model: bool, ring: str | None) -> None:
-        agent = explainer_agent() if use_model else None
+    def _cue_msg(self, cue_id: int, m: Moment, result: Explained, ring: str | None,
+                 phase: str) -> dict:
+        cue = make_cue(cue_id, m, result, ring)
+        return {"type": "cue", "cue": cue.model_dump(), "moment_type": m.type, "phase": phase,
+                "source": result.source, "attempts": result.attempts, "latency_ms": result.ms,
+                "claims_checked": result.verdict.checked}
+
+    async def _explain(self, m: Moment, job, ring: str | None, cue_id: int) -> None:
         traces: list[TraceEvent] = []
-
-        def sink(ev: TraceEvent) -> None:
-            traces.append(ev)
-
-        if use_model:
-            self.inflight += 1
+        self.inflight += 1
         try:
-            result = await explain(job, agent, self.roster, sink)
+            result = await explain(job, explainer_agent(), self.roster, traces.append,
+                                   reviewer_agent())
         finally:
-            if use_model:
-                self.inflight -= 1
+            self.inflight -= 1
         for ev in traces:
-            if ev.stage in ("verifier", "template-check"):
+            if ev.stage in ("verifier", "reviewer"):
                 self.metrics["claims_checked"] += 1
                 self.metrics["blocked"] += ev.outcome == "rejected"
         await self.send({"type": "trace", "moment": m.id, "moment_type": m.type,
                          "player": m.player, "steps": [asdict(e) for e in traces]})
-        if result is None:
-            return
+        if result is None or result.source != "model":
+            return  # the instant template line stands
         self.metrics["cues"] += 1
         self.metrics["aired_unverified"] += not result.verdict.ok  # must stay 0
-        self.metrics["model_lines" if result.source == "model" else "template_lines"] += 1
-        self.metrics["rewrites"] += result.attempts > 1 and result.source == "model"
+        self.metrics["model_lines"] += 1
+        self.metrics["rewrites"] += result.attempts > 1
         self.metrics["latency_ms"].append(result.ms)
-        self.cue_seq += 1
-        cue = make_cue(self.cue_seq, m, result, ring)
-        await self.send({"type": "cue", "cue": cue.model_dump(), "moment_type": m.type,
-                         "source": result.source, "attempts": result.attempts,
-                         "latency_ms": result.ms, "claims_checked": result.verdict.checked})
+        await self.send(self._cue_msg(cue_id, m, result, ring, phase="story"))
+        await self._personalize(m, job, result.text, cue_id)
+
+    async def _personalize(self, m: Moment, job, base: str, cue_id: int) -> None:
+        profiles = [self.profile]
+        if m.type in SHOWCASE_MOMENTS and m.importance >= 0.55:
+            profiles += SHOWCASE
+        profiles = [p for p in dict.fromkeys(profiles) if p != DEFAULT]
+        if not profiles:
+            return
+        traces: list[TraceEvent] = []
+        req = PersonalizeRequest(job, base, self.meta.home.name, self.meta.away.name)
+        variants = await personalize(req, profiles, personalizer_agent(), self.roster,
+                                     traces.append, reviewer_agent())
+        for ev in traces:
+            self.metrics["claims_checked"] += 1
+            self.metrics["blocked"] += ev.outcome == "rejected"
+        await self.send({"type": "trace", "moment": m.id, "moment_type": m.type,
+                         "player": m.player, "steps": [asdict(e) for e in traces]})
+        await self.send({"type": "variants", "cue": f"o-{cue_id:04d}", "moment": m.id,
+                         "moment_type": m.type, "player": m.player, "t": m.t, "base": base,
+                         "variants": [asdict(v) for v in variants]})
 
     # ---- messages ---------------------------------------------------------------------
     def hello(self) -> dict:

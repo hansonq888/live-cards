@@ -2,8 +2,10 @@ import { useState } from "react";
 import { clock, live, useLive } from "../live/store";
 
 const STAGE_LABEL: Record<string, string> = {
-  explainer: "Explainer", verifier: "Verifier", "template-check": "Verifier", template: "Template", publish: "Publish",
+  explainer: "Explainer", verifier: "Verifier", "template-check": "Verifier", reviewer: "Reviewer",
+  template: "Template", publish: "Publish",
 };
+const stageLabel = (s: string) => STAGE_LABEL[s] ?? (s.startsWith("personalizer:") ? `Personalizer ${s.split(":")[1].split(".").slice(0, 2).join(" ").toUpperCase()}` : s);
 
 function Feed() {
   const feed = useLive((s) => s.feed);
@@ -36,14 +38,14 @@ function Trace() {
   const traces = useLive((s) => s.traces);
   return (
     <div className="trace">
-      <div className="trace-legend">Each moment flows Explainer → Verifier → (rewrite) → Publish. Rejected lines never air.</div>
+      <div className="trace-legend">Explainer → Verifier (code) → Reviewer (gpt-5-mini) → Publish, then Personalizer fan-out, each re-verified. Rejected lines never air.</div>
       {traces.map((tr) => (
         <div key={tr.moment} className="trace-row">
           <div className="trace-title">{tr.type.replace(/_/g, " ")} <span className="dim">{tr.moment}</span></div>
           <div className="trace-steps">
             {tr.steps.map((s, i) => (
               <span key={i} className={`step step-${s.outcome}`} title={s.detail}>
-                {STAGE_LABEL[s.stage] ?? s.stage}
+                {stageLabel(s.stage)}
                 {s.attempt > 0 && s.stage !== "publish" ? ` #${s.attempt + 1}` : ""}
                 <em>{s.outcome}{s.stage === "verifier" || s.stage === "template-check" ? (s.ms < 1 ? " · <1ms" : ` · ${s.ms.toFixed(1)}ms`) : s.ms ? ` · ${Math.round(s.ms)}ms` : ""}</em>
               </span>
@@ -93,18 +95,71 @@ function Metrics() {
   );
 }
 
+const LANGS: Record<string, string> = { en: "English", es: "Español", fr: "Français", ar: "العربية", pt: "Português" };
+
+function profileLabel(key: string, home: string, away: string) {
+  const [aud, lang, voice] = key.split(".");
+  const v = voice === "home" ? `${home} fan` : voice === "away" ? `${away} fan` : "neutral";
+  return `${aud === "analyst" ? "Analyst" : "Casual"} · ${LANGS[lang]} · ${v}`;
+}
+
+function Fans() {
+  const sc = useLive((s) => s.showcase);
+  const meta = useLive((s) => s.meta);
+  if (!sc || !meta) return <div className="empty">On goals and card upgrades, the same verified moment appears here for four very different fans, each version re-verified in its own language.</div>;
+  const name = meta.players.find((p) => p.id === sc.player)?.short ?? "";
+  return (
+    <div className="fans">
+      <div className="fans-head">{clock(sc.t)} · {sc.type.replace(/_/g, " ")} · {name}</div>
+      <div className="fan base"><div className="fan-who">Verified English line</div><div className="fan-text">{sc.base}</div></div>
+      {sc.variants.map((v) => (
+        <div key={v.key} className="fan">
+          <div className="fan-who">{profileLabel(v.key, meta.home.name, meta.away.name)}
+            <span className={`src ${v.source === "model" ? "src-model" : "src-template"}`}>{v.source === "model" ? `✓ ${Math.round(v.ms)} ms` : "fallback"}</span>
+          </div>
+          <div className="fan-text" dir={v.key.includes(".ar.") ? "rtl" : undefined}>{v.text}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function ProfilePicker() {
+  const profile = useLive((s) => s.profile);
+  const meta = useLive((s) => s.meta);
+  const [aud, lang, voice] = profile.split(".");
+  const set = (a: string, l: string, v: string) => live.send({ type: "profile", key: `${a}.${l}.${v}` });
+  if (!meta) return null;
+  return (
+    <div className="profile">
+      <select value={aud} onChange={(e) => set(e.target.value, lang, voice)} aria-label="Audience">
+        <option value="casual">Casual fan</option>
+        <option value="analyst">Analyst</option>
+      </select>
+      <select value={lang} onChange={(e) => set(aud, e.target.value, voice)} aria-label="Language">
+        {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+      </select>
+      <select value={voice} onChange={(e) => set(aud, lang, e.target.value)} aria-label="Voice">
+        <option value="neutral">Neutral</option>
+        <option value="home">{meta.home.name} fan</option>
+        <option value="away">{meta.away.name} fan</option>
+      </select>
+    </div>
+  );
+}
+
 export function SidePanel() {
-  const [tab, setTab] = useState<"feed" | "trace" | "metrics">("feed");
+  const [tab, setTab] = useState<"feed" | "fans" | "trace" | "metrics">("feed");
   return (
     <aside className="side">
       <nav className="tabs">
-        {(["feed", "trace", "metrics"] as const).map((t) => (
+        {(["feed", "fans", "trace", "metrics"] as const).map((t) => (
           <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-            {t === "feed" ? "Live feed" : t === "trace" ? "Agent trace" : "Metrics"}
+            {t === "feed" ? "Live feed" : t === "fans" ? "Fans" : t === "trace" ? "Agent trace" : "Metrics"}
           </button>
         ))}
       </nav>
-      {tab === "feed" ? <Feed /> : tab === "trace" ? <Trace /> : <Metrics />}
+      {tab === "feed" ? <Feed /> : tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : <Metrics />}
     </aside>
   );
 }

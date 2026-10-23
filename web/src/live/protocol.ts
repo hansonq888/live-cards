@@ -72,6 +72,15 @@ export interface Cue {
   evidence: string[];
 }
 
+export interface Variant {
+  key: string; // audience.lang.voice
+  text: string;
+  source: "model" | "fallback";
+  attempts: number;
+  ms: number;
+  problems: string[];
+}
+
 export interface TraceStep {
   moment_id: string;
   stage: string;
@@ -100,7 +109,9 @@ export type ServerMsg =
   | { type: "director"; t: number; target: string; reason: string; kind: string; predicted: boolean; mode: string }
   | { type: "card"; card: CardState; stats: Record<string, number> }
   | { type: "moment"; moment: Moment; card?: CardState }
-  | { type: "cue"; cue: Cue; moment_type: string; source: string; attempts: number; latency_ms: number; claims_checked: number }
+  | { type: "cue"; cue: Cue; moment_type: string; phase: "instant" | "story"; source: string; attempts: number; latency_ms: number; claims_checked: number }
+  | { type: "variants"; cue: string; moment: string; moment_type: string; player: string | null; t: number; base: string; variants: Variant[] }
+  | { type: "profile"; key: string }
   | { type: "trace"; moment: string; moment_type: string; player: string | null; steps: TraceStep[] }
   | {
       type: "team";
@@ -125,4 +136,5 @@ export type ClientMsg =
   | { type: "pause" }
   | { type: "play" }
   | { type: "seek"; t: number }
-  | { type: "model"; enabled: boolean };
+  | { type: "model"; enabled: boolean }
+  | { type: "profile"; key: string };

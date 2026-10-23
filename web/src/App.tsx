@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { DirectorTicker, GoalBanner, PlayerCard, ScoreBug } from "./ui/Overlays";
-import { Controls, SidePanel } from "./ui/SidePanel";
+import { Controls, ProfilePicker, SidePanel } from "./ui/SidePanel";
 import { ScaledStage } from "./ui/ScaledStage";
 
 export default function App() {
@@ -16,6 +16,7 @@ export default function App() {
       <header className="top">
         <div className="brand"><span className="dot" />Live Cards</div>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
+        <ProfilePicker />
         <div className="synthetic">SYNTHETIC MATCH · FICTIONAL CLUBS AND PLAYERS</div>
       </header>
       <main className="main">

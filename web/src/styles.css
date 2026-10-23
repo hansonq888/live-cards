@@ -74,6 +74,18 @@ button { font: inherit; }
 .reason { margin-top: 10px; font-size: 12.8px; line-height: 1.38; border-top: 1px solid rgba(57,229,255,.25); padding-top: 8px; min-height: 52px; }
 .reason-text { color: #d7f8ff; display: block; }
 .reason-text.dim { color: var(--dim); }
+.reason-text.instant { color: #b9cbe0; font-family: ui-monospace, monospace; font-size: 11.5px; }
+.coming { display: inline-flex; align-items: center; gap: 4px; color: var(--warn); }
+.coming i { width: 8px; height: 8px; border: 1.5px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+.profile { display: flex; gap: 6px; margin-left: auto; }
+.profile select { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font: inherit; font-size: 12.5px; }
+.profile + .synthetic { margin-left: 0; }
+.fans { overflow-y: auto; padding: 10px; flex: 1; }
+.fans-head { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.fan { background: var(--panel-2); border-radius: 8px; padding: 9px 10px; margin-bottom: 7px; border-left: 3px solid var(--accent); animation: pop .25s ease-out; }
+.fan.base { border-left-color: rgba(255,255,255,.3); }
+.fan-who { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--dim); font-weight: 600; margin-bottom: 4px; }
+.fan-text { font-size: 13.5px; line-height: 1.4; }
 .reason-meta { display: flex; gap: 6px; margin-top: 6px; font-size: 10px; align-items: center; }
 .verified { color: var(--good); font-weight: 700; letter-spacing: .3px; }
 .src { padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 10px; letter-spacing: .3px; }
