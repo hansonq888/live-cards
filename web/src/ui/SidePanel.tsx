@@ -129,7 +129,7 @@ const SUGGESTIONS = [
   "Who controls the game right now?", "¿Quién ha corrido más?",
 ];
 
-function Ask() {
+export function Ask() {
   const answers = useLive((s) => s.answers);
   const [q, setQ] = useState("");
   const send = (question: string) => {
