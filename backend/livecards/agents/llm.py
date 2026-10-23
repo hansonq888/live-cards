@@ -28,10 +28,17 @@ def load_env() -> None:
 
 @cache
 def _credential():
-    from azure.identity import AzureCliCredential, ChainedTokenCredential, ManagedIdentityCredential
+    from azure.identity import (
+        AzureCliCredential,
+        ChainedTokenCredential,
+        EnvironmentCredential,
+        ManagedIdentityCredential,
+    )
 
-    # Managed identity in Container Apps, the developer's az login locally.
-    return ChainedTokenCredential(ManagedIdentityCredential(), AzureCliCredential())
+    # A service principal (AZURE_CLIENT_ID/TENANT_ID/CLIENT_SECRET) in Container Apps, which
+    # works on every environment type; managed identity where available; az login locally.
+    return ChainedTokenCredential(EnvironmentCredential(), ManagedIdentityCredential(),
+                                  AzureCliCredential())
 
 
 def foundry_configured() -> bool:
