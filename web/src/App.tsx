@@ -5,8 +5,13 @@ import { DirectorTicker, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, Sco
 import { Controls, ProfilePicker, SidePanel } from "./ui/SidePanel";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
+import { Console } from "./console/Console";
 
 export default function App() {
+  return new URLSearchParams(location.search).get("view") === "console" ? <Console /> : <Viewer2 />;
+}
+
+function Viewer2() {
   const meta = useLive((s) => s.meta);
   useEffect(() => {
     const q = new URLSearchParams(location.search);
@@ -18,6 +23,7 @@ export default function App() {
         <div className="brand"><span className="dot" />Live Cards</div>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <ProfilePicker />
+        <a className="switch-view" href="/?view=console" target="_blank" rel="noreferrer">Console ↗</a>
         <div className="synthetic">SYNTHETIC MATCH · FICTIONAL CLUBS AND PLAYERS</div>
       </header>
       <main className="main">

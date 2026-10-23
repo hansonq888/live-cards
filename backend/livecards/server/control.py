@@ -85,7 +85,8 @@ class ControlPlane:
         row = self.audit.add(kind="pending", **entry)
         fut: asyncio.Future = asyncio.get_running_loop().create_future()
         self.pending[row["id"]] = fut
-        self.publish({"type": "pending", "entry": row, "timeout_s": APPROVAL_TIMEOUT_S})
+        self.publish({"type": "pending", "entry": row, "timeout_s": APPROVAL_TIMEOUT_S,
+                      "counts": self.audit.counts()})
         try:
             approved = await asyncio.wait_for(fut, APPROVAL_TIMEOUT_S)
         except TimeoutError:
