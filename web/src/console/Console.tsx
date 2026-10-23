@@ -47,17 +47,15 @@ export function Console() {
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [filter, setFilter] = useState("all");
   const [connected, setConnected] = useState(false);
+  const [via, setVia] = useState("app socket");
+  const commander = useRef<(msg: object) => void>(() => {});
   const [, tick] = useState(0);
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const proto = location.protocol === "https:" ? "wss" : "ws";
-    const sock = new WebSocket(`${proto}://${location.host}/ws/console`);
-    ws.current = sock;
-    sock.onopen = () => setConnected(true);
-    sock.onclose = () => setConnected(false);
-    sock.onmessage = (ev) => {
-      const m = JSON.parse(ev.data);
+    let sock: WebSocket | null = null;
+    let closed = false;
+    const handle = (m: any) => {
       if (m.type === "console_hello") {
         setControls(m.controls);
         setEntries(m.recent);
@@ -79,11 +77,30 @@ export function Console() {
         setCounts(m.counts);
       }
     };
+    (async () => {
+      // In the cloud, console events fan out through Azure Web PubSub; locally, the app socket.
+      const neg = await fetch("/api/console/negotiate").then((r) => r.json()).catch(() => ({ url: null }));
+      if (closed) return;
+      if (neg.url) {
+        setVia("Azure Web PubSub");
+        handle(await fetch("/api/console/snapshot").then((r) => r.json()));
+        sock = new WebSocket(neg.url);
+        commander.current = (msg) => fetch("/api/console/command", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(msg) });
+      } else {
+        const proto = location.protocol === "https:" ? "wss" : "ws";
+        sock = new WebSocket(`${proto}://${location.host}/ws/console`);
+        commander.current = (msg) => sock?.readyState === WebSocket.OPEN && sock.send(JSON.stringify(msg));
+      }
+      ws.current = sock;
+      sock.onopen = () => setConnected(true);
+      sock.onclose = () => setConnected(false);
+      sock.onmessage = (ev) => handle(JSON.parse(ev.data));
+    })();
     const id = setInterval(() => tick((n) => n + 1), 250);
-    return () => { clearInterval(id); sock.close(); };
+    return () => { closed = true; clearInterval(id); sock?.close(); };
   }, []);
 
-  const send = (msg: object) => ws.current?.readyState === WebSocket.OPEN && ws.current.send(JSON.stringify(msg));
+  const send = (msg: object) => commander.current(msg);
   const patch = (p: object) => send({ type: "controls", patch: p });
   const decide = (id: number, approve: boolean) => send({ type: "decide", id, approve, operator: "producer" });
 
@@ -100,7 +117,7 @@ export function Console() {
         <div className="brand"><span className="dot" />Live Cards · Broadcast Console</div>
         <div className="fixture">Every line on air, every line blocked, and who decided.</div>
         <a className="switch-view" href="/" target="_blank" rel="noreferrer">Open viewer ↗</a>
-        <span className={`conn ${connected ? "up" : "down"}`}>{connected ? "connected" : "offline"}</span>
+        <span className={`conn ${connected ? "up" : "down"}`}>{connected ? `connected · ${via}` : "offline"}</span>
       </header>
 
       <div className="c-stats">

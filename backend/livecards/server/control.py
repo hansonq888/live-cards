@@ -13,7 +13,7 @@ import asyncio
 import contextlib
 from dataclasses import asdict, dataclass, field
 
-from livecards.server.audit import AuditLog, SqliteAuditLog
+from livecards.server.audit import AuditLog, audit_from_env
 
 APPROVAL_TIMEOUT_S = 25.0
 FEATURES = ("ai_lines", "personalization", "ask", "alerts", "director")
@@ -38,7 +38,7 @@ class Controls:
 class ControlPlane:
     def __init__(self, audit: AuditLog | None = None) -> None:
         self.controls = Controls()
-        self.audit: AuditLog = audit or SqliteAuditLog()
+        self.audit: AuditLog = audit or audit_from_env()
         self.subscribers: set[asyncio.Queue] = set()
         self.pending: dict[int, asyncio.Future] = {}
 
@@ -52,9 +52,14 @@ class ControlPlane:
         self.subscribers.discard(q)
 
     def publish(self, msg: dict) -> None:
+        from livecards.server.pubsub import broadcast
+
         for q in list(self.subscribers):
             with contextlib.suppress(asyncio.QueueFull):
                 q.put_nowait(msg)
+        wps = broadcast()
+        if wps is not None:
+            wps.publish(msg)
 
     def snapshot(self) -> dict:
         return {"type": "console_hello", "controls": asdict(self.controls),

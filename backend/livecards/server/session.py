@@ -62,7 +62,10 @@ VARIANT_CACHE: dict[tuple, dict] = {}
 
 @cache
 def load_match(seed: int = 7) -> Match:
-    return simulate(seed)
+    """The match feed: ingested from Azure Event Hubs when configured, else simulated here."""
+    from livecards.feed import load_via_event_hubs
+
+    return load_via_event_hubs(seed, simulate) or simulate(seed)
 
 
 def tick(match: Match, engine: MatchEngine, director: AutoDirector, i: int,

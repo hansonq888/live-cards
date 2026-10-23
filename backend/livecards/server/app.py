@@ -87,6 +87,30 @@ async def audit(kind: str | None = None, limit: int = 200) -> dict:
     return {"counts": plane().audit.counts(), "entries": plane().audit.recent(min(limit, 1000), kind)}
 
 
+@app.get("/api/console/negotiate")
+async def console_negotiate() -> dict:
+    """Web PubSub client URL for consoles (null when running without Web PubSub)."""
+    from livecards.server.pubsub import broadcast
+
+    wps = broadcast()
+    return {"url": await asyncio.to_thread(wps.client_url) if wps else None}
+
+
+@app.get("/api/console/snapshot")
+async def console_snapshot() -> dict:
+    return plane().snapshot()
+
+
+@app.post("/api/console/command")
+async def console_command(msg: dict) -> dict:
+    p = plane()
+    if msg.get("type") == "controls":
+        p.update(msg.get("patch") or {})
+    elif msg.get("type") == "decide":
+        p.decide(int(msg["id"]), bool(msg.get("approve")), str(msg.get("operator") or "operator"))
+    return {"ok": True}
+
+
 @app.websocket("/ws/console")
 async def console(ws: WebSocket) -> None:
     """Broadcaster console: live audit stream, approval queue and kill switches."""

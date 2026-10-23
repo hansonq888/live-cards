@@ -79,3 +79,99 @@ class SqliteAuditLog:
         with self.lock:
             rows = self.db.execute("SELECT kind, COUNT(*) n FROM audit GROUP BY kind").fetchall()
         return {r["kind"]: r["n"] for r in rows}
+
+
+class CosmosAuditLog:
+    """Azure Cosmos DB backend (same interface). Writes go through a background thread so a
+    slow database write never stalls the live stream; signs in with managed identity."""
+
+    def __init__(self, endpoint: str, database: str = "livecards", container: str = "audit",
+                 credential=None) -> None:
+        import itertools
+        import queue
+
+        from azure.cosmos import CosmosClient
+
+        if credential is None:
+            from livecards.agents.llm import _credential
+
+            credential = _credential()
+        # The database and container are created by the deployment (management plane); with
+        # keyless (Entra ID) access the app only reads and writes data.
+        client = CosmosClient(endpoint, credential=credential)
+        self.c = client.get_database_client(database).get_container_client(container)
+        self._seq = itertools.count()
+        self._q: queue.Queue = queue.Queue()
+        self._cache: dict[int, dict] = {}
+        q = "SELECT c.kind, COUNT(1) AS n FROM c WHERE c.pk = 'audit' GROUP BY c.kind"
+        # Counts are read once, then kept in memory: the console asks on every write.
+        self._counts = {i["kind"]: i["n"] for i in self.c.query_items(q, partition_key="audit")}
+        threading.Thread(target=self._writer, daemon=True).start()
+
+    def _writer(self) -> None:
+        while True:
+            item = self._q.get()
+            try:
+                self.c.upsert_item(item)
+            except Exception:  # noqa: BLE001 - the audit write is retried once, then logged
+                try:
+                    self.c.upsert_item(item)
+                except Exception as exc:  # noqa: BLE001
+                    import logging
+
+                    logging.getLogger("livecards").warning("audit write failed: %s", exc)
+
+    def _item(self, row: dict) -> dict:
+        return {**row, "id": str(row["id"]), "pk": "audit"}
+
+    def _row(self, item: dict) -> dict:
+        row = {k: item.get(k) for k in FIELDS}
+        row["id"] = int(item["id"])
+        row["evidence"] = list(item.get("evidence") or [])
+        return row
+
+    def add(self, **entry) -> dict:
+        entry.setdefault("ts", time.time())
+        row = {k: entry.get(k) for k in FIELDS}
+        row["id"] = int(entry["ts"] * 1000) * 100 + next(self._seq) % 100
+        row["evidence"] = list(entry.get("evidence") or [])
+        self._cache[row["id"]] = row
+        if len(self._cache) > 2000:
+            self._cache.pop(next(iter(self._cache)))
+        self._counts[row["kind"]] = self._counts.get(row["kind"], 0) + 1
+        self._q.put(self._item(row))
+        return row
+
+    def decide(self, entry_id: int, decision: str, operator: str) -> dict | None:
+        row = self._cache.get(entry_id)
+        if row is None:
+            try:
+                row = self._row(self.c.read_item(str(entry_id), partition_key="audit"))
+            except Exception:  # noqa: BLE001
+                return None
+        row = {**row, "decision": decision, "operator": operator}
+        self._cache[entry_id] = row
+        self._q.put(self._item(row))
+        return row
+
+    def recent(self, limit: int = 100, kind: str | None = None) -> list[dict]:
+        q = "SELECT * FROM c WHERE c.pk = 'audit'" + (" AND c.kind = @k" if kind else "")
+        q += " ORDER BY c.ts DESC OFFSET 0 LIMIT @n"
+        params = [{"name": "@n", "value": limit}] + ([{"name": "@k", "value": kind}] if kind else [])
+        items = self.c.query_items(q, parameters=params, partition_key="audit")
+        rows = [self._row(i) for i in items]
+        # Include writes still in flight, so a console sees its own latest actions.
+        known = {r["id"] for r in rows}
+        fresh = [r for i, r in self._cache.items() if i not in known and (not kind or r["kind"] == kind)]
+        return sorted(rows + fresh, key=lambda r: -r["id"])[:limit]
+
+    def counts(self) -> dict[str, int]:
+        return dict(self._counts)
+
+
+def audit_from_env() -> AuditLog:
+    """Cosmos DB when COSMOS_ENDPOINT is set (the cloud deployment), SQLite otherwise."""
+    endpoint = os.environ.get("COSMOS_ENDPOINT")
+    if endpoint:
+        return CosmosAuditLog(endpoint)
+    return SqliteAuditLog()
