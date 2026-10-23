@@ -42,18 +42,15 @@ SUPERLATIVES: dict[str, str | None] = {
 # Other languages: number words from two up (one/un/una also mean "a"), compounds like
 # "sesenta y cinco" / "soixante-cinq" / "sessenta e cinco", and claim words.
 _LANG_NUMBERS: dict[str, dict[str, int]] = {
-    "es": dict(zip("dos tres cuatro cinco seis siete ocho nueve diez once doce trece catorce "
-                   "quince dieciséis diecisiete dieciocho diecinueve veinte".split(), range(2, 21)))
+    "es": dict(zip(["dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte"], range(2, 21)))
     | {"treinta": 30, "cuarenta": 40, "cincuenta": 50, "sesenta": 60, "setenta": 70,
        "ochenta": 80, "noventa": 90, "cien": 100},
-    "fr": dict(zip("deux trois quatre cinq six sept huit neuf dix onze douze treize quatorze "
-                   "quinze seize".split(), range(2, 17)))
+    "fr": dict(zip(["deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize"], range(2, 17)))
     | {"vingt": 20, "trente": 30, "quarante": 40, "cinquante": 50, "soixante": 60, "cent": 100},
-    "pt": dict(zip("dois três quatro cinco seis sete oito nove dez onze doze treze catorze "
-                   "quinze dezesseis dezessete dezoito dezenove vinte".split(), range(2, 21)))
+    "pt": dict(zip(["dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "catorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove", "vinte"], range(2, 21)))
     | {"duas": 2, "quatorze": 14, "trinta": 30, "quarenta": 40, "cinquenta": 50,
        "sessenta": 60, "setenta": 70, "oitenta": 80, "noventa": 90, "cem": 100},
-    "ar": dict(zip("اثنان ثلاثة أربعة خمسة ستة سبعة ثمانية تسعة عشرة".split(), range(2, 11)))
+    "ar": dict(zip(["اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة"], range(2, 11)))
     | {"عشرون": 20, "ثلاثون": 30, "أربعون": 40, "خمسون": 50, "ستون": 60, "سبعون": 70,
        "ثمانون": 80, "تسعون": 90},
 }

@@ -30,7 +30,7 @@ def test_parallel_variants_are_verified():
     model = ByLanguage({"Spanish": ["Gol de Varenne: su nota sube de 7,2 a 8,7."],
                         "Arabic": ["هدف Varenne يرفع تقييمه إلى ٨٫٧"],
                         "English": ["Varenne: rating 7.2 to 8.7 after the goal."]})
-    out, trace = run(model, [Profile("casual", "es", "home"), Profile("casual", "ar"),
+    out, _ = run(model, [Profile("casual", "es", "home"), Profile("casual", "ar"),
                              Profile("analyst", "en")])
     assert {v.key for v in out} == {"casual.es.home", "casual.ar.neutral", "analyst.en.neutral"}
     assert all(v.source == "model" for v in out)
@@ -39,7 +39,7 @@ def test_parallel_variants_are_verified():
 def test_mistranslated_number_is_rewritten_then_falls_back():
     model = ByLanguage({"Spanish": ["Varenne sube a 9,7.", "Varenne sube a 8,7 tras el gol."],
                         "French": ["Varenne grimpe à 9,1.", "Varenne, le plus rapide, à 8,7."]})
-    out, trace = run(model, [Profile("casual", "es"), Profile("casual", "fr", "away")])
+    out, _ = run(model, [Profile("casual", "es"), Profile("casual", "fr", "away")])
     es = next(v for v in out if v.key == "casual.es.neutral")
     fr = next(v for v in out if v.key == "casual.fr.away")
     assert es.source == "model" and es.attempts == 2
