@@ -2,8 +2,8 @@
 // explained and the plays they were part of.
 import { formLevel } from "../ui/Overlays";
 import { Shell } from "./Shell";
-import { ShotMap } from "./ShotMap";
-import { outcomeLabel, playHref, useSummary, xgWords, type PlayerSummary, type Summary } from "./summary";
+import { PlayCard } from "./PlayCard";
+import { outcomeLabel, useSummary, type PlayerSummary, type Summary } from "./summary";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
 
@@ -96,12 +96,7 @@ function PlayerPage({ p, s }: { p: PlayerSummary; s: Summary }) {
         {plays.length ? (
           <div className="l-grid">
             {plays.map((x) => (
-              <a key={x.id} className="l-card l-play" href={playHref(x.id)}>
-                <div className="lp-top"><span className={`l-badge ${x.outcome === "goal" ? "goal" : ""}`}>{outcomeLabel(x.outcome)}</span><span className="lp-min">{x.minute}′</span></div>
-                <ShotMap ax={x.ax} ay={x.ay} xg={x.xg} goal={x.outcome === "goal"} />
-                <div className="lp-xg"><b>xG {x.xg.toFixed(2)}</b> · a chance like this {xgWords(x.xg)}</div>
-                <span className="lp-go">Break it down →</span>
-              </a>
+              <PlayCard key={x.id} play={x} title={outcomeLabel(x.outcome)} />
             ))}
           </div>
         ) : <p className="l-muted">No shots this match. Their work shows in the numbers above.</p>}

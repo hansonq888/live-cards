@@ -1,7 +1,7 @@
 // Home: the match at a glance, the plays worth studying, and the way in to each stat.
 import { Shell } from "./Shell";
-import { ShotMap } from "./ShotMap";
-import { outcomeLabel, playHref, useSummary, xgWords } from "./summary";
+import { PlayCard } from "./PlayCard";
+import { useSummary } from "./summary";
 
 export function Home() {
   const s = useSummary();
@@ -38,16 +38,7 @@ export function Home() {
         <div className="l-head"><h2>Plays to break down</h2><a href="/?page=analyse">All {s?.plays.length ?? ""} plays</a></div>
         <div className="l-grid">
           {featured.map((p) => (
-            <a key={p.id} className="l-card l-play" href={playHref(p.id)}>
-              <div className="lp-top">
-                <span className={`l-badge ${p.outcome === "goal" ? "goal" : ""}`}>{outcomeLabel(p.outcome)}</span>
-                <span className="lp-min">{p.minute}′</span>
-              </div>
-              <ShotMap ax={p.ax} ay={p.ay} xg={p.xg} goal={p.outcome === "goal"} />
-              <div className="lp-name">{name(p.player)}</div>
-              <div className="lp-xg"><b>xG {p.xg.toFixed(2)}</b> · a chance like this {xgWords(p.xg)}</div>
-              <span className="lp-go">Break it down →</span>
-            </a>
+            <PlayCard key={p.id} play={p} title={name(p.player)} />
           ))}
         </div>
       </section>
