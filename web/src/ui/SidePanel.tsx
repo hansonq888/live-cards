@@ -147,14 +147,9 @@ export function Ask() {
   };
   return (
     <div className="ask">
-      <form onSubmit={(e) => { e.preventDefault(); send(q); }}>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr(lang, "ask_ph")} dir={isRtl(lang) ? "rtl" : undefined} />
-        <button type="submit">{tr(lang, "ask")}</button>
-      </form>
-      <div className="chips">{SUGGESTIONS.map((s) => <button key={s} onClick={() => send(s)}>{s}</button>)}</div>
-      <div className="answers">
+      <div className="answers" ref={(el) => { if (el) el.scrollTop = el.scrollHeight; }}>
         {answers.length === 0 && <div className="empty" dir={isRtl(lang) ? "rtl" : undefined}>{tr(lang, "ask_intro")}</div>}
-        {answers.map((a) => (
+        {[...answers].reverse().map((a) => (
           <div key={a.id} className="answer">
             <div className="q">{a.question}</div>
             {a.pending ? (
@@ -184,6 +179,13 @@ export function Ask() {
             )}
           </div>
         ))}
+      </div>
+      <div className="ask-foot">
+        {answers.length === 0 && <div className="chips">{SUGGESTIONS.map((s) => <button key={s} onClick={() => send(s)}>{s}</button>)}</div>}
+        <form onSubmit={(e) => { e.preventDefault(); send(q); }}>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr(lang, "ask_ph")} dir={isRtl(lang) ? "rtl" : undefined} />
+          <button type="submit">{tr(lang, "ask")}</button>
+        </form>
       </div>
     </div>
   );

@@ -21,7 +21,6 @@ function Xg() {
       <rect x="62" y="8" width="76" height="30" className="sv-line" />
       <rect x="88" y="3" width="24" height="5" className="sv-goal" />
       {shots.map(([x, y, q], i) => <circle key={i} cx={x} cy={y} r={3 + q * 14} className="sv-dot" opacity={0.55 + q} />)}
-      <text x="100" y="104" textAnchor="middle" className="sv-cap">bigger dot = better chance</text>
     </svg>
   );
 }
@@ -53,29 +52,22 @@ function Space() {
       <line x1="100" y1="8" x2="100" y2="112" className="sv-line" />
       {[[50, 30], [60, 80], [82, 55], [40, 60]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="5" className="sv-red" />)}
       {[[150, 35], [130, 70], [118, 46], [160, 90]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="5" className="sv-blue" />)}
-      <text x="100" y="104" textAnchor="middle" className="sv-cap">who gets there first</text>
     </svg>
   );
 }
 
 function Pass() {
-  const marks = [[2.6, "routine"], [5.2, "hard"], [7.4, "very hard"]] as const;
   const bands = stat("pass_difficulty")?.bands ?? [4.5, 6.5];
   const X = (v: number) => 20 + ((v - 1) / 9) * 160;
+  const zones: [number, number, string][] = [[1, bands[0], "routine"], [bands[0], bands[1], "hard"], [bands[1], 10, "very hard"]];
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="sv">
-      <rect x="20" y="52" width={X(bands[0]) - 20} height="14" rx="3" className="sv-band0" />
-      <rect x={X(bands[0])} y="52" width={X(bands[1]) - X(bands[0])} height="14" className="sv-band1" />
-      <rect x={X(bands[1])} y="52" width={180 - X(bands[1])} height="14" rx="3" className="sv-band2" />
-      {marks.map(([v, l]) => (
-        <g key={l}>
-          <line x1={X(v)} y1="40" x2={X(v)} y2="72" className="sv-tick" />
-          <text x={X(v)} y="34" textAnchor="middle" className="sv-lab">{l}</text>
-        </g>
-      ))}
-      <text x="20" y="88" className="sv-cap">1</text>
-      <text x="180" y="88" textAnchor="end" className="sv-cap">10</text>
-      <text x="100" y="104" textAnchor="middle" className="sv-cap">distance + pressure + where it went</text>
+      <rect x="20" y="48" width={X(bands[0]) - 20} height="14" rx="3" className="sv-band0" />
+      <rect x={X(bands[0])} y="48" width={X(bands[1]) - X(bands[0])} height="14" className="sv-band1" />
+      <rect x={X(bands[1])} y="48" width={180 - X(bands[1])} height="14" rx="3" className="sv-band2" />
+      {zones.map(([a, b, l]) => <text key={l} x={(X(a) + X(b)) / 2} y="38" textAnchor="middle" className="sv-lab">{l}</text>)}
+      <text x="20" y="80" className="sv-cap">1</text>
+      <text x="180" y="80" textAnchor="end" className="sv-cap">10</text>
     </svg>
   );
 }
@@ -86,14 +78,16 @@ function Sprint() {
   const X = (v: number) => 20 + (v / 36) * 160;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="sv">
-      <rect x="20" y="52" width={X(hi) - 20} height="14" rx="3" className="sv-band0" />
-      <rect x={X(hi)} y="52" width={X(sp) - X(hi)} height="14" className="sv-band1" />
-      <rect x={X(sp)} y="52" width={180 - X(sp)} height="14" rx="3" className="sv-band2" />
-      <text x={X(hi)} y="40" textAnchor="middle" className="sv-lab">{hi} km/h</text>
-      <text x={X(sp)} y="40" textAnchor="middle" className="sv-lab">{sp} km/h</text>
-      <text x={(20 + X(hi)) / 2} y="86" textAnchor="middle" className="sv-cap">jog</text>
-      <text x={(X(hi) + X(sp)) / 2} y="86" textAnchor="middle" className="sv-cap">high intensity</text>
-      <text x={(X(sp) + 180) / 2} y="86" textAnchor="middle" className="sv-cap">sprint</text>
+      <rect x="20" y="48" width={X(hi) - 20} height="14" rx="3" className="sv-band0" />
+      <rect x={X(hi)} y="48" width={X(sp) - X(hi)} height="14" className="sv-band1" />
+      <rect x={X(sp)} y="48" width={180 - X(sp)} height="14" rx="3" className="sv-band2" />
+      <line x1={X(hi)} y1="40" x2={X(hi)} y2="70" className="sv-tick" />
+      <line x1={X(sp)} y1="40" x2={X(sp)} y2="70" className="sv-tick" />
+      <text x={X(hi)} y="32" textAnchor="end" className="sv-lab">{hi}</text>
+      <text x={X(sp)} y="32" textAnchor="start" className="sv-lab">{sp} km/h</text>
+      <text x={(20 + X(hi)) / 2} y="84" textAnchor="middle" className="sv-cap">jog</text>
+      <text x={(X(hi) + X(sp)) / 2} y="84" textAnchor="middle" className="sv-cap">fast</text>
+      <text x={(X(sp) + 180) / 2} y="84" textAnchor="middle" className="sv-cap">sprint</text>
     </svg>
   );
 }
