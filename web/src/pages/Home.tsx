@@ -1,5 +1,6 @@
 // Home: the match at a glance, the plays worth studying, and the way in to each stat.
 import { Shell } from "./Shell";
+import { ShotMap } from "./ShotMap";
 import { outcomeLabel, playHref, useSummary, xgWords } from "./summary";
 
 export function Home() {
@@ -42,6 +43,7 @@ export function Home() {
                 <span className={`l-badge ${p.outcome === "goal" ? "goal" : ""}`}>{outcomeLabel(p.outcome)}</span>
                 <span className="lp-min">{p.minute}′</span>
               </div>
+              <ShotMap ax={p.ax} ay={p.ay} xg={p.xg} goal={p.outcome === "goal"} />
               <div className="lp-name">{name(p.player)}</div>
               <div className="lp-xg"><b>xG {p.xg.toFixed(2)}</b> · a chance like this {xgWords(p.xg)}</div>
               <span className="lp-go">Break it down →</span>

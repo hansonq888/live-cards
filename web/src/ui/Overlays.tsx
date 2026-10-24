@@ -227,7 +227,9 @@ export function GoalBanner() {
 }
 
 /** "How the goal was built": steps tick off as the replay passes them. */
-export function BuildUpPanel() {
+/** The play breakdown. Overlaid on the picture in Watch; `docked` (Analyse) renders it at
+ *  full size in the side column instead of inside the scaled broadcast frame. */
+export function BuildUpPanel({ docked = false }: { docked?: boolean }) {
   const b = useLive((s) => s.buildup);
   const showSpace = useLive((s) => s.showSpace);
   const t = useLive((s) => s.t);
@@ -243,7 +245,8 @@ export function BuildUpPanel() {
   const who = meta?.players.find((p) => p.id === b.scorer)?.short ?? "";
   const teamName = meta ? (meta.players.find((p) => p.id === b.scorer)?.team === meta.home.code ? meta.home.name : meta.away.name) : "";
   return (
-    <div className="buildup" dir={isRtl(lang) ? "rtl" : undefined}>
+    <div className={`buildup ${docked ? "docked" : ""}`} dir={isRtl(lang) ? "rtl" : undefined}>
+      {docked && <button className="bu-back" onClick={() => live.backToLive()}><Icon name="back" size={14} />All plays</button>}
       <div className="bu-head">
         <span className={`bu-kind ${b.kind}`}>{tr(lang, b.kind === "goal" ? "bd_goal" : "bd_chance")}</span>
         <span className="bu-title">{tr(lang, "bd_title")} · {who} {Math.floor(b.goalT / 60)}′</span>

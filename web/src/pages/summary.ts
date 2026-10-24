@@ -26,6 +26,6 @@ export const playHref = (id: string) => `/?page=analyse&play=${encodeURIComponen
 export const outcomeLabel = (o: string) => ({ goal: "Goal", saved: "Saved", off_target: "Off target", blocked: "Blocked" }[o] ?? o);
 /** xG as a fan reads it: "about n in 10". A fixed rule, so it can't drift from the number. */
 export const xgWords = (q: number) => {
-  const n = Math.round(q * 10);
+  const n = Math.round(Number(q.toFixed(2)) * 10);  // words agree with the xG shown (2 dp)
   return n >= 1 ? `goes in about ${n} time${n === 1 ? "" : "s"} in 10` : "goes in fewer than 1 time in 10";
 };

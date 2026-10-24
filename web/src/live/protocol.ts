@@ -91,7 +91,7 @@ export interface AnalystView {
 
 export interface ModelSpec { name: string; rating_weights: Record<string, number>; attr_weights: Record<string, Record<string, number>> }
 
-export interface Play { id: string; t: number; minute: number; player: string; team: string; outcome: string; xg: number }
+export interface Play { id: string; t: number; minute: number; player: string; team: string; outcome: string; xg: number; ax: number; ay: number } // ax/ay: shot spot, x toward the goal attacked
 
 export interface SpaceSnap { cols: number; rows: number; cell: number; grid: number[]; final_third_m2: number; total_m2: number; gain_m2: number | null }
 export interface BuildStep { t: number; kind: string; player: string; text: string; evidence: string[]; args?: Record<string, string | number | boolean | null>; space?: SpaceSnap }

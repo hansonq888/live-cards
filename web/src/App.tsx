@@ -56,6 +56,7 @@ function Live({ initial }: { initial: View }) {
 
 function Analyse({ onFan }: { onFan: () => void }) {
   const meta = useLive((s) => s.meta);
+  const breakdown = useLive((s) => s.buildup);
   return (
     <div className="app">
       <header className="top">
@@ -73,8 +74,12 @@ function Analyse({ onFan }: { onFan: () => void }) {
       </header>
       <main className="main analyse">
         <aside className="plays-col">
-          <div className="col-title">Plays <span>every attack that ended in a shot</span></div>
-          <Plays />
+          {breakdown ? <BuildUpPanel docked /> : (
+            <>
+              <div className="col-title">Plays <span>every attack that ended in a shot</span></div>
+              <Plays />
+            </>
+          )}
         </aside>
         <section className="broadcast">
           <ScaledStage>
@@ -85,7 +90,6 @@ function Analyse({ onFan }: { onFan: () => void }) {
             <GoalBanner />
             <RedTeamPanel />
             <RevisitBadge />
-            <BuildUpPanel />
           </ScaledStage>
           <div className="studio-row"><Timeline /><ExplainGoalButton /></div>
           <Controls />

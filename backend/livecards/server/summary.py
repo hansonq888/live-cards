@@ -26,7 +26,8 @@ def summary(seed: int = 7) -> dict:
     meta = match.meta
     dirs = {meta.home.code: meta.home.attack_dir, meta.away.code: meta.away.attack_dir}
     plays = [{"id": e.id, "t": e.t, "minute": e.minute, "player": e.player, "team": e.team,
-              "outcome": e.outcome, "xg": mx.xg(e.x, e.y, dirs[e.team])}
+              "outcome": e.outcome, "xg": mx.xg(e.x, e.y, dirs[e.team]),
+                 "ax": round(e.x * dirs[e.team], 1), "ay": round(e.y * dirs[e.team], 1)}
              for e in engine.events.values() if e.type == "shot"]
     players = []
     for p in meta.players:

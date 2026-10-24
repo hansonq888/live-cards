@@ -707,5 +707,6 @@ class LiveSession:
         dirs = {self.meta.home.code: self.meta.home.attack_dir,
                 self.meta.away.code: self.meta.away.attack_dir}
         return [{"id": e.id, "t": e.t, "minute": e.minute, "player": e.player, "team": e.team,
-                 "outcome": e.outcome, "xg": mx.xg(e.x, e.y, dirs[e.team])}
+                 "outcome": e.outcome, "xg": mx.xg(e.x, e.y, dirs[e.team]),
+                 "ax": round(e.x * dirs[e.team], 1), "ay": round(e.y * dirs[e.team], 1)}
                 for e in self.engine.events.values() if e.type == "shot"]

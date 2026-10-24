@@ -562,7 +562,7 @@ select:focus-visible, input:focus-visible { outline-offset: 0; }
 .bu-space b { color: #fff; }
 
 /* ---------- analyse: plays | pitch | tools ---------- */
-.main.analyse { grid-template-columns: 250px minmax(0, 1fr) clamp(300px, 24vw, 360px); }
+.main.analyse { grid-template-columns: 300px minmax(0, 1fr) clamp(300px, 24vw, 360px); }
 .plays-col { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--lift); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
 .col-title { padding: 14px 14px 6px; font-family: var(--display); font-weight: 600; font-size: 15px; display: flex; flex-direction: column; gap: 2px; }
 .col-title span { font-family: Inter, sans-serif; font-weight: 400; font-size: 11.5px; color: var(--dim); }
@@ -570,7 +570,8 @@ select:focus-visible, input:focus-visible { outline-offset: 0; }
 .plays-col .play-row { padding: 9px 10px; gap: 10px; }
 .plays-col .pr-tag { display: none; }
 .plays-col .play-row:has(.pr-tag.goal) { box-shadow: inset 3px 0 0 var(--accent); }
-@media (max-width: 1250px) { .main.analyse { grid-template-columns: minmax(0, 1fr) clamp(300px, 26vw, 360px); } .plays-col { display: none; } }
+@media (max-width: 1350px) { .main.analyse { grid-template-columns: 270px minmax(0, 1fr) 300px; } }
+@media (max-width: 1100px) { .main.analyse { grid-template-columns: 1fr; } .plays-col { max-height: 420px; } }
 a.brand { color: inherit; text-decoration: none; }
 
 /* ---------- light pages ---------- */
@@ -669,3 +670,25 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
   .l-top { padding: 12px 16px; gap: 12px; flex-wrap: wrap; } .l-note { display: none; }
   .l-hero h1 { font-size: 38px; } .ls-cols, .l-facts { grid-template-columns: 1fr 1fr; } .l-main { width: calc(100% - 32px); }
 }
+
+/* breakdown docked in Analyse: real sizes, its own scroll */
+.buildup.docked { position: static; width: auto; max-height: none; flex: 1; min-height: 0; box-shadow: none; background: none; padding: 14px 14px 12px; animation: none; transform: none !important; }
+.buildup.docked .bu-title { font-size: 16px; }
+.buildup.docked .bu-story { font-size: 15px; line-height: 1.5; margin: 12px 0 14px; }
+.buildup.docked li > button { font-size: 14px; padding: 8px 8px; }
+.buildup.docked .bu-time { font-size: 12.5px; }
+.buildup.docked .bu-stats { padding: 2px 10px 12px 58px; gap: 8px; }
+.buildup.docked .bu-stat { font-size: 13.5px; line-height: 1.4; }
+.buildup.docked .bu-controls { padding-top: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+.bu-back { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.07); border: 0; color: var(--text); font: inherit; font-size: 12.5px; padding: 6px 12px 6px 9px; border-radius: 999px; cursor: pointer; margin-bottom: 12px; }
+.bu-back:hover { background: rgba(255,255,255,.12); }
+.fb-home { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: var(--r-sm); color: var(--text); text-decoration: none; font-family: var(--display); font-weight: 600; font-size: 13px; background: rgba(255,255,255,.06); }
+.fb-home:hover { background: rgba(255,255,255,.12); }
+.shot-map { width: 100%; height: 120px; display: block; }
+.sm-pitch { fill: #eef6ee; stroke: #cfe3d0; stroke-width: .4; }
+.sm-line { fill: none; stroke: #b8d4ba; stroke-width: .4; }
+.sm-goal { fill: none; stroke: #6c668a; stroke-width: .5; }
+.sm-path { stroke: #6c668a; stroke-width: .35; stroke-dasharray: 1 1; opacity: .6; }
+.sm-path.goal { stroke: var(--l-accent); opacity: 1; stroke-dasharray: none; }
+.sm-shot { fill: #fff; stroke: #160f35; stroke-width: .6; }
+.sm-shot.goal { fill: var(--l-accent); stroke: var(--l-accent); }

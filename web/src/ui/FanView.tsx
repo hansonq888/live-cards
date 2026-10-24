@@ -1,5 +1,6 @@
 // Fan view: the broadcast, full screen, nothing else. Controls appear when you move the mouse.
 import { Icon } from "./Icon";
+import { Bolt } from "./Bolt";
 import { useEffect, useRef, useState } from "react";
 import { clock, live, useLang, useLive } from "../live/store";
 import { t as tr } from "../i18n";
@@ -42,6 +43,7 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
           <span className="fb-clock">{clock(t)}</span>
           <ExplainGoalButton />
           <span className="fb-spacer" />
+          <a className="fb-home" href="/" aria-label="Home"><Bolt size={16} />Live Cards</a>
           <div className="fb-menu">
             <button className={`ghost ${viewOpen ? "on" : ""}`} onClick={() => setViewOpen((o) => !o)} aria-expanded={viewOpen}>{tr(lang, "view")} <Icon name="chevron" size={14} /></button>
             {viewOpen && <div className="fb-pop"><ProfilePicker /><StatRingPicker /></div>}

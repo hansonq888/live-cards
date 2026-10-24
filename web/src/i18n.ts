@@ -277,7 +277,7 @@ export function stepMeaning(lang: Lang, s: StepLike): { label: string; meaning?:
     if (Number(a.gain) > 0) out.push({ label: tpl(lang, "gain", { m: a.gain }) });
     if (a.pressure) out.push({ label: tpl(lang, "press") });
   } else if (s.kind === "shot") {
-    const q = Number(a.xg), n = Math.round(q * 10);
+    const q = Number(a.xg), n = Math.round(Number(q.toFixed(2)) * 10);  // agrees with the xG shown
     out.push({ label: tpl(lang, "xg", { xg: q.toFixed(2) }), meaning: n >= 1 ? tpl(lang, "xg_n", { n }) : tpl(lang, "xg_0") });
     if (a.kmh) out.push({ label: tpl(lang, "shot_kmh", { kmh: a.kmh }) });
     if (a.pressure) out.push({ label: tpl(lang, "press") });
