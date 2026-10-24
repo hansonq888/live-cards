@@ -1899,3 +1899,24 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .al .an-top { align-items: start; }
 .card-dock .card .form { padding-right: 0; margin-top: 26px !important; }
 .card-dock .card-bust { width: 78px; height: 78px; } .card-dock .card-bust .avatar { width: 78px; height: 78px; }
+/* Home VS card: bolder, reads as the latest result */
+.vs { grid-template-rows: auto auto auto; padding: 0 !important; overflow: hidden; gap: 0 18px !important; background: linear-gradient(160deg, rgba(14,8,52,.62), rgba(30,16,90,.45)) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 24px 60px rgba(10,5,40,.35) !important; min-width: 460px !important; }
+.vs-head { grid-column: 1 / -1; grid-row: 1; display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; font-size: 12px; letter-spacing: .6px; text-transform: uppercase; color: rgba(255,255,255,.75); border-bottom: 1px solid rgba(255,255,255,.1); }
+.vs-live { display: inline-flex; align-items: center; gap: 8px; color: #fff; font-weight: 700; }
+.vs-live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #3ddc97; box-shadow: 0 0 0 4px rgba(61,220,151,.2); }
+.vs-team, .vs-score { grid-row: 2 !important; padding: 24px 0 22px; }
+.vs-team.home { padding-left: 20px; } .vs-team.away { padding-right: 20px; }
+.vs-team b { font-size: 18px !important; font-weight: 700 !important; }
+.vs-team li::before { content: "⚽ "; font-size: 11px; opacity: .8; }
+.vs-score { padding-top: 34px !important; }
+.vs-score b { font-size: 76px !important; font-weight: 800 !important; letter-spacing: -2px; }
+.vs-ft { background: #3ddc97 !important; color: #08261a !important; }
+.vs-foot { grid-column: 1 / -1; grid-row: 3; display: block; padding: 12px 20px; font-size: 13px; font-weight: 600; color: #fff; text-decoration: none; background: rgba(255,255,255,.08); border-top: 1px solid rgba(255,255,255,.1); text-align: center; }
+.vs-foot:hover { background: rgba(255,255,255,.16); }
+/* Learn: every lesson stacked; each snaps to the centre of the screen */
+html:has(.lesson.snap) { scroll-snap-type: y mandatory; scroll-padding: 24px 0; }
+.ls-stack { display: flex; flex-direction: column; gap: 12vh; padding: 6vh 0 20vh; }
+.lesson.snap .ls-lesson { scroll-snap-align: center; opacity: .4; transform: scale(.98); transition: opacity .35s ease, transform .35s ease; }
+.lesson.snap .ls-lesson.on { opacity: 1; transform: none; }
+.lesson.snap .ls-chapters { top: 50%; transform: translateY(-50%); }
+@media (max-width: 900px) { .lesson.snap .ls-chapters { transform: none; } .ls-stack { gap: 12vh; } }

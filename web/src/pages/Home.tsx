@@ -32,9 +32,10 @@ export function Home() {
         </div>
         {meta && s && (
           <div className="vs">
+            <div className="vs-head"><span className="vs-live">Latest result</span><span>Matchweek 9 · Sat 24 Oct</span></div>
             {[meta.home, meta.away].map((t, side) => (
               <div key={t.code} className={`vs-team ${side ? "away" : "home"}`}>
-                <Crest code={t.code} size={84} />
+                <Crest code={t.code} size={96} />
                 <b>{t.name}</b>
                 <ul>{goals.filter((g) => g.team === t.code).map((g) => <li key={g.id}>{name(g.player)} {g.minute}′</li>)}</ul>
               </div>
@@ -44,6 +45,7 @@ export function Home() {
               <b>{s.score[meta.home.code]}<i>–</i>{s.score[meta.away.code]}</b>
               <span className="vs-venue">{meta.venue}</span>
             </div>
+            <a className="vs-foot" href="/?page=watch">Match report, box score and every play →</a>
           </div>
         )}
       </section>
