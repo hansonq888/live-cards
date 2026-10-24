@@ -846,3 +846,22 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .lp-visual .sm-path.goal { stroke: #d4ff3a; }
 .lp-visual .sm-shot { fill: rgba(255,255,255,.25); stroke: #fff; }
 .lp-visual .sm-shot.goal { fill: #d4ff3a; stroke: #d4ff3a; }
+
+/* thunder shards: two angular slabs with a lightning kink in their edge, cut into a panel */
+.l-band::before, .l-band::after, .hero-card::before, .hero-card::after, .l-phead::before, .l-phead::after {
+  content: ""; position: absolute; pointer-events: none; z-index: 0;
+}
+.l-band > *, .hero-card > *, .l-phead > * { position: relative; z-index: 1; }
+.l-band::before { inset: 0 0 0 42%; background: linear-gradient(120deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
+  clip-path: polygon(38% 0, 100% 0, 100% 100%, 8% 100%, 30% 58%, 22% 56%); }
+.l-band::after { inset: 0 0 0 64%; background: linear-gradient(120deg, rgba(212,255,58,.55), rgba(212,255,58,.15));
+  clip-path: polygon(62% 0, 100% 0, 100% 100%, 30% 100%, 52% 52%, 44% 50%); }
+.hero-card::before { inset: 0 0 0 48%; background: linear-gradient(130deg, rgba(109,75,255,.45), rgba(63,184,255,.12));
+  clip-path: polygon(46% 0, 100% 0, 100% 100%, 0 100%, 34% 54%, 24% 50%); }
+.hero-card::after { inset: 0 0 0 74%; background: linear-gradient(130deg, rgba(212,255,58,.28), rgba(212,255,58,.04));
+  clip-path: polygon(70% 0, 100% 0, 100% 100%, 22% 100%, 52% 46%, 42% 42%); }
+.l-phead { position: relative; overflow: hidden; }
+.l-phead::before { inset: 0 0 0 50%; background: linear-gradient(130deg, rgba(255,255,255,.22), rgba(255,255,255,.04));
+  clip-path: polygon(40% 0, 100% 0, 100% 100%, 4% 100%, 30% 52%, 20% 48%); }
+.l-phead::after { inset: 0 0 0 76%; background: linear-gradient(130deg, rgba(212,255,58,.45), rgba(212,255,58,.08));
+  clip-path: polygon(66% 0, 100% 0, 100% 100%, 26% 100%, 52% 50%, 42% 46%); }
