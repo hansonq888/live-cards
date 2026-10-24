@@ -35,7 +35,7 @@ function shade(hex: string, f: number) {
 function duo(hex: string, ch: "r" | "g" | "b") {
   const n = parseInt(hex.slice(1), 16);
   const v = (ch === "r" ? n >> 16 : ch === "g" ? (n >> 8) & 255 : n & 255) / 255;
-  return `${(v * 0.25).toFixed(3)} ${v.toFixed(3)} ${(0.75 + v * 0.25).toFixed(3)}`;
+  return `${(v * 0.35).toFixed(3)} ${(0.35 + v * 0.65).toFixed(3)} 1`;
 }
 
 export function face(id: string) {
