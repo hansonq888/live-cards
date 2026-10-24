@@ -67,7 +67,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
   const meta = useLive((s) => s.meta);
   const breakdown = useLive((s) => s.buildup);
   return (
-    <div className="app">
+    <div className="app al">
       <header className="top">
         <a className="brand" href="/"><Wordmark /></a>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
