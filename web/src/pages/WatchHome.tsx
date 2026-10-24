@@ -12,11 +12,6 @@ export function WatchHome() {
   const goals = s?.plays.filter((p) => p.outcome === "goal") ?? [];
   return (
     <Shell page="watch">
-      <section className="l-hero small">
-        <p className="l-eyebrow">Watch</p>
-        <h1>Watch the match.</h1>
-        <p className="l-lede">The ring follows the play, every player's card explains itself, and you can switch to the tactical view at any moment.</p>
-      </section>
       {meta && s && (
         <section className="hero-card w-match">
           <div className="wm-board">
