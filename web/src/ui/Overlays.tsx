@@ -180,7 +180,14 @@ export function RevisitBadge() {
   const revisit = useLive((s) => s.revisit);
   const lang = useLang();
   if (!revisit) return null;
-  return <div className="revisit-badge">{tr(lang, "revisit")} · {clock(revisit.t)} · {revisit.label}</div>;
+  return (
+    <div className="revisit-badge">
+      <span className="rv-tag">{tr(lang, "revisit")}</span>
+      <span className="rv-time">{clock(revisit.t)}</span>
+      <span>{revisit.label}</span>
+      <button onClick={() => live.backToLive()}>{tr(lang, "back_live")}</button>
+    </div>
+  );
 }
 
 export function GoalBanner() {

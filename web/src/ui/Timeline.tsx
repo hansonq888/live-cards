@@ -1,10 +1,7 @@
-import { clock, live, useLang, useLive } from "../live/store";
-import { t as tr } from "../i18n";
+import { clock, live, useLive } from "../live/store";
 
-const ICON: Record<string, string> = {
-  goal: "⚽", big_chance: "◎", fastest_sprint: "⚡", rating_upgrade: "▲", rating_downgrade: "▼",
-  momentum_swing: "⇄", card: "■", substitution: "⇅",
-};
+const ICON: Record<string, string> = { goal: "⚽" };
+const TICKS = [0, 15, 30, 45, 60, 75, 90];
 
 /** Revisit: every key moment so far; click to replay it with the ring and card as they were. */
 export function Timeline() {
@@ -13,29 +10,23 @@ export function Timeline() {
   const edge = useLive((s) => s.liveEdge);
   const revisit = useLive((s) => s.revisit);
   const meta = useLive((s) => s.meta);
-  const lang = useLang();
   const dur = meta?.duration ?? 5400;
+  const pct = (x: number) => `${Math.min(100, (x / dur) * 100)}%`;
   return (
     <div className="timeline">
       <div className="tl-track">
-        <div className="tl-watched" style={{ width: `${(edge / dur) * 100}%` }} />
-        <div className="tl-half" style={{ left: "50%" }} />
+        <div className="tl-watched" style={{ width: pct(edge) }} />
         {keys.map((k) => (
           <button key={k.id} className={`tl-mark tl-${k.type} ${revisit?.id === k.id ? "on" : ""}`}
-            style={{ left: `${(k.t / dur) * 100}%` }} title={`${clock(k.t)} ${k.label}`}
+            style={{ left: pct(k.t) }} data-label={`${clock(k.t)} · ${k.label}`} aria-label={`${clock(k.t)} ${k.label}`}
             onClick={() => live.revisitMoment(k)}>
-            {ICON[k.type] ?? "•"}
+            {ICON[k.type] ?? ""}
           </button>
         ))}
-        <div className="tl-head" style={{ left: `${(t / dur) * 100}%` }} />
+        <div className="tl-head" style={{ left: pct(t) }} />
       </div>
-      <div className="tl-side">
-        {revisit ? (
-          <>
-            <span className="tl-revisit">{tr(lang, "revisit")} · {clock(revisit.t)} · {revisit.label}</span>
-            <button onClick={() => live.backToLive()}>{tr(lang, "back_live")}</button>
-          </>
-        ) : null}
+      <div className="tl-ticks">
+        {TICKS.map((m) => <span key={m} style={{ left: pct(m * 60) }}>{m}′</span>)}
       </div>
     </div>
   );

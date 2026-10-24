@@ -1,6 +1,6 @@
 // Fan view: the broadcast, full screen, nothing else. Controls appear when you move the mouse.
 import { useEffect, useRef, useState } from "react";
-import { live, useLang, useLive } from "../live/store";
+import { clock, live, useLang, useLive } from "../live/store";
 import { t as tr } from "../i18n";
 import { Viewer } from "../viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./Overlays";
@@ -13,6 +13,8 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
   const lang = useLang();
   const [active, setActive] = useState(true);
   const [askOpen, setAskOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  const t = useLive((s) => s.t);
   const timer = useRef<number>();
   const wake = () => {
     setActive(true);
@@ -21,7 +23,7 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
   };
   useEffect(() => { wake(); return () => window.clearTimeout(timer.current); }, []);
   return (
-    <div className={`fan-view ${active || askOpen ? "awake" : ""}`} onMouseMove={wake}>
+    <div className={`fan-view ${active || askOpen || viewOpen ? "awake" : ""}`} onMouseMove={wake}>
       <ScaledStage fit="contain">
         <Viewer />
         <ScoreBug />
@@ -33,13 +35,19 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
         <BuildUpPanel />
       </ScaledStage>
       <div className="fan-bar" onMouseMove={(e) => e.stopPropagation()} onMouseEnter={() => { window.clearTimeout(timer.current); setActive(true); }}>
-        <button className="round" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}>{paused ? "▶" : "❚❚"}</button>
         <Timeline />
-        <ExplainGoalButton />
-        <ProfilePicker />
-        <StatRingPicker />
-        <button className="ghost" onClick={onStudio}>{tr(lang, "studio")}</button>
-        <button className={`ask-btn ${askOpen ? "open" : ""}`} onClick={() => setAskOpen((o) => !o)} aria-expanded={askOpen}>{askOpen ? "✕" : tr(lang, "ask")}</button>
+        <div className="fb-row">
+          <button className="round" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}>{paused ? "▶" : "❚❚"}</button>
+          <span className="fb-clock">{clock(t)}</span>
+          <ExplainGoalButton />
+          <span className="fb-spacer" />
+          <div className="fb-menu">
+            <button className={`ghost ${viewOpen ? "on" : ""}`} onClick={() => setViewOpen((o) => !o)} aria-expanded={viewOpen}>{tr(lang, "view")} ▾</button>
+            {viewOpen && <div className="fb-pop"><ProfilePicker /><StatRingPicker /></div>}
+          </div>
+          <button className="ghost" onClick={onStudio}>{tr(lang, "studio")}</button>
+          <button className={`ask-btn ${askOpen ? "open" : ""}`} onClick={() => setAskOpen((o) => !o)} aria-expanded={askOpen}>{askOpen ? "✕" : tr(lang, "ask")}</button>
+        </div>
       </div>
       {askOpen && <div className="ask-drawer"><Ask /></div>}
     </div>
