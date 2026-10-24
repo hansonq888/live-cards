@@ -126,6 +126,29 @@ Collected Oct 24 as the product became an analysis platform. Pick and rewrite wh
 - Stats without meaning are noise to a casual fan and a number dump to an analyst. Live Cards
   gives the first a story and the second a toolbox.
 
+**Why teaching stats matters, including to the league as a business**
+- **Fans already use stats to make decisions.** Fantasy Premier League had 11.43 million verified
+  teams at the end of 2024/25 (premierleague.com). These fans pick players by form and numbers
+  every week; helping them understand those numbers makes the league's own game better and stickier.
+- **The league already pays to collect the data.** Optical tracking runs in every ground (Second
+  Spectrum / Genius Sports). Today most of that richness reaches fans as a few on-screen numbers.
+  Live Cards turns an existing asset into more fan value, with no new hardware.
+- **The league already makes this kind of content, by hand.** TV listings show a weekly xG analysis
+  programme on the league's own channel ("Generation xG"; weak source: listings only, verify
+  before citing). Live Cards automates that format for every attack of every match, in five
+  languages.
+- **Understanding is how casual viewers become regular fans.** Knowing *why* a moment mattered
+  makes the next match more interesting, especially for new international audiences who didn't
+  grow up with the game. Explanations in their own language lower the barrier. (A reasoned
+  argument, not a measured one: don't put a number on it.)
+- **Something to offer partners.** Broadcasters and streaming partners compete on features;
+  verified, explainable graphics and play breakdowns are something the league can license or
+  provide to them.
+- **Trust protects the brand.** Advanced stats explained wrongly, or AI that invents facts, is a
+  reputational risk. Every line here is checked against the data first.
+- Possible line: "The league already tracks every player 25 times a second, and 11 million
+  people play its fantasy game by the numbers. Live Cards makes those numbers make sense."
+
 **Comparison (familiar reference point)**
 - "Baseball has Statcast's public stats site, where fans can explore the tracking data. Football
   has nothing like it for fans, and the stats are only getting harder to read. Live Cards is that,
