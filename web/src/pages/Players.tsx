@@ -42,9 +42,9 @@ export function Players() {
                   return (
                     <a key={p.id} className="l-card l-player" href={`/?page=players&id=${p.id}`}>
                       <span className="lpl-num" style={{ color: team.color }}>{p.number}</span>
-                      <span className="lpl-name"><small>{first}</small>{last}</span>
                       <span className="lpl-pos">{p.position}</span>
-                      <Form rating={p.rating} />
+                      <span className="lpl-name"><small>{first}</small>{last}</span>
+                      <span className="lpl-form"><Form rating={p.rating} /></span>
                     </a>
                   );
                 })}
