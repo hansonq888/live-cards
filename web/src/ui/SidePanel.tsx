@@ -243,7 +243,12 @@ export function Plays() {
   const lang = useLang();
   const name = (id: string) => meta?.players.find((p) => p.id === id)?.short ?? id;
   const team = (code: string) => (meta?.home.code === code ? meta.home : meta?.away);
-  if (!plays.length) return <div className="feed"><div className="empty">Attacks that end in a shot appear here.</div></div>;
+  if (!plays.length) return (
+    <div className="feed">
+      <div className="empty">No shots yet. Every attack that ends in a shot appears here as the match goes on.</div>
+      <button className="load-full" onClick={() => live.send({ type: "seek", t: 5395 })}>Load the full match</button>
+    </div>
+  );
   return (
     <div className="feed plays">
       {[...plays].reverse().map((p) => (
@@ -296,6 +301,7 @@ export function Controls() {
       <div className="c-side right">
         <select className="ring-pick" value="" onChange={(e) => e.target.value && live.send({ type: "seek", t: Number(e.target.value) })} aria-label="Jump to">
           <option value="">Jump to…</option>
+          <option value="0">Kick-off (watch it unfold)</option>
           <option value="1780">30′ · first goal</option>
           <option value="3915">65′ · sprint and equaliser</option>
           <option value="5210">87′ · late winner</option>

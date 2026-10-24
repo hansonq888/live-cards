@@ -9,6 +9,7 @@ import { Controls, Plays, SidePanel, ViewMenu } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
+import { XgRace } from "./ui/XgRace";
 import { PlayStory } from "./pages/PlayStory";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
@@ -41,7 +42,9 @@ function Live({ initial }: { initial: View }) {
     const q = new URLSearchParams(location.search);
     const play = q.get("play");
     // Opening a play from another page: start just after it so its breakdown has the data.
-    live.connect(Number(q.get("speed") ?? 1), Number(q.get("start") ?? (play ? 5395 : 0)));
+    // Analyse studies the whole match, so it opens at full time with every play available;
+    // Watch is the live experience from kick-off. ?start= overrides either.
+    live.connect(Number(q.get("speed") ?? 1), Number(q.get("start") ?? (play || initial === "studio" ? 5395 : 0)));
   }, []);
   useEffect(() => {
     const play = new URLSearchParams(location.search).get("play");
@@ -97,6 +100,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
           </ScaledStage>
           <div className="studio-row"><Timeline /><ExplainGoalButton /></div>
           <Controls />
+          <XgRace />
         </section>
         <SidePanel />
       </main>

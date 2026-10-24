@@ -760,3 +760,19 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .a-table th { text-align: right; color: var(--dim); font-weight: 500; padding: 4px 6px; }
 .a-table th:first-child, .a-table td:first-child { text-align: left; color: var(--dim); }
 .a-table td { text-align: right; padding: 4px 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
+
+/* xG race */
+.xg-race { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--lift); padding: 14px 16px 8px; }
+.xr-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.xr-head b { font-family: var(--display); font-weight: 600; font-size: 15px; }
+.xr-head > span { font-size: 12px; color: var(--dim); }
+.xr-legend { margin-left: auto; display: flex; gap: 14px; }
+.xr-legend i { font-style: normal; font-size: 12.5px; color: var(--text); font-family: var(--display); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.xr-legend em { width: 10px; height: 3px; border-radius: 2px; display: inline-block; }
+.xr-svg { width: 100%; height: 150px; display: block; overflow: visible; }
+.xr-grid { stroke: rgba(255,255,255,.06); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.xr-axis { fill: var(--dim); font-size: 11px; }
+.xr-now { stroke: rgba(255,255,255,.45); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.xr-shot { cursor: pointer; }
+.xr-shot:hover circle { stroke: #fff; }
+.load-full { margin: 4px 4px 0; background: var(--accent); color: var(--ink); border: 0; border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
