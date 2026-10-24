@@ -3,7 +3,7 @@ import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
 import { Bolt } from "./ui/Bolt";
-import { Controls, ProfilePicker, SidePanel, StatRingPicker } from "./ui/SidePanel";
+import { Controls, SidePanel, ViewMenu } from "./ui/SidePanel";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
 import { Console } from "./console/Console";
@@ -43,12 +43,14 @@ function Studio({ onFan }: { onFan: () => void }) {
       <header className="top">
         <div className="brand"><Bolt size={22} />Live Cards <em className="studio-tag">Studio</em></div>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
-        <ProfilePicker />
-        <StatRingPicker />
-        <button className="switch-view" onClick={onFan}>Fan view</button>
-        <a className="switch-view" href="/?view=vision">Vision</a>
-        <a className="switch-view" href="/?view=console" target="_blank" rel="noreferrer">Console ↗</a>
-        <div className="synthetic">Synthetic match</div>
+        <span className="top-spacer" />
+        <ViewMenu />
+        <nav className="views">
+          <button onClick={onFan}>Fan</button>
+          <button className="on">Studio</button>
+          <a href="/?view=console" target="_blank" rel="noreferrer">Console ↗</a>
+          <a href="/?view=vision">Vision</a>
+        </nav>
       </header>
       <main className="main">
         <section className="broadcast">

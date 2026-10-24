@@ -201,14 +201,26 @@ export function StatRingPicker() {
   );
 }
 
+/** Audience, language, voice and stat rings in one menu, so the header stays quiet. */
+export function ViewMenu({ up = false }: { up?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const lang = useLang();
+  return (
+    <div className={`view-menu ${up ? "up" : ""}`}>
+      <button className={`switch-view ${open ? "on" : ""}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>{tr(lang, "view")} ▾</button>
+      {open && <div className="fb-pop"><ProfilePicker /><StatRingPicker /></div>}
+    </div>
+  );
+}
+
 export function SidePanel() {
-  const [tab, setTab] = useState<"feed" | "ask" | "fans" | "trace" | "metrics" | "model">("feed");
+  const [tab, setTab] = useState<"feed" | "ask" | "fans" | "trace" | "metrics" | "model">("ask");
   return (
     <aside className="side">
       <nav className="tabs">
-        {(["feed", "ask", "fans", "trace", "metrics", "model"] as const).map((t) => (
+        {(["ask", "feed", "fans", "trace", "metrics", "model"] as const).map((t) => (
           <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-            {{ feed: "Live", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics", model: "Model" }[t]}
+            {{ feed: "Feed", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics", model: "Model" }[t]}
           </button>
         ))}
       </nav>
@@ -223,23 +235,39 @@ export function Controls() {
   const modelEnabled = useLive((s) => s.modelEnabled);
   const director = useLive((s) => s.director);
   const connected = useLive((s) => s.connected);
+  const [settings, setSettings] = useState(false);
   return (
     <div className="controls">
-      <button onClick={() => live.send({ type: paused ? "play" : "pause" })}>{paused ? "▶ Play" : "❚❚ Pause"}</button>
-      {[1, 2, 5, 10, 20].map((v) => (
-        <button key={v} className={speed === v ? "on" : ""} onClick={() => live.send({ type: "speed", value: v })}>{v}×</button>
-      ))}
-      <span className="sep" />
-      <button onClick={() => live.send({ type: "seek", t: 3915 })}>Jump to 65′</button>
-      <button onClick={() => live.send({ type: "seek", t: 1780 })}>30′</button>
-      <button onClick={() => live.send({ type: "seek", t: 5210 })}>87′</button>
-      <span className="sep" />
-      <button className={director?.mode !== "manual" ? "on" : ""} onClick={() => live.send({ type: "auto" })}>Auto-director</button>
-      <button className={modelEnabled ? "on" : "off"} onClick={() => live.send({ type: "model", enabled: !modelEnabled })}>
-        AI model {modelEnabled ? "on" : "off"}
-      </button>
-      <button className="danger" onClick={() => live.send({ type: "redteam" })}>Red team</button>
-      <span className={`conn ${connected ? "up" : "down"}`}>{connected ? "live" : "offline"}</span>
+      <div className="c-side">
+        <button className={director?.mode !== "manual" ? "on" : ""} onClick={() => live.send({ type: "auto" })}>Auto-director</button>
+        <button className={modelEnabled ? "on" : "off"} onClick={() => live.send({ type: "model", enabled: !modelEnabled })}>
+          AI {modelEnabled ? "on" : "off"}
+        </button>
+        <button className="danger" onClick={() => live.send({ type: "redteam" })}>Red team</button>
+      </div>
+      <button className="play-main" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}>{paused ? "▶" : "❚❚"}</button>
+      <div className="c-side right">
+        <select className="ring-pick" value="" onChange={(e) => e.target.value && live.send({ type: "seek", t: Number(e.target.value) })} aria-label="Jump to">
+          <option value="">Jump to…</option>
+          <option value="1780">30′ · first goal</option>
+          <option value="3915">65′ · sprint and equaliser</option>
+          <option value="5210">87′ · late winner</option>
+        </select>
+        <div className="view-menu up">
+          <button className={settings ? "on" : ""} onClick={() => setSettings((o) => !o)} aria-expanded={settings} aria-label="Settings">⚙{speed !== 1 ? ` ${speed}×` : ""}</button>
+          {settings && (
+            <div className="fb-pop">
+              <span className="pop-label">Playback speed</span>
+              <div className="seg-speed">
+                {[1, 2, 5, 10, 20].map((v) => (
+                  <button key={v} className={speed === v ? "on" : ""} onClick={() => live.send({ type: "speed", value: v })}>{v}×</button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <span className={`conn ${connected ? "up" : "down"}`} title={connected ? "connected" : "offline"} />
+      </div>
     </div>
   );
 }
