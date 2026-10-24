@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRegistry } from "../live/stats";
 import { Shell } from "./Shell";
+import { Formula } from "./Formula";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { playHref, useSummary } from "./summary";
 
@@ -36,9 +37,11 @@ export function Learn() {
         {st && look && (
           <article key={st.id} className={`ls-lesson t-${look.tint}`}>
             <div className="ls-hero">
-              <span className="ls-step">Lesson {i + 1} of {stats.length}</span>
-              <h1>{st.name}</h1>
-              <p>{look.line}</p>
+              <div className="ls-text">
+                <span className="ls-step">Lesson {i + 1} of {stats.length}</span>
+                <h1>{st.name}</h1>
+                <p>{look.line}</p>
+              </div>
               <div className="ls-visual"><StatVisual id={st.id} big /></div>
             </div>
             <div className="ls-body">
@@ -46,7 +49,7 @@ export function Learn() {
               <details>
                 <summary>How it's calculated</summary>
                 <p>{st.how}</p>
-                <code>{st.formula}</code>
+                <Formula id={st.id} fallback={st.formula} />
                 <p className="ls-settings">{Object.entries(st.settings).map(([k, v]) => <span key={k}>{label(k)} <b>{fmt(v)}</b></span>)}</p>
                 {st.note && <p className="ls-note">{st.note}</p>}
               </details>

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { live, useLive } from "../live/store";
 
-const H = 150, PAD = { l: 34, r: 14, t: 14, b: 22 };
+const H = 260, PAD = { l: 34, r: 14, t: 14, b: 22 };
 
 export function XgRace() {
   const plays = useLive((s) => s.plays);

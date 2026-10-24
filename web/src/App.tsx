@@ -81,8 +81,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
           <a href="/?page=players">Players</a>
         </nav>
       </header>
-      <main className={`main analyse ${breakdown ? "with-play" : ""}`}>
-        {breakdown && <aside className="plays-col"><BuildUpPanel docked /></aside>}
+      <main className="main analyse">
         <section className="broadcast">
           <ScaledStage>
             <Viewer />
@@ -98,6 +97,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
             <div className="studio-row"><Timeline /><ExplainGoalButton /></div>
             <Controls />
           </div>
+          {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
           <XgRace />
         </section>
         <SidePanel />
