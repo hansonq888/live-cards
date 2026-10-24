@@ -1030,3 +1030,6 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .lpl-form { margin-top: auto; padding-top: 16px; }
 .l-player .l-form { gap: 10px; }
 .l-player .l-meter i { height: 10px; }
+.lpl-num { font-size: 0; opacity: 1; top: 14px; right: 16px; }
+.shirt { filter: drop-shadow(0 4px 8px rgba(30,20,80,.18)); }
+.shirt-num { fill: #fff; font: 800 15px "Inter Tight", Inter, sans-serif; }

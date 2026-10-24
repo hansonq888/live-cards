@@ -5,6 +5,7 @@ import { formLevel } from "../ui/Overlays";
 import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
 import { Flame } from "../ui/Flame";
+import { Shirt } from "../ui/Shirt";
 import { outcomeLabel, useSummary, type PlayerSummary, type Summary } from "./summary";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
@@ -42,7 +43,7 @@ export function Players() {
                   const [first, last] = split(p.name);
                   return (
                     <a key={p.id} className="l-card l-player" href={`/?page=players&id=${p.id}`}>
-                      <span className="lpl-num" style={{ color: team.color }}>{p.number}</span>
+                      <span className="lpl-num"><Shirt number={p.number} color={team.color} /></span>
                       <span className="lpl-pos">{p.position}</span>
                       <span className="lpl-name"><small>{first}</small>{last}</span>
                       <span className="lpl-form"><Form rating={p.rating} /></span>
