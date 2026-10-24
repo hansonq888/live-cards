@@ -93,19 +93,19 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
         if (step.kind === "pass" && a.end_x != null) {
           arrow(g, X(Number(a.x)), Y(Number(a.y)), X(Number(a.end_x)), Y(Number(a.end_y)), 1.6 * k);
           g.setLineDash([]);
-          label(g, `${a.m} m ${a.kind === "ground" ? "pass" : a.kind}`, (X(Number(a.x)) + X(Number(a.end_x))) / 2, (Y(Number(a.y)) + Y(Number(a.end_y))) / 2 - 1.6 * k, "#0d0a24", "#ffffff", 1.25 * k);
+          label(g, `${a.m} m ${a.kind === "ground" ? "pass" : a.kind}`, (X(Number(a.x)) + X(Number(a.end_x))) / 2, (Y(Number(a.y)) + Y(Number(a.end_y))) / 2 - 1.6 * k, "#121418", "#ffffff", 1.25 * k);
         } else if (step.kind === "shot" && a.goal_x != null) {
-          g.strokeStyle = "#d4ff3a"; g.fillStyle = "#d4ff3a";
+          g.strokeStyle = "#ff7a1a"; g.fillStyle = "#ff7a1a";
           arrow(g, X(Number(a.x)), Y(Number(a.y)), X(Number(a.goal_x)), Y(0), 1.6 * k);
           g.setLineDash([]);
-          label(g, `xG ${Number(a.xg).toFixed(2)}`, X(Number(a.x)), Y(Number(a.y)) - 2.4 * k, "#d4ff3a", "#0d0a24", 1.25 * k);
+          label(g, `xG ${Number(a.xg).toFixed(2)}`, X(Number(a.x)), Y(Number(a.y)) - 2.4 * k, "#ff7a1a", "#121418", 1.25 * k);
         }
         g.setLineDash([]);
         if (spaceStep?.space && s.showSpace && spaceStep === step && spaceStep.space.gain_m2) {
           // Next to the touch it belongs to: the pass's receiving end, the run's player, the shot.
           const gain = spaceStep.space.gain_m2;
           const ax = Number(a.end_x ?? a.x ?? 0), ay = Number(a.end_y ?? a.y ?? 0);
-          label(g, `${gain > 0 ? "+" : "−"}${Math.abs(gain)} m² of final-third space`, X(ax), Y(ay) + 3.2 * k, gain > 0 ? "#d4ff3a" : "#fb7185", "#0d0a24", 1.15 * k);
+          label(g, `${gain > 0 ? "+" : "−"}${Math.abs(gain)} m² of final-third space`, X(ax), Y(ay) + 3.2 * k, gain > 0 ? "#ff7a1a" : "#fb7185", "#121418", 1.15 * k);
         }
       }
       // Players and ball.
@@ -115,7 +115,7 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
         for (const p of st.poses) {
           const r = (mini ? 1.5 : 1.25) * k;
           if (p.id === target) {
-            g.strokeStyle = "#d4ff3a"; g.lineWidth = 0.4 * k;
+            g.strokeStyle = "#ff7a1a"; g.lineWidth = 0.4 * k;
             g.beginPath(); g.arc(X(p.x), Y(p.y), r + 0.9 * k, 0, Math.PI * 2); g.stroke();
           }
           g.fillStyle = team.get(p.id)?.role === "GK" ? "#f5c518" : colour(p.id);
@@ -127,7 +127,7 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
             g.fillText(String(team.get(p.id)?.number ?? ""), X(p.x), Y(p.y) + 0.5);
           }
         }
-        g.fillStyle = "#ffffff"; g.strokeStyle = "#0d0a24"; g.lineWidth = Math.max(1, 0.12 * k);
+        g.fillStyle = "#ffffff"; g.strokeStyle = "#121418"; g.lineWidth = Math.max(1, 0.12 * k);
         g.beginPath(); g.arc(X(st.ball[0]), Y(st.ball[1]), (mini ? 0.9 : 0.75) * k, 0, Math.PI * 2); g.fill(); g.stroke();
       }
       raf = requestAnimationFrame(draw);

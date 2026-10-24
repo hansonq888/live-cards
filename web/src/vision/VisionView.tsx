@@ -14,7 +14,7 @@ interface Tracks {
 
 const TEAM_COLOUR: Record<Team, string> = { light: "#f4f2ff", dark: "#4f7bff", other: "#f59e0b" };
 const TEAM_NAME: Record<Team, string> = { light: "White", dark: "Navy", other: "Keeper / ref" };
-const RING = () => getComputedStyle(document.documentElement).getPropertyValue("--ring").trim() || "#d4ff3a";
+const RING = () => getComputedStyle(document.documentElement).getPropertyValue("--ring").trim() || "#ff7a1a";
 
 /** The tracker can lose a player for a moment (the drone moves); hand the ring to the closest
  *  player of the same team near where they were, so it keeps following "them". */
