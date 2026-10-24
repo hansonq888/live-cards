@@ -46,7 +46,7 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
             <button className={`ghost ${viewOpen ? "on" : ""}`} onClick={() => setViewOpen((o) => !o)} aria-expanded={viewOpen}>{tr(lang, "view")} <Icon name="chevron" size={14} /></button>
             {viewOpen && <div className="fb-pop"><ProfilePicker /><StatRingPicker /></div>}
           </div>
-          <button className="ghost" onClick={onStudio}>{tr(lang, "studio")}</button>
+          <button className="ghost" onClick={onStudio}>{tr(lang, "analyse")}</button>
           <button className={`ask-btn ${askOpen ? "open" : ""}`} onClick={() => setAskOpen((o) => !o)} aria-expanded={askOpen}>{askOpen ? <Icon name="close" /> : <><Icon name="chat" /> {tr(lang, "ask")}</>}</button>
         </div>
       </div>

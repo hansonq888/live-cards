@@ -243,7 +243,7 @@ export function SidePanel() {
   return (
     <aside className="side">
       <nav className="tabs">
-        {(["ask", "plays", "feed", "fans", "trace", "metrics", "model"] as const).map((t) => (
+        {(["ask", "feed", "fans", "trace", "metrics", "model"] as const).map((t) => (
           <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
             {{ feed: "Feed", plays: "Plays", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics", model: "Model" }[t]}
           </button>

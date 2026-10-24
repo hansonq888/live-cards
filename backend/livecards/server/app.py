@@ -28,6 +28,7 @@ from livecards.contracts import OverlayCue
 from livecards.engine.rating import WEIGHTS
 from livecards.server.control import plane
 from livecards.server.session import LiveSession, load_match, snapshots
+from livecards.server.summary import summary
 
 
 @contextlib.asynccontextmanager
@@ -83,6 +84,12 @@ async def default_model() -> dict:
 @app.get("/api/meta")
 async def meta() -> dict:
     return {"match": load_match(7).meta.model_dump(), "rating_weights": WEIGHTS}
+
+
+@app.get("/api/summary")
+async def match_summary() -> dict:
+    """The finished match for the platform's pages: final cards, player stats, every play."""
+    return await asyncio.to_thread(summary, 7)
 
 
 @app.get("/api/cue-schema")

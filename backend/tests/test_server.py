@@ -173,3 +173,11 @@ def test_your_model_runs_in_lockstep(monkeypatch):
     assert card["custom"]["name"] == "Less passing"
     assert all(b["kind"] != "pass_under_pressure" or b["total"] == 0 for b in card["custom"]["breakdown"])
     assert s.shadow_i == s.i  # lockstep
+
+
+def test_summary_has_every_play_and_player():
+    from livecards.server.summary import summary
+    s = summary(7)
+    assert len([p for p in s["plays"] if p["outcome"] == "goal"]) == sum(s["score"].values())
+    assert len(s["players"]) >= 22 and all(0 <= p["rating"] <= 10 for p in s["players"])
+    assert s["examples"]["xg"] in {p["id"] for p in s["plays"]}
