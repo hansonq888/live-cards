@@ -484,12 +484,12 @@ button { font: inherit; }
 /* casual card: form in words, one story, numbers on demand */
 .card .card-meta { margin-top: 3px; }
 .form { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
-.form-meter { display: inline-flex; gap: 3px; }
-.form-meter i { width: 14px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); transition: background .5s; }
+.form-meter { display: inline-flex; gap: 4px; }
+.form-meter i { width: 20px; height: 10px; border-radius: 2px; background: rgba(255,255,255,.12); transition: background .5s; }
 .form-meter i.on { background: rgba(255,255,255,.75); }
 .form-meter.f3 i.on, .form-meter.f4 i.on { background: var(--accent); }
 .form-meter.f0 i.on { background: #fb7185; }
-.form-word { font-family: var(--display); font-weight: 600; font-size: 17px; }
+.form-word { font-family: var(--headline); font-weight: 800; font-size: 19px; }
 .form-up .form-word { color: var(--accent); }
 .form-up .form-meter { animation: glow 1.2s ease-out; }
 .story { margin-top: 12px; font-size: 14.5px; line-height: 1.45; min-height: 42px; }
@@ -662,9 +662,9 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .lpl-name small, .l-phead h1 small { font-family: Inter, sans-serif; font-weight: 400; font-size: 13px; letter-spacing: 0; color: var(--l-muted); margin-bottom: 2px; }
 .lpl-pos { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--l-muted); padding-right: 64px; min-height: 28px; }
 .lpl-form { margin-top: 14px; padding-top: 12px; box-shadow: inset 0 1px 0 var(--l-line); font-size: 13px; }
-.l-form { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
-.l-meter { display: inline-flex; gap: 3px; }
-.l-meter i { width: 12px; height: 5px; border-radius: 3px; background: #e6e2f3; }
+.l-form { display: flex; flex-direction: column; align-items: stretch; gap: 7px; font-family: var(--display); font-weight: 700; font-size: 15px; }
+.l-meter { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; order: 2; }
+.l-meter i { height: 9px; border-radius: 2px; background: #e6e2f3; }
 .l-meter i.on { background: var(--l-accent); }
 .l-meter.f0 i.on { background: #f43f5e; }
 
@@ -939,3 +939,5 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .pp-stat:last-child { box-shadow: none; }
 .pp-stat b { font-family: var(--display); font-weight: 700; font-variant-numeric: tabular-nums; }
 @media (max-width: 1000px) { .pp-grid, .pp-groups { grid-template-columns: 1fr; } .pp-side { position: static; } .pp-tiles { grid-template-columns: repeat(2, 1fr); } }
+.l-meter.f3 i.on, .l-meter.f4 i.on { background: linear-gradient(90deg, var(--l-accent), #8a5cff); }
+.pp-facts .l-form { font-size: 14px; }
