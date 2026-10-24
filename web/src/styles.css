@@ -1400,3 +1400,4 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .stat-grid .stat-tile { height: 170px; display: flex; align-items: center; justify-content: center; }
 .stat-grid .stat-tile > * { width: 100%; }
 .stat-grid .sv-form { height: 130px; }
+.al .side, .al .plays-col { height: calc(100vh - 104px); }
