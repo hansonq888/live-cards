@@ -45,6 +45,26 @@ points are located exactly from the camera model (our stand-in for a line and el
 the stream row adds 2 px of error to them. The next step is a real clip, filmed by us, through the
 same code.
 
+## Real footage: the Vision view
+
+`?view=vision` plays a real clip, 14 s of drone footage of an indoor 7-a-side match from
+[Pexels](https://www.pexels.com) (free licence; no club, league or sponsor branding). The ring
+follows a player chosen by click.
+[`vision/track_clip.py`](../vision/track_clip.py) processed it offline:
+- the same pretrained YOLO finds people and the ball
+- ByteTrack keeps each player's identity from frame to frame
+- shirt colour decides the team by majority vote over each track, so it doesn't flicker
+- anyone not standing on the grass (bench, spectators) is dropped
+
+The page draws the tracks in sync with the video.
+
+On this clip (359 frames): about 15 players tracked per frame, split 20 white and 15 navy tracks
+(2 others: keepers or the referee), with the ball found in 23% of frames. The camera moves, so
+the tracker sometimes loses a player and picks them up under a new ID (37 tracks for about 22
+people). The view hands the ring to the nearest player of the same team when that happens. We
+have no ground truth for this clip, so these are counts, not accuracy. The accuracy numbers
+are the synthetic ones above.
+
 Reproduce (with the app running locally):
 
 ```bash
@@ -53,4 +73,5 @@ uv run python capture.py --base http://localhost:5180 --out data/synthetic
 uv run python evaluate.py --calib camera
 uv run python evaluate.py --calib markings --calib-noise 2 --degrade
 uv run --with pytest pytest -q tests
+uv run python track_clip.py ../web/public/vision/clip.mp4 ../web/public/vision/tracks.json
 ```

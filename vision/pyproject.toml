@@ -8,6 +8,7 @@ dependencies = [
     "opencv-python-headless>=4.10",
     "scipy>=1.13",
     "playwright==1.48.0",
+    "lap>=0.5.13",
 ]
 
 [tool.uv]

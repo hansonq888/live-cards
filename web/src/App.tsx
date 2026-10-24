@@ -8,13 +8,16 @@ import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
 import { Console } from "./console/Console";
 import { FanView } from "./ui/FanView";
+import { VisionView } from "./vision/VisionView";
 
 type View = "fan" | "studio";
 
-/** Three views over one engine: Fan (default), Studio (?view=studio), Console (?view=console). */
+/** Views over one engine: Fan (default), Studio (?view=studio), Console (?view=console),
+ *  plus Vision (?view=vision): the ring on real footage. */
 export default function App() {
   const q = new URLSearchParams(location.search);
   if (q.get("view") === "console") return <Console />;
+  if (q.get("view") === "vision") return <VisionView />;
   return <Live initial={q.get("view") === "studio" ? "studio" : "fan"} />;
 }
 
@@ -43,6 +46,7 @@ function Studio({ onFan }: { onFan: () => void }) {
         <ProfilePicker />
         <StatRingPicker />
         <button className="switch-view" onClick={onFan}>Fan view</button>
+        <a className="switch-view" href="/?view=vision">Vision</a>
         <a className="switch-view" href="/?view=console" target="_blank" rel="noreferrer">Console ↗</a>
         <div className="synthetic">Synthetic match</div>
       </header>
