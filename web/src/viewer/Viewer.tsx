@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { live, useLang, useLive } from "../live/store";
 import { t as tr } from "../i18n";
 import type { Frame } from "../live/protocol";
 import { PitchScene, type PlayerPose } from "./PitchScene";
+import { fmtStat, heat, statScale } from "./statRings";
 
 const RENDER_DELAY_MS = 120; // play slightly behind the newest frame so we can interpolate
 
@@ -31,8 +32,17 @@ export function Viewer() {
   const director = useLive((s) => s.director);
   const alerts = useLive((s) => s.alerts);
   const lang = useLang();
+  const board = useLive((s) => s.board);
+  const statRing = useLive((s) => s.statRing);
   const host = useRef<HTMLDivElement>(null);
   const tag = useRef<HTMLDivElement>(null);
+  const hoverTag = useRef<HTMLDivElement>(null);
+  const hoverId = useRef<string | null>(null);
+  const players = useMemo(() => new Map(meta?.players.map((p) => [p.id, p]) ?? []), [meta]);
+  const scale = useMemo(() => (statRing ? statScale(board, statRing, players) : null), [board, statRing, players]);
+  // The render loop reads these through a ref so it never restarts.
+  const statRef = useRef({ stat: statRing, board, lang });
+  statRef.current = { stat: statRing, board, lang };
   const alertEl = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<PitchScene | null>(null);
   const targetRef = useRef<string | null>(null);
@@ -42,12 +52,18 @@ export function Viewer() {
     if (!meta || !host.current) return;
     const scene = new PitchScene(host.current, meta);
     sceneRef.current = scene;
+    scene.setStatColors(scale?.colors ?? null);
     const el = host.current;
     const fit = () => scene.resize(el.clientWidth, el.clientHeight);
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(el);
     const names = new Map(meta.players.map((p) => [p.id, p]));
+    const statSuffix = (id: string) => {
+      const { stat, board: b, lang: l } = statRef.current;
+      const v = stat ? b[id]?.[stat] : undefined;
+      return stat && v !== undefined ? `  ·  ${tr(l, stat)} ${fmtStat(stat, v)}` : "";
+    };
     let raf = 0, last = performance.now(), lastT = 0;
     const loop = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
@@ -64,7 +80,16 @@ export function Viewer() {
           tag.current.style.display = pos && p ? "block" : "none";
           if (pos && p) {
             tag.current.style.transform = `translate(${pos[0]}px, ${pos[1]}px) translate(-50%, -100%)`;
-            tag.current.textContent = `${p.short}  #${p.number}`;
+            tag.current.textContent = `${p.short}  #${p.number}${statSuffix(p.id)}`;
+          }
+        }
+        const hp = hoverId.current && hoverId.current !== targetRef.current ? names.get(hoverId.current) : undefined;
+        const hpos = hp ? scene.screenPos(hp.id) : null;
+        if (hoverTag.current) {
+          hoverTag.current.style.display = hp && hpos ? "block" : "none";
+          if (hp && hpos) {
+            hoverTag.current.style.transform = `translate(${hpos[0]}px, ${hpos[1]}px) translate(-50%, -100%)`;
+            hoverTag.current.textContent = `${hp.short}${statSuffix(hp.id)}`;
           }
         }
         if (alertEl.current && pos) {
@@ -81,6 +106,8 @@ export function Viewer() {
       sceneRef.current = null;
     };
   }, [meta]);
+
+  useEffect(() => { sceneRef.current?.setStatColors(scale?.colors ?? null); }, [scale]);
 
   // Keyboard: Tab / Shift+Tab cycles the followed player's team, A returns to auto, Space pauses.
   useEffect(() => {
@@ -106,6 +133,11 @@ export function Viewer() {
     return () => window.removeEventListener("keydown", onKey);
   }, [meta]);
 
+  // Hover a player to read their number (only while stat rings are on).
+  const onMove = (e: React.MouseEvent) => {
+    hoverId.current = statRing ? sceneRef.current?.pick(e.clientX, e.clientY) ?? null : null;
+  };
+
   const onClick = (e: React.MouseEvent) => {
     const id = sceneRef.current?.pick(e.clientX, e.clientY);
     if (id) live.send({ type: "select", player: id });
@@ -114,9 +146,19 @@ export function Viewer() {
   const alert = director ? [...alerts].reverse().find((a) => a.player === director.target && performance.now() - a.at < 5000) : undefined;
 
   return (
-    <div className="stage" onClick={onClick}>
+    <div className="stage" onClick={onClick} onMouseMove={onMove} onMouseLeave={() => { hoverId.current = null; }}>
       <div ref={host} className="canvas-host" />
       <div ref={tag} className="name-tag" />
+      <div ref={hoverTag} className="name-tag hover-tag" />
+      {statRing && scale && (
+        <div className="stat-legend">
+          <span className="sl-name">{tr(lang, statRing)}</span>
+          <span>{fmtStat(statRing, scale.lo)}</span>
+          <span className="sl-bar" style={{ background: `linear-gradient(90deg, ${heat(0)}, ${heat(0.5)}, ${heat(1)})` }} />
+          <span>{fmtStat(statRing, scale.hi)}</span>
+          <span className="sl-hint">{tr(lang, "rings_hint")}</span>
+        </div>
+      )}
       <div ref={alertEl} className="alert-badge" style={{ display: alert ? "block" : "none" }}>
         {alert ? (alert.type === "streak" ? `🔥 ${alert.count} ${tr(lang, "in_a_row")}` : `⚡ ${alert.kmh?.toFixed(1)} KM/H${alert.type === "fastest_sprint" ? ` · ${tr(lang, "fastest")}` : ""}`) : ""}
       </div>

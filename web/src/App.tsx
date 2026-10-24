@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
-import { Controls, ProfilePicker, SidePanel } from "./ui/SidePanel";
+import { Controls, ProfilePicker, SidePanel, StatRingPicker } from "./ui/SidePanel";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
 import { Console } from "./console/Console";
@@ -40,6 +40,7 @@ function Studio({ onFan }: { onFan: () => void }) {
         <div className="brand"><span className="dot" />Live Cards <em className="studio-tag">Studio</em></div>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <ProfilePicker />
+        <StatRingPicker />
         <button className="switch-view" onClick={onFan}>Fan view</button>
         <a className="switch-view" href="/?view=console" target="_blank" rel="noreferrer">Console ↗</a>
         <div className="synthetic">SYNTHETIC MATCH · FICTIONAL CLUBS AND PLAYERS</div>

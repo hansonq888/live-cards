@@ -146,6 +146,7 @@ export type ServerMsg =
       metrics: Metrics;
       speed: number;
       model_enabled: boolean;
+      board: Record<string, Record<string, number>>; // player -> rating + attributes
     }
   | { type: "model"; enabled: boolean }
   | { type: "seeked"; t: number }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { clock, live, useLang, useLive } from "../live/store";
+import { clock, live, STAT_RINGS, useLang, useLive } from "../live/store";
 import { isRtl, t as tr } from "../i18n";
 import { YourModelPanel } from "./YourModel";
 
@@ -188,6 +188,17 @@ export function ProfilePicker() {
         <option value="away">{meta.away.name} fan</option>
       </select>
     </div>
+  );
+}
+
+export function StatRingPicker() {
+  const stat = useLive((s) => s.statRing);
+  const lang = useLang();
+  return (
+    <select className="ring-pick" value={stat ?? ""} onChange={(e) => live.setStatRing(e.target.value || null)} aria-label={tr(lang, "rings")}>
+      <option value="">{tr(lang, "rings_off")}</option>
+      {STAT_RINGS.map((k) => <option key={k} value={k}>{tr(lang, "rings")}: {tr(lang, k)}</option>)}
+    </select>
   );
 }
 

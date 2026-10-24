@@ -665,4 +665,4 @@ class LiveSession:
         m["latency_p50_ms"] = lat[len(lat) // 2] if lat else None
         m["latency_p95_ms"] = lat[int(len(lat) * 0.95)] if lat else None
         return {"type": "team", **asdict(ts), "metrics": m, "speed": self.speed,
-                "model_enabled": self.model_enabled}
+                "model_enabled": self.model_enabled, "board": self.engine.board()}

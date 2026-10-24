@@ -671,3 +671,14 @@ class MatchEngine:
 
     def stats(self, pid: str) -> dict:
         return self.players[pid].stats.public()
+
+    def board(self) -> dict[str, dict[str, float]]:
+        """Rating and attributes of everyone on the pitch, for stat rings. The same numbers
+        as each player's card."""
+        out = {}
+        for pid, ps in self.players.items():
+            if not ps.on_pitch:
+                continue
+            out[pid] = {"rating": round(ps.rating.value, 1),
+                        **{a: ps.attrs.get(a, v) for a, v in ps.meta.base_attrs.items()}}
+        return out

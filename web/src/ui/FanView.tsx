@@ -5,7 +5,7 @@ import { t as tr } from "../i18n";
 import { Viewer } from "../viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./Overlays";
 import { ScaledStage } from "./ScaledStage";
-import { Ask, ProfilePicker } from "./SidePanel";
+import { Ask, ProfilePicker, StatRingPicker } from "./SidePanel";
 import { Timeline } from "./Timeline";
 
 export function FanView({ onStudio }: { onStudio: () => void }) {
@@ -37,6 +37,7 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
         <Timeline />
         <ExplainGoalButton />
         <ProfilePicker />
+        <StatRingPicker />
         <button className="ghost" onClick={onStudio}>{tr(lang, "studio")}</button>
         <span className="fan-note">{tr(lang, "synthetic")}</span>
       </div>

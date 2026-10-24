@@ -178,3 +178,13 @@ def test_team_xg_matches_player_xg(played):
     for team in ("RIV", "NGT"):
         players = sum(ps.stats.xg for ps in played.players.values() if ps.meta.team == team)
         assert abs(ts.xg[team] - players) < 0.02 and ts.shots[team] >= ts.shots_on_target[team]
+
+
+def test_board_matches_cards_and_lists_only_players_on_the_pitch(played):
+    board = played.board()
+    on = {pid for pid, ps in played.players.items() if ps.on_pitch}
+    assert set(board) == on and len(on) == 22
+    for pid, row in board.items():
+        card = played.card(pid)
+        assert row["rating"] == card.rating
+        assert {k: row[k] for k in card.attrs} == card.attrs

@@ -63,7 +63,9 @@ function boardTexture(home: string): THREE.CanvasTexture {
   return t;
 }
 
-interface Body { grp: THREE.Group; legs: THREE.Group[]; arms: THREE.Group[]; phase: number; stride: number }
+interface Body { grp: THREE.Group; legs: THREE.Group[]; arms: THREE.Group[]; phase: number; stride: number; stat: THREE.Mesh }
+
+const STAT_DISC = new THREE.RingGeometry(0.5, 0.78, 40);
 
 export class PitchScene {
   readonly renderer: THREE.WebGLRenderer;
@@ -247,9 +249,24 @@ export class PitchScene {
     grp.traverse((o) => {
       if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.userData.playerId = id; }
     });
+    const stat = new THREE.Mesh(STAT_DISC, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false }));
+    stat.rotation.x = -Math.PI / 2;
+    stat.position.y = 0.03;
+    stat.visible = false;
+    stat.userData.playerId = id;
+    grp.add(stat);
     grp.visible = false;
     this.scene.add(grp);
-    return { grp, legs, arms, phase: Math.random() * 6, stride: 0 };
+    return { grp, legs, arms, phase: Math.random() * 6, stride: 0, stat };
+  }
+
+  /** Stat rings: a colour per player (CSS colour), or none to hide them all. */
+  setStatColors(colors: Map<string, string> | null) {
+    for (const [id, b] of this.bodies) {
+      const c = colors?.get(id);
+      b.stat.visible = !!c;
+      if (c) (b.stat.material as THREE.MeshBasicMaterial).color.set(c);
+    }
   }
 
   resize(w: number, h: number) {

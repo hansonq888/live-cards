@@ -98,6 +98,20 @@ export interface LiveState {
     shots_on_target: Record<string, number>;
   } | null;
   metrics: Metrics | null;
+  // Rating and attributes of everyone on the pitch, and which one colours their rings.
+  board: Record<string, Record<string, number>>;
+  statRing: string | null;
+}
+
+export const STAT_RINGS = ["rating", "pace", "passing", "threat", "defending", "engine"] as const;
+
+function savedStatRing(): string | null {
+  const q = new URLSearchParams(location.search).get("rings");
+  if (q !== null) return (STAT_RINGS as readonly string[]).includes(q) ? q : null;
+  try {
+    const v = localStorage.getItem("statRing");
+    return v && (STAT_RINGS as readonly string[]).includes(v) ? v : null;
+  } catch { return null; }
 }
 
 const initial: LiveState = {
@@ -105,7 +119,7 @@ const initial: LiveState = {
   director: null, cards: {}, stats: {}, analyst: {}, custom: {}, yourModel: { status: "off", spec: null }, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
   keyMoments: [], liveEdge: 0, revisit: null, buildup: null,
   pending: {}, upgrades: {}, alerts: [],
-  banner: null, feed: [], traces: [], team: null, metrics: null,
+  banner: null, feed: [], traces: [], team: null, metrics: null, board: {}, statRing: null,
 };
 
 export interface TimedFrame { frame: Frame; at: number }
@@ -129,7 +143,7 @@ class LiveStore {
   connect(speed = 1, start = 0) {
     this.ws?.close();
     this.frames = [];
-    this.state = { ...initial };
+    this.state = { ...initial, statRing: savedStatRing() };
     const proto = location.protocol === "https:" ? "wss" : "ws";
     const ws = new WebSocket(`${proto}://${location.host}/ws/live?speed=${speed}&start=${start}`);
     this.ws = ws;
@@ -193,6 +207,11 @@ class LiveStore {
     const who = this.name(mo.player);
     const what = mo.type === "goal" ? "Goal" : mo.type === "rating_upgrade" ? `Card ▲ ${mo.facts.to}` : mo.type === "rating_downgrade" ? `Card ▼ ${mo.facts.to}` : mo.type === "fastest_sprint" ? `${mo.facts.speed_kmh} km/h` : mo.type === "momentum_swing" ? "Momentum swing" : mo.type === "big_chance" ? "Big chance" : mo.type === "card" ? "Yellow card" : "Substitution";
     return { id: mo.id, t: mo.t, type: mo.type, player: mo.player, label: `${what}${who ? " · " + who : ""}` };
+  }
+
+  setStatRing(stat: string | null) {
+    try { if (stat) localStorage.setItem("statRing", stat); else localStorage.removeItem("statRing"); } catch { /* private window */ }
+    this.set({ statRing: stat });
   }
 
   lang(): Lang {
@@ -334,7 +353,7 @@ class LiveStore {
       case "team":
         this.set({
           team: { possession: m.possession, possession_5m: m.possession_5m, momentum: m.momentum, chaos: m.chaos, score: m.score, xg: m.xg, shots: m.shots, shots_on_target: m.shots_on_target },
-          metrics: m.metrics, speed: m.speed, modelEnabled: m.model_enabled,
+          metrics: m.metrics, speed: m.speed, modelEnabled: m.model_enabled, board: m.board ?? {},
         });
         break;
       case "model":
