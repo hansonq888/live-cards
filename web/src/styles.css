@@ -1688,3 +1688,17 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
   --lift: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 30px rgba(5,3,18,.45);
   --accent: #d4ff3a; --accent-rgb: 212, 255, 58; --ink: #0d0a24; --violet-rgb: 109, 75, 255; color: #f1eeff; }
 .al .an-stage .card { background: radial-gradient(120% 70% at 100% 0%, rgba(109,75,255,.45), transparent 60%), linear-gradient(180deg, rgba(36,27,82,.94), rgba(19,13,46,.95)) !important; color: #f1eeff; }
+
+/* player list card layout: name and shirt on top, one meta line, form underneath */
+.l-player { display: grid !important; grid-template-columns: auto 1fr auto; grid-template-areas: "name name shirt" "pos club shirt" "form form form"; align-items: center; column-gap: 10px; row-gap: 0; padding: 20px 20px 18px !important; min-height: 0 !important; }
+.l-player .lpl-num { grid-area: shirt; position: static !important; align-self: start; }
+.l-player .lpl-num .shirt { width: 46px; height: 46px; }
+.l-player .lpl-name { grid-area: name; margin: 0; }
+.l-player .lpl-pos { grid-area: pos; margin: 6px 0 0 !important; padding: 0 !important; min-height: 0 !important; font-size: 13px; color: #6c668a; white-space: nowrap; }
+.l-player .lpl-club { grid-area: club; margin: 6px 0 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-player .lpl-club::before { content: "·"; margin-right: 6px; color: #b9b4cf; }
+.l-player .lpl-form { grid-area: form; margin-top: 16px !important; padding-top: 14px !important; }
+.l-player { grid-template-columns: 1fr auto !important; grid-template-areas: "name shirt" "pos pos" "club club" "form form" !important; }
+.l-player .lpl-pos { margin-top: 8px !important; }
+.l-player .lpl-club { margin-top: 2px; overflow: visible; }
+.l-player .lpl-club::before { content: none; }
