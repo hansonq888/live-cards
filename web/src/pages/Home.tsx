@@ -14,7 +14,7 @@ export function Home() {
     <Shell page="home">
       <section className="l-hero">
         <p className="l-eyebrow">Match analysis, explained</p>
-        <h1>Understand every moment.</h1>
+        <h1>Understand every <span className="l-grad">moment.</span></h1>
         <p className="l-lede">Every attack replayed from tracking data. Every stat explained in plain words. Every claim checked by AI agents before you see it.</p>
         <div className="l-cta">
           <a className="l-btn primary" href="/?page=analyse">Analyse the plays</a>
