@@ -55,12 +55,12 @@ export function face(id: string) {
   };
 }
 
-/** Experimental looks, previewed on ?page=mock: "lit" adds soft studio lighting, "duo" tints
+/** Looks, compared on ?page=mock: "lit" (the default) adds soft studio lighting, "duo" tints
  * the whole portrait in the club colour, "sticker" adds a white cut-out outline. */
 export type AvatarLook = "flat" | "lit" | "duo" | "sticker";
 
 /** `bare`: no background circle, just the head and shoulders on transparency (for cut-outs). */
-export function Avatar({ player, color, size = 40, number = true, bare = false, look = "flat" }: { player: AvatarPlayer; color: string; size?: number; number?: boolean; bare?: boolean; look?: AvatarLook }) {
+export function Avatar({ player, color, size = 40, number = true, bare = false, look = "lit" }: { player: AvatarPlayer; color: string; size?: number; number?: boolean; bare?: boolean; look?: AvatarLook }) {
   const uid = useId().replace(/:/g, "");
   const f = face(player.id);
   const kit = player.role === "GK" ? GK_KIT : color;
@@ -81,8 +81,8 @@ export function Avatar({ player, color, size = 40, number = true, bare = false, 
         {look === "lit" && (
           <>
             <radialGradient id={`${uid}l`} cx="38%" cy="30%" r="70%">
-              <stop offset="0" stopColor="#fff" stopOpacity=".38" /><stop offset=".55" stopColor="#fff" stopOpacity="0" />
-              <stop offset="1" stopColor="#000" stopOpacity=".32" />
+              <stop offset="0" stopColor="#fff" stopOpacity=".34" /><stop offset=".6" stopColor="#fff" stopOpacity="0" />
+              <stop offset="1" stopColor="#000" stopOpacity=".14" />
             </radialGradient>
             <linearGradient id={`${uid}k`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor="#fff" stopOpacity=".25" /><stop offset="1" stopColor="#000" stopOpacity=".35" />

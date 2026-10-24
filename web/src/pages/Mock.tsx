@@ -36,8 +36,8 @@ const LAYOUTS: [string, string, string][] = [
 ];
 
 const LOOKS: [AvatarLook, string, string][] = [
-  ["flat", "1 · Flat (current)", "Clean illustration, flat colour."],
-  ["lit", "2 · Studio lit", "Soft light from the top left, shadow on the kit: more depth."],
+  ["flat", "1 · Flat", "Clean illustration, flat colour."],
+  ["lit", "2 · Studio lit (current)", "Soft light from the top left, shadow on the kit: more depth."],
   ["duo", "3 · Club duotone", "Whole portrait in the club colour, like a matchday poster."],
   ["sticker", "4 · Sticker cut-out", "White outline and drop shadow, like a sticker album."],
 ];

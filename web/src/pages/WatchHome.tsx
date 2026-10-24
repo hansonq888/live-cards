@@ -20,6 +20,13 @@ const ICON: Record<string, string> = { goal: "⚽", yellow: "▮", red: "▮", s
 
 const at = (t: number) => `/?page=watch&start=${Math.max(0, Math.round(t))}`;
 
+// The few numbers that most explain a rating, in words.
+function why(st: Record<string, number>) {
+  const n = (v: number | undefined, one: string, many = `${one}s`) => (v ? `${v} ${v === 1 ? one : many}` : "");
+  return [n(st.goals, "goal"), n(st.chances_created, "chance created", "chances created"), n(st.shots_on_target, "shot on target", "shots on target"),
+    n((st.tackles_won ?? 0) + (st.interceptions ?? 0), "ball won", "balls won")].filter(Boolean).slice(0, 3).join(" · ");
+}
+
 export function WatchHome() {
   const s = useSummary();
   const meta = s?.meta;
@@ -95,7 +102,10 @@ function MatchCentre({ s }: { s: Summary }) {
         <a className="mc-link" href="/?page=learn">What do these mean? →</a>
       </section>
       <section className="l-card mc-top">
-        <h2 className="mc-h">Top performers</h2>
+        <div className="mc-h-row">
+          <h2 className="mc-h">Top performers</h2>
+          <span className="mc-h-note">Ranked by match rating: everyone starts at 6.0, and goals, chances and tackles move it up to 10. <a href="/?page=learn#rating">How it works →</a></span>
+        </div>
         {[home, away].map((t) => (
           <div key={t.code} className="mc-col">
             <span className="mc-club"><Crest code={t.code} size={22} />{t.name}</span>
@@ -103,8 +113,8 @@ function MatchCentre({ s }: { s: Summary }) {
               <a key={p.id} className="mc-player" style={{ ["--club" as string]: t.color }} href={`/?page=players&id=${p.id}`}>
                 <span className="mc-rank">{i + 1}</span>
                 <span className="mc-bust"><Avatar player={p} color={t.color} size={84} bare /></span>
-                <span className="mc-pname"><b>{p.short}</b><em>{p.position} · #{p.number}</em></span>
-                <span className="mc-score"><b>{p.rating.toFixed(1)}</b><span className={`mc-form f${formLevel(p.rating)}`}>{FORM[formLevel(p.rating)]}</span></span>
+                <span className="mc-pname"><b>{p.short}</b><em>{p.position}</em><small>{why(p.stats)}</small></span>
+                <span className="mc-score"><span className="mc-rl">Rating</span><b>{p.rating.toFixed(1)}</b><span className={`mc-form f${formLevel(p.rating)}`}>{FORM[formLevel(p.rating)]}</span></span>
               </a>
             ))}
           </div>

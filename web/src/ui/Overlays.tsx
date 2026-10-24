@@ -7,6 +7,7 @@ import { band } from "../live/stats";
 import { clock, live, useLang, useLive } from "../live/store";
 import { directorReason, isRtl, statsLine, stepCaption, stepMeaning, storyLine, t as tr, type Lang } from "../i18n";
 import { AnalystCard, TeamStrip } from "./Analyst";
+import { useSpeed } from "./FocusPanel";
 
 const STORY_TYPES = new Set(["goal", "rating_upgrade", "rating_downgrade", "big_chance", "momentum_swing", "fastest_sprint", "attr_upgrade", "attr_downgrade"]);
 
@@ -90,6 +91,7 @@ export function PlayerCard() {
   const pid = director?.target;
   const card = pid ? cards[pid] : undefined;
   const rating = useAnimated(card?.rating ?? 6.0);
+  const speed = useSpeed(pid ?? "");
   if (!meta || !pid || !card) return null;
   if (profile.startsWith("analyst.")) return <><AnalystCard pid={pid} /><TeamStrip /></>;
   const p = meta.players.find((x) => x.id === pid)!;
@@ -119,14 +121,19 @@ export function PlayerCard() {
       : <span className="story-text dim" dir={rtl ? "rtl" : undefined}>{lang === "en" && card.reason ? card.reason : tr(lang, "card_intro")}</span>;
   return (
     <div className={`card ${fresh ? (isUp ? "card-up" : "card-down") : ""}`} style={{ ["--team" as string]: team.color }}>
-      <span className="card-bust"><Avatar player={p} color={team.color} size={92} bare /></span>
-      <div className="card-id">
-        <div className="card-name">
-          <span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span>
-          <span className="last">{p.name.split(" ").slice(-1)[0]}</span>
+      <div className={`card-hero ${speed >= 25.2 ? "sprinting" : ""}`}>
+        <span className="card-num" aria-hidden="true">{p.number}</span>
+        <span className="card-crest"><Crest code={team.code} size={22} /></span>
+        <span className="card-bust"><Avatar player={p} color={team.color} size={118} bare /></span>
+        <div className="card-id">
+          <div className="card-name">
+            <span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span>
+            <span className="last">{p.name.split(" ").slice(-1)[0]}</span>
+          </div>
         </div>
+        <div className="card-meta">{p.position} <b>#{p.number}</b></div>
+        <span className={`card-speed ${speed >= 25.2 ? "sprint" : speed >= 19.8 ? "fast" : ""}`}><b>{speed.toFixed(1)}</b> km/h</span>
       </div>
-      <div className="card-meta"><i className="team-dot" />{p.position} · #{p.number}</div>
       <div className={`form ${fresh ? (isUp ? "form-up" : "form-down") : ""}`}>
         <FormMeter level={level} />
         <span className="form-word">{level === 4 && <Flame size={20} />}{tr(lang, `form_${level}`)}</span>

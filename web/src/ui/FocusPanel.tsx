@@ -24,7 +24,7 @@ function heatColour(v: number) {
   return `hsl(${h}, 100%, ${58 - k * 8}%)`;
 }
 
-function useSpeed(pid: string) {
+export function useSpeed(pid: string) {
   const [v, setV] = useState(0);
   useEffect(() => {
     const id = setInterval(() => {
