@@ -1682,3 +1682,9 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .bx-tabs button.on { background: #160f35; color: #fff; }
 .hs-h { display: block; margin: 18px 0 2px; font-size: 12px; font-weight: 600; color: #6c668a; }
 .hs-row select { font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 6px; border: 0; background: #efedf8; color: #160f35; max-width: 170px; }
+/* the viewer keeps broadcast (dark) tokens in full screen too, where it isn't a .stage-wrap */
+.al .an-stage { --bg: #0a0720; --text: #f1eeff; --dim: #9a92c4; --line: rgba(190,175,255,.12);
+  --surface: linear-gradient(180deg, rgba(36,27,82,.92), rgba(19,13,46,.94)); --surface-2: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+  --lift: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 30px rgba(5,3,18,.45);
+  --accent: #d4ff3a; --accent-rgb: 212, 255, 58; --ink: #0d0a24; --violet-rgb: 109, 75, 255; color: #f1eeff; }
+.al .an-stage .card { background: radial-gradient(120% 70% at 100% 0%, rgba(109,75,255,.45), transparent 60%), linear-gradient(180deg, rgba(36,27,82,.94), rgba(19,13,46,.95)) !important; color: #f1eeff; }
