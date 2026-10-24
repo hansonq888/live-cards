@@ -18,20 +18,27 @@ export function WatchHome() {
         <p className="l-lede">The ring follows the play, every player's card explains itself, and you can switch to the tactical view at any moment.</p>
       </section>
       {meta && s && (
-        <section className="l-card w-match">
-          <div className="wm-top"><span className="wm-status">Full time</span><span className="l-muted">{meta.venue}</span></div>
-          <div className="wm-score">
-            <span className="wm-team"><i style={{ background: meta.home.color }} />{meta.home.name}</span>
-            <b>{s.score[meta.home.code]} – {s.score[meta.away.code]}</b>
-            <span className="wm-team right">{meta.away.name}<i style={{ background: meta.away.color }} /></span>
+        <section className="hero-card w-match">
+          <div className="wm-board">
+            <span className="wm-status">Full time · {meta.venue}</span>
+            <div className="wm-score">
+              <span className="wm-team" style={{ background: meta.home.color }}><b>{meta.home.code}</b><em>{meta.home.name}</em></span>
+              <span className="wm-num">{s.score[meta.home.code]}<i>–</i>{s.score[meta.away.code]}</span>
+              <span className="wm-team" style={{ background: meta.away.color }}><b>{meta.away.code}</b><em>{meta.away.name}</em></span>
+            </div>
           </div>
-          <div className="wm-actions">
-            <a className="l-btn primary" href={at(0)}>Watch from kick-off</a>
-            {goals.map((g) => (
-              <a key={g.id} className="l-btn" href={at(g.t - 25)}>⚽ {name(g.player)} {g.minute}′</a>
-            ))}
+          <div className="wm-side">
+            <a className="hc-btn primary wm-kick" href={at(0)}>▶ Watch from kick-off</a>
+            <span className="wm-label">Or jump to a goal</span>
+            <div className="wm-goals">
+              {goals.map((g) => (
+                <a key={g.id} className="wm-goal" href={at(g.t - 25)}>
+                  <b>{g.minute}′</b><span>{name(g.player)}</span><i style={{ background: meta.players.find((x) => x.id === g.player)?.team === meta.home.code ? meta.home.color : meta.away.color }} />
+                </a>
+              ))}
+            </div>
+            <p className="wm-hint">Starts 25 seconds before the goal, so you see the move.</p>
           </div>
-          <p className="wm-hint">Jumping to a goal starts the broadcast 25 seconds before it, so you see the move.</p>
         </section>
       )}
       <section className="l-section">
