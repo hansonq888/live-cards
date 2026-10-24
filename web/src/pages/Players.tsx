@@ -33,29 +33,57 @@ export function Players() {
           <section className="l-hero small">
             <p className="l-eyebrow">Players</p>
             <h1>Who played, and how.</h1>
-            <p className="l-lede">Form in words, numbers explained. Pick a player to see their match.</p>
           </section>
-          {s && [s.meta.home, s.meta.away].map((team) => (
-            <section key={team.code} className="l-section">
-              <div className="l-head"><h2><i className="l-dot" style={{ background: team.color }} />{team.name}</h2></div>
-              <div className="l-grid players">
-                {s.players.filter((p) => p.team === team.code).sort((a, b) => b.rating - a.rating).map((p) => {
-                  const [first, last] = split(p.name);
-                  return (
-                    <a key={p.id} className="l-card l-player" href={`/?page=players&id=${p.id}`}>
-                      <span className="lpl-num"><Shirt number={p.number} color={team.color} /></span>
-                      <span className="lpl-pos">{p.position}</span>
-                      <span className="lpl-name"><small>{first}</small>{last}</span>
-                      <span className="lpl-form"><Form rating={p.rating} /></span>
-                    </a>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
+          {s && <Directory s={s} />}
         </>
       )}
     </Shell>
+  );
+}
+
+const GROUPS: [string, (role: string) => boolean][] = [
+  ["All", () => true], ["Forwards", (r) => r === "ST" || r === "W"], ["Midfielders", (r) => r === "CM" || r === "AM" || r === "DM"],
+  ["Defenders", (r) => r === "CB" || r === "FB"], ["Goalkeepers", (r) => r === "GK"],
+];
+const SORTS: [string, (p: PlayerSummary) => number][] = [
+  ["Form", (p) => p.rating], ["Distance", (p) => p.stats.distance_km ?? 0], ["Top speed", (p) => p.stats.top_speed_kmh ?? 0], ["Passes", (p) => p.stats.passes_completed ?? 0],
+];
+
+function Directory({ s }: { s: Summary }) {
+  const [club, setClub] = useState("all");
+  const [group, setGroup] = useState("All");
+  const [sort, setSort] = useState("Form");
+  const g = GROUPS.find((x) => x[0] === group)![1];
+  const key = SORTS.find((x) => x[0] === sort)![1];
+  const rows = s.players.filter((p) => (club === "all" || p.team === club) && g(p.role)).sort((a, b) => key(b) - key(a));
+  const teamOf = (code: string) => (code === s.meta.home.code ? s.meta.home : s.meta.away);
+  return (
+    <>
+      <div className="pd-bar">
+        <div className="bx-tabs">
+          <button className={club === "all" ? "on" : ""} onClick={() => setClub("all")}>Both clubs</button>
+          {[s.meta.home, s.meta.away].map((t) => <button key={t.code} className={club === t.code ? "on" : ""} onClick={() => setClub(t.code)}><i style={{ background: t.color }} />{t.name}</button>)}
+        </div>
+        <div className="pd-chips">{GROUPS.map(([k]) => <button key={k} className={group === k ? "on" : ""} onClick={() => setGroup(k)}>{k}</button>)}</div>
+        <label className="pd-sort">Sort by <select value={sort} onChange={(e) => setSort(e.target.value)}>{SORTS.map(([k]) => <option key={k}>{k}</option>)}</select></label>
+      </div>
+      <p className="pd-count">{rows.length} players from this match</p>
+      <div className="l-grid players">
+        {rows.map((p) => {
+          const [first, last] = split(p.name);
+          const team = teamOf(p.team);
+          return (
+            <a key={p.id} className="l-card l-player" href={`/?page=players&id=${p.id}`}>
+              <span className="lpl-num"><Shirt number={p.number} color={team.color} size={64} /></span>
+              <span className="lpl-pos">{p.position}</span>
+              <span className="lpl-name"><small>{first}</small>{last}</span>
+              <span className="lpl-club"><i style={{ background: team.color }} />{team.name}</span>
+              <span className="lpl-form"><Form rating={p.rating} /></span>
+            </a>
+          );
+        })}
+      </div>
+    </>
   );
 }
 

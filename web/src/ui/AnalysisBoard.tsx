@@ -1,7 +1,7 @@
 // The analysis board under the pitch: four views of the whole match, one at a time.
 // xG race (live), momentum by 5-minute window, a shot map, and stat leaders.
 import { useState } from "react";
-import { live } from "../live/store";
+import { live, useLive } from "../live/store";
 import { useSummary, type Summary } from "../pages/summary";
 import { XgRace } from "./XgRace";
 
@@ -47,19 +47,20 @@ function Momentum({ s }: { s: Summary }) {
 
 function ShotMapAll({ s }: { s: Summary }) {
   const { home, away } = s.meta;
+  const plays = useLive((st) => st.plays);  // live: only the shots taken so far
   const name = (id: string) => s.players.find((p) => p.id === id)?.short ?? "";
   // Both halves: home attacks right, away attacks left (pitch metres, x to the right).
   const X = (x: number) => 52.5 + x, Y = (y: number) => 34 - y;
   return (
     <div className="bd">
-      <p className="bd-note">Every shot. {home.name} attack right, {away.name} attack left. Bigger means a better chance; filled means a goal. Click a shot to break it down.</p>
+      <p className="bd-note">Every shot so far. {home.name} attack right, {away.name} attack left. Bigger means a better chance; filled means a goal. Click a shot to break it down.</p>
       <svg viewBox="-2 -2 109 72" className="sm-all">
         <rect x="0" y="0" width="105" height="68" className="sma-pitch" />
         <line x1="52.5" y1="0" x2="52.5" y2="68" className="sma-line" />
         <circle cx="52.5" cy="34" r="9.15" className="sma-line" />
         <rect x="0" y="13.84" width="16.5" height="40.32" className="sma-line" /><rect x="88.5" y="13.84" width="16.5" height="40.32" className="sma-line" />
         <rect x="0" y="24.84" width="5.5" height="18.32" className="sma-line" /><rect x="99.5" y="24.84" width="5.5" height="18.32" className="sma-line" />
-        {s.plays.map((p) => {
+        {plays.map((p) => {
           const team = p.team === home.code ? home : away;
           const dir = p.team === home.code ? 1 : -1;
           const x = p.ax * dir, y = p.ay * dir;

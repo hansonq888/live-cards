@@ -1527,3 +1527,58 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .bx-name em { font-style: normal; font-size: 12px; color: #6c668a; }
 .bx-num { width: 26px; height: 26px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
 .bx-note { margin: 12px 0 0; font-size: 12.5px; color: #6c668a; }
+
+/* Analyse: the viewer leaves room for the timeline below it on one screen */
+.al .broadcast .stage-wrap { width: min(100%, calc((100vh - 330px) * 16 / 9)); margin: 0 auto; }
+
+/* Analyse top row: the viewer and the live match beside it */
+.al .an-top { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; align-items: stretch; }
+.al .an-top .stage-wrap { width: 100% !important; }
+.ls-live { background: #fff; border-radius: var(--r-lg); box-shadow: 0 0 0 1px rgba(22,15,53,.06), 0 8px 24px rgba(22,15,53,.05); padding: 16px; display: flex; flex-direction: column; gap: 14px; font-size: 13px; overflow: auto; }
+.lsl-wait { color: #6c668a; }
+.lsl-score { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; }
+.lsl-score span { color: #fff; font-weight: 700; font-size: 13px; padding: 5px 8px; border-radius: 5px; text-align: center; }
+.lsl-score b { text-align: center; font-family: var(--headline); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; }
+.lsl-score em { grid-column: 1 / -1; text-align: center; font-style: normal; color: #6c668a; font-variant-numeric: tabular-nums; }
+.lsl-rows { display: flex; flex-direction: column; gap: 9px; }
+.lsl-vals { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.lsl-vals span { color: #6c668a; } .lsl-vals b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.lsl-bar { display: flex; gap: 2px; height: 6px; } .lsl-bar i { border-radius: 2px; transition: width .6s; }
+.lsl-mom { display: flex; flex-direction: column; gap: 5px; color: #6c668a; }
+.lsl-track { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #1d4ed8, #e6e3f2 50%, #c8102e); }
+.lsl-track i { position: absolute; top: -4px; width: 3px; height: 14px; border-radius: 2px; background: #160f35; transform: translateX(-50%); transition: left .8s; }
+.lsl-chaos { height: 6px; border-radius: 3px; background: #efedf8; overflow: hidden; } .lsl-chaos i { display: block; height: 100%; background: linear-gradient(90deg, #5b3df5, #ff8a3d); transition: width .8s; }
+.lsl-best { display: flex; flex-direction: column; gap: 4px; }
+.lsl-h { color: #6c668a; margin-bottom: 2px; }
+.lsl-best button { display: grid; grid-template-columns: 8px 1fr auto auto; gap: 8px; align-items: center; border: 0; background: #f6f5fb; border-radius: 6px; padding: 7px 9px; font: inherit; font-size: 13px; text-align: left; cursor: pointer; color: #160f35; }
+.lsl-best button:hover { background: #ece9f8; }
+.lsl-best i { width: 8px; height: 8px; border-radius: 50%; }
+.lsl-best em { font-style: normal; color: #6c668a; font-size: 12px; }
+.lsl-best span { font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 1250px) { .al .an-top { grid-template-columns: 1fr; } }
+
+.al .an-top { align-items: start; }
+.al .ls-live { align-self: stretch; }
+/* players directory */
+.pd-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.pd-chips { display: flex; gap: 6px; }
+.pd-chips button { border: 0; background: #ecebf2; color: #160f35; font: inherit; font-size: 13.5px; padding: 7px 13px; border-radius: 999px; cursor: pointer; }
+.pd-chips button.on { background: #160f35; color: #fff; }
+.pd-sort { margin-left: auto; font-size: 14px; color: #6c668a; display: inline-flex; gap: 8px; align-items: center; }
+.pd-sort select { font: inherit; font-size: 14px; padding: 6px 10px; border-radius: 6px; border: 0; background: #ecebf2; color: #160f35; }
+.pd-count { margin: -36px 0 -20px; font-size: 13px; color: #6c668a; }
+.lpl-num { top: 10px; right: 12px; }
+.lpl-club { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 13px; color: #6c668a; }
+.lpl-club i { width: 8px; height: 8px; border-radius: 50%; }
+.shirt-num { font-size: 15px; }
+/* Learn: "How it's calculated" reads like a short explainer */
+.ls-body details { background: #f7f6fb; border-radius: 10px; padding: 14px 18px; }
+.ls-body details[open] { padding-bottom: 18px; }
+.ls-body summary { font-size: 15px; }
+.ls-body details p { color: #3a3358; font-size: 15.5px; line-height: 1.6; max-width: 760px; }
+.ls-body .formula { background: #fff; margin: 14px 0; padding: 10px 22px 14px; box-shadow: 0 0 0 1px rgba(22,15,53,.06); }
+.ls-body .formula .katex { font-size: 1.35em; }
+.ls-body .formula-key { font-size: 14px; color: #4d4670; }
+.ls-body .ls-settings { display: flex; flex-wrap: wrap; gap: 8px; }
+.ls-body .ls-settings span { font-size: 13.5px; padding: 6px 12px; }
+.ls-body .ls-note { font-size: 14px; color: #6c668a; padding-top: 10px; box-shadow: inset 0 1px 0 #e6e3f2; }

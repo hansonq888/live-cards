@@ -11,6 +11,7 @@ import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
 import { AnalysisBoard } from "./ui/AnalysisBoard";
 import { FocusPanel } from "./ui/FocusPanel";
+import { LiveStats } from "./ui/LiveStats";
 import { PlayStory } from "./pages/PlayStory";
 import { WatchHome } from "./pages/WatchHome";
 import { ScaledStage } from "./ui/ScaledStage";
@@ -84,16 +85,19 @@ function Analyse({ onFan }: { onFan: () => void }) {
       </header>
       <main className="main analyse">
         <section className="broadcast">
-          <ScaledStage>
-            <Viewer />
-            <BoardSwitch />
-            <ScoreBug />
-            <PlayerCard />
-            <DirectorTicker />
-            <GoalBanner />
-            <RedTeamPanel />
-            <RevisitBadge />
-          </ScaledStage>
+          <div className="an-top">
+            <ScaledStage>
+              <Viewer />
+              <BoardSwitch />
+              <ScoreBug />
+              <PlayerCard />
+              <DirectorTicker />
+              <GoalBanner />
+              <RedTeamPanel />
+              <RevisitBadge />
+            </ScaledStage>
+            <LiveStats />
+          </div>
           <div className="an-panel an-transport">
             <div className="studio-row"><Timeline /><ExplainGoalButton /></div>
             <Controls />
