@@ -1766,3 +1766,22 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .card .card-id, .card .card-meta { padding-right: 92px; }
 .card .form { position: relative; margin-top: 18px; padding-top: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
 .card-dock .card { top: auto !important; right: auto !important; left: auto !important; width: 100% !important; margin: 0; }
+
+/* match timeline, bolder: a thick spine, club-coloured goal slabs, big minutes */
+.mc-timeline ol::before { width: 4px !important; background: linear-gradient(180deg, #d3302a, #2158a8) !important; border-radius: 2px; transform: translateX(-2px) !important; }
+.mc-mark { background: #160f35 !important; color: #fff !important; border-radius: 4px; padding: 4px 12px !important; font-size: 11.5px !important; font-weight: 700 !important; letter-spacing: 1px !important; text-transform: uppercase !important; position: relative; z-index: 1; }
+.mc-ev { padding: 10px 20px !important; }
+.mc-ev::after { width: 14px !important; height: 14px !important; background: #fff !important; box-shadow: 0 0 0 3px #c9c4dc !important; }
+.mc-ev.home::after { right: -7px !important; } .mc-ev.away::after { left: -7px !important; }
+.mc-min { font-family: var(--headline) !important; font-weight: 800 !important; font-size: 24px !important; min-width: 46px !important; }
+.mc-what { font-size: 16px !important; font-weight: 700 !important; }
+.mc-ev.ev-goal { background: none !important; }
+.mc-ev.ev-goal .mc-what, .mc-ev.ev-goal .mc-min { color: #fff; }
+.mc-ev.ev-goal.home { background: linear-gradient(270deg, #d3302a, #e8574f) !important; border-radius: 8px 0 0 8px; margin-right: 0; }
+.mc-ev.ev-goal.away { background: linear-gradient(90deg, #2158a8, #3d74c4) !important; border-radius: 0 8px 8px 0; }
+.mc-ev.ev-goal::after { width: 18px !important; height: 18px !important; background: #fff !important; box-shadow: 0 0 0 4px #160f35 !important; }
+.mc-ev.ev-goal.home::after { right: -9px !important; } .mc-ev.ev-goal.away::after { left: -9px !important; }
+.mc-ev.ev-goal .mc-what em { color: rgba(255,255,255,.8); }
+.ev-yellow .mc-icon { display: inline-block; width: 11px; height: 15px; background: #f5c518; border-radius: 2px; color: transparent !important; font-size: 0 !important; }
+.mc-timeline { display: flex; flex-direction: column; }
+.mc-timeline ol { flex: 1; display: flex; flex-direction: column; justify-content: space-around; }
