@@ -447,3 +447,28 @@ button { font: inherit; }
 .ghost-link { color: var(--text); background: rgba(255,255,255,.07); border-radius: var(--r-sm); padding: 8px 12px; font-size: 12.5px; text-decoration: none; white-space: nowrap; }
 .vv-credit { font-size: 11px; color: var(--dim); }
 @media (max-width: 900px) { .vv-stats { display: none; } .vv-bar { flex-wrap: wrap; } }
+
+/* casual card: form in words, one story, numbers on demand */
+.card .card-meta { margin-top: 3px; }
+.form { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+.form-meter { display: inline-flex; gap: 3px; }
+.form-meter i { width: 14px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); transition: background .5s; }
+.form-meter i.on { background: rgba(255,255,255,.75); }
+.form-meter.f3 i.on, .form-meter.f4 i.on { background: var(--accent); }
+.form-meter.f0 i.on { background: #fb7185; }
+.form-word { font-family: var(--display); font-weight: 600; font-size: 17px; }
+.form-up .form-word { color: var(--accent); }
+.form-up .form-meter { animation: glow 1.2s ease-out; }
+.story { margin-top: 12px; font-size: 14.5px; line-height: 1.45; min-height: 42px; }
+.story-text { display: block; color: #f4f1ff; }
+.story-text.dim { color: var(--dim); }
+.card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 11px; }
+.numbers-btn { pointer-events: auto; background: rgba(255,255,255,.08); color: var(--text); border: 0; border-radius: 999px; padding: 4px 11px; font-size: 11.5px; cursor: pointer; }
+.numbers-btn:hover { background: rgba(255,255,255,.14); }
+.numbers { margin-top: 12px; padding-top: 12px; background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 40px); border-radius: var(--r-sm); animation: pop .2s ease-out; }
+.numbers-rating { display: flex; align-items: baseline; gap: 8px; }
+.numbers-rating b { font-family: var(--display); font-size: 30px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+.numbers-rating span { color: var(--dim); font-size: 11.5px; }
+.numbers-rating em { font-style: normal; margin-left: auto; }
+.numbers .attrs { margin-top: 8px; }
+.numbers-line { margin-top: 10px; font-size: 11.5px; color: var(--dim); line-height: 1.4; }

@@ -57,6 +57,20 @@ export function ScoreBug() {
   );
 }
 
+/** Form in words, from the engine's rating (code, never the model): what a fan wants to know
+ *  instead of a number. Levels 0-4: struggling, quiet, steady, playing well, on fire. */
+export function formLevel(rating: number): number {
+  return rating >= 8.0 ? 4 : rating >= 7.0 ? 3 : rating >= 6.3 ? 2 : rating >= 5.6 ? 1 : 0;
+}
+
+function FormMeter({ level }: { level: number }) {
+  return (
+    <span className={`form-meter f${level}`} aria-hidden="true">
+      {[0, 1, 2, 3, 4].map((i) => <i key={i} className={i <= level ? "on" : ""} />)}
+    </span>
+  );
+}
+
 export function PlayerCard() {
   const meta = useLive((s) => s.meta);
   const director = useLive((s) => s.director);
@@ -66,6 +80,7 @@ export function PlayerCard() {
   const profile = useLive((s) => s.profile);
   const modelEnabled = useLive((s) => s.modelEnabled);
   const upgrades = useLive((s) => s.upgrades);
+  const [numbers, setNumbers] = useState(false);
   const now = useTicker();
   const pid = director?.target;
   const card = pid ? cards[pid] : undefined;
@@ -89,52 +104,56 @@ export function PlayerCard() {
   const rtl = isRtl(lang);
   const storyComing = line?.phase === "instant" && modelEnabled && STORY_TYPES.has(line.type) && now - line.at < 6000;
   const translating = personal && line?.phase === "story" && !variant && now - line.at < 6000;
+  const level = formLevel(card.rating);
+  // The story is the point; the numbers are one tap away. While the AI story is being written
+  // and checked, say so instead of flashing the raw stats line.
+  const story = waiting || storyComing
+    ? <span className="explaining"><i />{tr(lang, "explaining")}</span>
+    : line
+      ? <span className="story-text" dir={rtl ? "rtl" : undefined}>{shown}</span>
+      : <span className="story-text dim" dir={rtl ? "rtl" : undefined}>{lang === "en" && card.reason ? card.reason : tr(lang, "card_intro")}</span>;
   return (
     <div className={`card ${fresh ? (isUp ? "card-up" : "card-down") : ""}`} style={{ ["--team" as string]: team.color }}>
-      <div className="card-top">
-        <div className="card-rating">
-          {rating.toFixed(1)}
-          {fresh && <span className={`delta ${isUp ? "up" : "down"}`}>{isUp ? "▲" : "▼"} {up.label === "Rating" ? Math.abs(up.to - up.from).toFixed(1) : `${tr(lang, up.label)} ${Math.abs(up.to - up.from)}`}</span>}
-        </div>
-        <div className="card-id">
-          <div className="card-name">
-            <span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span>
-            <span className="last">{p.name.split(" ").slice(-1)[0]}</span>
+      <div className="card-name">
+        <span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span>
+        <span className="last">{p.name.split(" ").slice(-1)[0]}</span>
+      </div>
+      <div className="card-meta"><i className="team-dot" />{p.position} · #{p.number}</div>
+      <div className={`form ${fresh ? (isUp ? "form-up" : "form-down") : ""}`}>
+        <FormMeter level={level} />
+        <span className="form-word">{tr(lang, `form_${level}`)}</span>
+      </div>
+      <div className="story">{story}</div>
+      <div className="card-foot">
+        {line && !storyComing && !waiting ? (
+          <span className="verified" title={`${line.evidence.length} ${tr(lang, "evidence")}: ${line.evidence.join(", ")}`}>
+            {tr(lang, "checked")}{translating ? ` · ${tr(lang, "lang_checking", { L: lang.toUpperCase() })}` : ""}
+          </span>
+        ) : <span />}
+        <button className="numbers-btn" onClick={() => setNumbers((n) => !n)} aria-expanded={numbers}>{tr(lang, numbers ? "hide_numbers" : "numbers")}</button>
+      </div>
+      {numbers && (
+        <div className="numbers">
+          <div className="numbers-rating">
+            <b>{rating.toFixed(1)}</b><span>{tr(lang, "rating")}</span>
+            {fresh && <em className={`delta ${isUp ? "up" : "down"}`}>{isUp ? "▲" : "▼"} {up.label === "Rating" ? Math.abs(up.to - up.from).toFixed(1) : `${tr(lang, up.label)} ${Math.abs(up.to - up.from)}`}</em>}
           </div>
-          <div className="card-meta"><i className="team-dot" />{p.position} · #{p.number}</div>
+          <div className="attrs">
+            {ATTRS.map((k) => {
+              const v = card.attrs[k] ?? 0;
+              const hot = fresh && up.label === k;
+              return (
+                <div key={k} className={`attr ${hot ? (isUp ? "attr-hot" : "attr-cold") : ""}`}>
+                  <span className="attr-label">{tr(lang, k)}</span>
+                  <span className="attr-bar"><i style={{ width: `${v}%` }} /></span>
+                  <b>{v}</b>
+                </div>
+              );
+            })}
+          </div>
+          {line && line.phase === "instant" && <div className="numbers-line">{lang === "en" ? line.text : localStats}</div>}
         </div>
-      </div>
-      <div className="attrs">
-        {ATTRS.map((k) => {
-          const label = tr(lang, k);
-          const v = card.attrs[k] ?? 0;
-          const hot = fresh && up.label === k;
-          return (
-            <div key={k} className={`attr ${hot ? (isUp ? "attr-hot" : "attr-cold") : ""}`}>
-              <span className="attr-label">{label}</span>
-              <span className="attr-bar"><i style={{ width: `${v}%` }} /></span>
-              <b>{v}</b>
-            </div>
-          );
-        })}
-      </div>
-      <div className="reason">
-        {waiting ? (
-          <span className="explaining"><i />{tr(lang, "explaining")}</span>
-        ) : line ? (
-          <>
-            <span className={`reason-text ${line.phase === "instant" && !(variant?.source === "model") ? "instant" : ""}`} dir={rtl ? "rtl" : undefined}>{shown}</span>
-            <span className="reason-meta">
-              <span className="verified" title={`${line.evidence.length} ${tr(lang, "evidence")}: ${line.evidence.join(", ")}`}>{tr(lang, "verified")}</span>
-              <span className={`src src-${variant?.source === "model" ? "model" : line.source}`}>{variant?.source === "model" ? `${tr(lang, "ai")} · ${lang.toUpperCase()}` : line.source === "model" && lang === "en" ? tr(lang, "ai") : tr(lang, "stats")}</span>
-              {storyComing && <span className="coming"><i />{tr(lang, "ai_checking")}</span>}
-              {translating && <span className="coming"><i />{tr(lang, "lang_checking", { L: lang.toUpperCase() })}</span>}
-            </span>
-          </>
-        ) : (
-          <span className="reason-text dim" dir={rtl ? "rtl" : undefined}>{lang === "en" && card.reason ? card.reason : tr(lang, "card_intro")}</span>
-        )}
-      </div>
+      )}
     </div>
   );
 }
