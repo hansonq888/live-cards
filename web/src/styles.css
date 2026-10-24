@@ -1714,3 +1714,8 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .card-id { display: flex; align-items: center; gap: 10px; }
 .card-id .avatar { background: rgba(255,255,255,.9); box-shadow: 0 0 0 2px var(--team); }
 /* ===== end player avatars ===== */
+
+.av-sheet { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; padding: 32px; background: #fff; }
+.av-sheet figure { margin: 0; text-align: center; font: 600 14px Inter, sans-serif; color: #160f35; }
+.av-pair { display: flex; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.av-checker { background: repeating-conic-gradient(#e6e6e6 0 25%, #fff 0 50%) 0 0 / 16px 16px; border-radius: 8px; }

@@ -13,6 +13,7 @@ import { AnalysisBoard } from "./ui/AnalysisBoard";
 import { FocusPanel } from "./ui/FocusPanel";
 import { LiveStats } from "./ui/LiveStats";
 import { PlayStory } from "./pages/PlayStory";
+import { AvatarSheet } from "./pages/AvatarSheet";
 import { WatchHome } from "./pages/WatchHome";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
@@ -34,6 +35,7 @@ export default function App() {
   if (page === "learn") return <Learn />;
   if (page === "players") return <Players />;
   if (page === "play") return <PlayStory />;
+  if (page === "avatars") return <AvatarSheet />;
   // Watch starts on a match page; the broadcast opens once you pick how to watch (?start=).
   if (page === "watch" && !q.has("start") && !q.has("play") && view !== "fan") return <WatchHome />;
   if (page === "watch" || page === "analyse") return <Live initial={page === "analyse" ? "studio" : "fan"} />;

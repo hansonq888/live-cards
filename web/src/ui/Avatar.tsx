@@ -48,7 +48,8 @@ export function face(id: string) {
   };
 }
 
-export function Avatar({ player, color, size = 40, number = true }: { player: AvatarPlayer; color: string; size?: number; number?: boolean }) {
+/** `bare`: no background circle, just the head and shoulders on transparency (for cut-outs). */
+export function Avatar({ player, color, size = 40, number = true, bare = false }: { player: AvatarPlayer; color: string; size?: number; number?: boolean; bare?: boolean }) {
   const uid = useId().replace(/:/g, "");
   const f = face(player.id);
   const kit = player.role === "GK" ? GK_KIT : color;
@@ -64,11 +65,11 @@ export function Avatar({ player, color, size = 40, number = true }: { player: Av
   return (
     <svg className="avatar" width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={player.name ? `Illustration of ${player.name}` : undefined}>
       <defs>
-        <clipPath id={`${uid}c`}><circle cx="32" cy="32" r="32" /></clipPath>
+        <clipPath id={`${uid}c`}>{bare ? <rect x="0" y="0" width="64" height="64" /> : <circle cx="32" cy="32" r="32" />}</clipPath>
         <clipPath id={`${uid}h`}><ellipse cx={cx} cy={cy} rx={rx + 0.7} ry={ry + 0.7} /></clipPath>
       </defs>
       <g clipPath={`url(#${uid}c)`}>
-        <circle cx="32" cy="32" r="32" fill={color} fillOpacity=".14" />
+        {!bare && <circle cx="32" cy="32" r="32" fill={color} fillOpacity=".14" />}
         {f.hairStyle === "long" && <rect x={cx - rx - 3} y={top - 2} width={2 * rx + 6} height={2 * ry + 8} rx="10" fill={f.hair} />}
         {f.hairStyle === "afro" && <ellipse cx={cx} cy={cy - 5} rx={rx + 6.5} ry={ry + 3} fill={f.hair} />}
         <rect x={cx - 5} y={cy + ry - 6} width="10" height="14" fill={skinShade} />
