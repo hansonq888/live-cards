@@ -23,13 +23,12 @@ function Feed() {
             <span className="feed-type">{f.type.replace(/_/g, " ")}</span>
             {f.player && <span className="feed-player">{name(f.player)}</span>}
             {f.kind === "cue" ? (
-              <span className={`src src-${f.source}`}>{f.source === "model" ? "AI" : "template"} · {Math.round(f.latency ?? 0)} ms</span>
+              <span className={`src src-${f.source}`} title={`${Math.round(f.latency ?? 0)} ms · ${f.evidence.join(", ")}`}>{f.source === "model" ? "AI" : "Stats"}</span>
             ) : (
               <span className="src src-pending">explaining…</span>
             )}
           </div>
           <div className="feed-text">{f.text}</div>
-          <div className="feed-evidence">{f.evidence.slice(0, 4).join(" · ")}{f.evidence.length > 4 ? " …" : ""}</div>
         </div>
       ))}
     </div>
@@ -239,9 +238,8 @@ export function Controls() {
       <button className={modelEnabled ? "on" : "off"} onClick={() => live.send({ type: "model", enabled: !modelEnabled })}>
         AI model {modelEnabled ? "on" : "off"}
       </button>
-      <button className="danger" onClick={() => live.send({ type: "redteam" })}>⚠ Red-team: inject a false claim</button>
+      <button className="danger" onClick={() => live.send({ type: "redteam" })}>Red team</button>
       <span className={`conn ${connected ? "up" : "down"}`}>{connected ? "live" : "offline"}</span>
-      <span className="hint">Click a player or press Tab to follow · A = auto · Space = pause</span>
     </div>
   );
 }

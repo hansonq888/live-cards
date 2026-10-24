@@ -5,7 +5,19 @@ import type { Frame } from "../live/protocol";
 import { PitchScene, type PlayerPose } from "./PitchScene";
 import { fmtStat, heat, statScale } from "./statRings";
 
-const RENDER_DELAY_MS = 120; // play slightly behind the newest frame so we can interpolate
+const RENDER_DELAY_MS = 120;
+
+/** Name tag: bold name, light detail. Touches the DOM only when the text changes. */
+function setTag(el: HTMLElement, name: string, detail: string) {
+  const key = `${name}|${detail}`;
+  if (el.dataset.key === key) return;
+  el.dataset.key = key;
+  const b = document.createElement("b");
+  b.textContent = name;
+  const span = document.createElement("span");
+  span.textContent = detail;
+  el.replaceChildren(b, span);
+} // play slightly behind the newest frame so we can interpolate
 
 function interpolate(now: number): { poses: PlayerPose[]; ball: [number, number, number]; t: number } | null {
   const fs = live.frames;
@@ -95,7 +107,7 @@ export function Viewer() {
           tag.current.style.display = pos && p ? "block" : "none";
           if (pos && p) {
             tag.current.style.transform = `translate(${pos[0]}px, ${pos[1]}px) translate(-50%, -100%)`;
-            tag.current.textContent = `${p.short}  #${p.number}${statSuffix(p.id)}`;
+            setTag(tag.current, p.short, `#${p.number}${statSuffix(p.id)}`);
           }
         }
         const hp = hoverId.current && hoverId.current !== targetRef.current ? names.get(hoverId.current) : undefined;
@@ -104,7 +116,7 @@ export function Viewer() {
           hoverTag.current.style.display = hp && hpos ? "block" : "none";
           if (hp && hpos) {
             hoverTag.current.style.transform = `translate(${hpos[0]}px, ${hpos[1]}px) translate(-50%, -100%)`;
-            hoverTag.current.textContent = `${hp.short}${statSuffix(hp.id)}`;
+            setTag(hoverTag.current, hp.short, statSuffix(hp.id).replace(/^\s*·\s*/, ""));
           }
         }
         if (alertEl.current && pos) {

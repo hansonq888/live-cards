@@ -24,12 +24,11 @@ export function AnalystCard({ pid }: { pid: string }) {
   const variant = line?.variants[profile];
   return (
     <div className="acard" style={{ ["--team" as string]: team.color }}>
-      <div className="card-stripe" />
       <div className="ac-head">
         <div className="ac-rating">{a.rating.toFixed(2)}</div>
         <div>
-          <div className="card-name">{p.name}</div>
-          <div className="card-meta">{p.position} · {a.minutes.toFixed(0)}′ played · baseline: {a.role}</div>
+          <div className="card-name"><span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span><span className="last">{p.name.split(" ").slice(-1)[0]}</span></div>
+          <div className="card-meta"><i className="team-dot" />{p.position} · {a.minutes.toFixed(0)}′ played · baseline: {a.role}</div>
         </div>
       </div>
       {mine && (

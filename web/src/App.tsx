@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
+import { Bolt } from "./ui/Bolt";
 import { Controls, ProfilePicker, SidePanel, StatRingPicker } from "./ui/SidePanel";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
@@ -37,13 +38,13 @@ function Studio({ onFan }: { onFan: () => void }) {
   return (
     <div className="app">
       <header className="top">
-        <div className="brand"><span className="dot" />Live Cards <em className="studio-tag">Studio</em></div>
+        <div className="brand"><Bolt size={22} />Live Cards <em className="studio-tag">Studio</em></div>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <ProfilePicker />
         <StatRingPicker />
         <button className="switch-view" onClick={onFan}>Fan view</button>
         <a className="switch-view" href="/?view=console" target="_blank" rel="noreferrer">Console ↗</a>
-        <div className="synthetic">SYNTHETIC MATCH · FICTIONAL CLUBS AND PLAYERS</div>
+        <div className="synthetic">Synthetic match</div>
       </header>
       <main className="main">
         <section className="broadcast">

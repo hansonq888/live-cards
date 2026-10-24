@@ -61,7 +61,6 @@ export function PlayerCard() {
   const meta = useLive((s) => s.meta);
   const director = useLive((s) => s.director);
   const cards = useLive((s) => s.cards);
-  const stats = useLive((s) => s.stats);
   const lines = useLive((s) => s.lines);
   const pending = useLive((s) => s.pending);
   const profile = useLive((s) => s.profile);
@@ -75,7 +74,6 @@ export function PlayerCard() {
   if (profile.startsWith("analyst.")) return <><AnalystCard pid={pid} /><TeamStrip /></>;
   const p = meta.players.find((x) => x.id === pid)!;
   const team = p.team === meta.home.code ? meta.home : meta.away;
-  const st = stats[pid] ?? {};
   const up = upgrades[pid];
   const fresh = up && now - up.at < 5000;
   const isUp = fresh && up.to >= up.from;
@@ -93,15 +91,17 @@ export function PlayerCard() {
   const translating = personal && line?.phase === "story" && !variant && now - line.at < 6000;
   return (
     <div className={`card ${fresh ? (isUp ? "card-up" : "card-down") : ""}`} style={{ ["--team" as string]: team.color }}>
-      <div className="card-stripe" />
       <div className="card-top">
-        <div className="card-rating">{rating.toFixed(1)}</div>
+        <div className="card-rating">
+          {rating.toFixed(1)}
+          {fresh && <span className={`delta ${isUp ? "up" : "down"}`}>{isUp ? "▲" : "▼"} {up.label === "Rating" ? Math.abs(up.to - up.from).toFixed(1) : `${tr(lang, up.label)} ${Math.abs(up.to - up.from)}`}</span>}
+        </div>
         <div className="card-id">
           <div className="card-name">
-            {p.name}
-            {fresh && <span className={`delta ${isUp ? "up" : "down"}`}>{isUp ? "▲" : "▼"} {up.label === "Rating" ? Math.abs(up.to - up.from).toFixed(1) : `${up.label} ${Math.abs(up.to - up.from)}`}</span>}
+            <span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span>
+            <span className="last">{p.name.split(" ").slice(-1)[0]}</span>
           </div>
-          <div className="card-meta">#{p.number} · {p.position} · {team.name}</div>
+          <div className="card-meta"><i className="team-dot" />{p.position} · #{p.number}</div>
         </div>
       </div>
       <div className="attrs">
@@ -118,12 +118,6 @@ export function PlayerCard() {
           );
         })}
       </div>
-      <div className="stats">
-        <div><b>{(st.distance_km ?? 0).toFixed(2)}</b><span>{tr(lang, "km")}</span></div>
-        <div><b>{(st.top_speed_kmh ?? 0).toFixed(1)}</b><span>{tr(lang, "top")}</span></div>
-        <div><b>{st.passes_completed ?? 0}/{st.passes ?? 0}</b><span>{tr(lang, "passes")}</span></div>
-        <div><b>{st.shots ?? 0}</b><span>{tr(lang, "shots")}</span></div>
-      </div>
       <div className="reason">
         {waiting ? (
           <span className="explaining"><i />{tr(lang, "explaining")}</span>
@@ -131,11 +125,10 @@ export function PlayerCard() {
           <>
             <span className={`reason-text ${line.phase === "instant" && !(variant?.source === "model") ? "instant" : ""}`} dir={rtl ? "rtl" : undefined}>{shown}</span>
             <span className="reason-meta">
-              <span className="verified">{tr(lang, "verified")}</span>
+              <span className="verified" title={`${line.evidence.length} ${tr(lang, "evidence")}: ${line.evidence.join(", ")}`}>{tr(lang, "verified")}</span>
               <span className={`src src-${variant?.source === "model" ? "model" : line.source}`}>{variant?.source === "model" ? `${tr(lang, "ai")} · ${lang.toUpperCase()}` : line.source === "model" && lang === "en" ? tr(lang, "ai") : tr(lang, "stats")}</span>
               {storyComing && <span className="coming"><i />{tr(lang, "ai_checking")}</span>}
               {translating && <span className="coming"><i />{tr(lang, "lang_checking", { L: lang.toUpperCase() })}</span>}
-              <span className="evidence" title={line.evidence.join(", ")}>{line.evidence.length} {tr(lang, "evidence")}</span>
             </span>
           </>
         ) : (

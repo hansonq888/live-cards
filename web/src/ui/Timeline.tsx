@@ -35,9 +35,7 @@ export function Timeline() {
             <span className="tl-revisit">{tr(lang, "revisit")} · {clock(revisit.t)} · {revisit.label}</span>
             <button onClick={() => live.backToLive()}>{tr(lang, "back_live")}</button>
           </>
-        ) : (
-          <span className="tl-hint">{tr(lang, keys.length ? "key_hint" : "key_empty")}</span>
-        )}
+        ) : null}
       </div>
     </div>
   );

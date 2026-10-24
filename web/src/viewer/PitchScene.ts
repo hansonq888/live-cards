@@ -5,7 +5,8 @@ import type { MatchMeta } from "../live/protocol";
 
 export interface PlayerPose { id: string; x: number; y: number; v: number }
 
-const RING = "#39e5ff";
+// Ring colour comes from the theme (--ring), read when the scene is built.
+const ringColour = () => getComputedStyle(document.documentElement).getPropertyValue("--ring").trim() || "#d4ff3a";
 const TRAIL_POINTS = 48;
 const TRAIL_MS = 2200;
 
@@ -55,7 +56,7 @@ function boardTexture(home: string): THREE.CanvasTexture {
   x.fillStyle = "#121a2a"; x.fillRect(0, 0, 2048, 64);
   x.font = "bold 40px Arial";
   for (let i = 0; i < 6; i++) {
-    x.fillStyle = i % 2 ? RING : "#ffffff";
+    x.fillStyle = i % 2 ? ringColour() : "#ffffff";
     x.fillText(i % 2 ? "LIVE CARDS" : home.toUpperCase(), 40 + i * 340, 46);
   }
   const t = new THREE.CanvasTexture(c);
@@ -100,8 +101,9 @@ export class PitchScene {
     this.renderer = r;
 
     const s = this.scene;
-    s.background = new THREE.Color("#0b1220");
-    s.fog = new THREE.Fog("#0b1220", 120, 220);
+    const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#0a0720";
+    s.background = new THREE.Color(bg);
+    s.fog = new THREE.Fog(bg, 120, 220);
     s.add(new THREE.HemisphereLight("#dfe8ff", "#2a4a22", 0.95));
     const sun = new THREE.DirectionalLight("#ffffff", 1.6);
     sun.position.set(-30, 70, 40);
@@ -154,9 +156,9 @@ export class PitchScene {
     s.add(this.ball);
 
     const ring1 = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.12, 64),
-      new THREE.MeshBasicMaterial({ color: RING, transparent: true, opacity: 0.95, side: THREE.DoubleSide }));
+      new THREE.MeshBasicMaterial({ color: ringColour(), transparent: true, opacity: 0.95, side: THREE.DoubleSide }));
     this.ring2 = new THREE.Mesh(new THREE.RingGeometry(1.25, 1.36, 64),
-      new THREE.MeshBasicMaterial({ color: RING, transparent: true, opacity: 0.45, side: THREE.DoubleSide }));
+      new THREE.MeshBasicMaterial({ color: ringColour(), transparent: true, opacity: 0.45, side: THREE.DoubleSide }));
     for (const m of [ring1, this.ring2]) { m.rotation.x = -Math.PI / 2; this.ring.add(m); }
     this.ring.position.y = 0.04;
     s.add(this.ring);
@@ -195,7 +197,7 @@ export class PitchScene {
     const pos = this.trailGeom.getAttribute("position") as THREE.BufferAttribute;
     const col = this.trailGeom.getAttribute("color") as THREE.BufferAttribute;
     const n = this.trail.length;
-    const cool = new THREE.Color("#39e5ff"), hot = new THREE.Color("#ff9b4a"), white = new THREE.Color("#ffffff");
+    const cool = new THREE.Color(ringColour()), hot = new THREE.Color("#ff9b4a"), white = new THREE.Color("#ffffff");
     for (let i = 0; i < TRAIL_POINTS; i++) {
       if (n < 2 || i >= n) {  // unused slots collapse onto the newest point (zero-area triangles)
         const q = this.trail[n - 1] ?? { x: 0, z: 0 };

@@ -39,9 +39,8 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
         <ProfilePicker />
         <StatRingPicker />
         <button className="ghost" onClick={onStudio}>{tr(lang, "studio")}</button>
-        <span className="fan-note">{tr(lang, "synthetic")}</span>
+        <button className={`ask-btn ${askOpen ? "open" : ""}`} onClick={() => setAskOpen((o) => !o)} aria-expanded={askOpen}>{askOpen ? "✕" : tr(lang, "ask")}</button>
       </div>
-      <button className={`ask-fab ${askOpen ? "open" : ""}`} onClick={() => setAskOpen((o) => !o)}>{askOpen ? "✕" : tr(lang, "ask")}</button>
       {askOpen && <div className="ask-drawer"><Ask /></div>}
     </div>
   );
