@@ -10,6 +10,7 @@ import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
 import { AnalysisBoard } from "./ui/AnalysisBoard";
+import { FocusPanel } from "./ui/FocusPanel";
 import { PlayStory } from "./pages/PlayStory";
 import { WatchHome } from "./pages/WatchHome";
 import { ScaledStage } from "./ui/ScaledStage";
@@ -98,6 +99,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
             <Controls />
           </div>
           {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
+          {!breakdown && <FocusPanel />}
           <AnalysisBoard />
         </section>
         <SidePanel />

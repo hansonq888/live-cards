@@ -94,6 +94,8 @@ export interface ModelSpec { name: string; rating_weights: Record<string, number
 export interface AnswerAction { type: "play" | "moment" | "player"; id?: string; minute?: number; label: string }
 export interface AnswerTable { columns: string[]; rows: (string | number)[][] }
 
+export interface Heat { cols: number; rows: number; grid: number[] }
+
 export interface Play { id: string; t: number; minute: number; player: string; team: string; outcome: string; xg: number; ax: number; ay: number } // ax/ay: shot spot, x toward the goal attacked
 
 export interface SpaceSnap { cols: number; rows: number; cell: number; grid: number[]; final_third_m2: number; total_m2: number; gain_m2: number | null }
@@ -125,7 +127,7 @@ export type ServerMsg =
   | { type: "hello"; meta: MatchMeta; speed: number; t: number; model_enabled: boolean }
   | ({ type: "frame" } & Frame)
   | { type: "director"; t: number; target: string; reason: string; kind: string; predicted: boolean; mode: string; key?: string; args?: Record<string, string | number | boolean | null> }
-  | { type: "card"; card: CardState; stats: Record<string, number>; analyst?: AnalystView; custom?: AnalystView & { name: string } }
+  | { type: "card"; card: CardState; stats: Record<string, number>; analyst?: AnalystView; custom?: AnalystView & { name: string }; heat?: Heat }
   | { type: "your_model"; status: "off" | "building" | "ready" | "error"; name?: string; error?: string }
   | { type: "moment"; moment: Moment; card?: CardState }
   | { type: "cue"; cue: Cue; moment_type: string; phase: "instant" | "story"; facts?: Record<string, string | number>; source: string; attempts: number; latency_ms: number; claims_checked: number }

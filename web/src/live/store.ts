@@ -2,7 +2,7 @@
 // read by the render loop (no React re-render per frame); everything else is React state.
 import { useSyncExternalStore } from "react";
 import { stepCaption, type Lang } from "../i18n";
-import type { AnalystView, AnswerAction, AnswerTable, BuildStep, Play, CardState, ModelSpec, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
+import type { AnalystView, AnswerAction, AnswerTable, BuildStep, Heat, Play, CardState, ModelSpec, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
 
 export interface Director {
   target: string;
@@ -68,6 +68,7 @@ export interface LiveState {
   director: Director | null;
   cards: Record<string, CardState>;
   stats: Record<string, Record<string, number>>;
+  heat: Record<string, Heat>;
   analyst: Record<string, AnalystView>;
   custom: Record<string, AnalystView & { name: string }>;
   yourModel: { status: string; name?: string; error?: string; spec: ModelSpec | null };
@@ -128,7 +129,7 @@ function savedStatRing(): string | null {
 
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
-  director: null, cards: {}, stats: {}, analyst: {}, custom: {}, yourModel: { status: "off", spec: null }, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
+  director: null, cards: {}, stats: {}, heat: {}, analyst: {}, custom: {}, yourModel: { status: "off", spec: null }, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
   keyMoments: [], liveEdge: 0, revisit: null, buildup: null, plays: [], showSpace: true, tactical: false,
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null, board: {}, statRing: null,
@@ -309,6 +310,7 @@ class LiveStore {
           cards: { ...s.cards, [m.card.player]: m.card }, stats: { ...s.stats, [m.card.player]: m.stats },
           ...(m.analyst ? { analyst: { ...s.analyst, [m.card.player]: m.analyst } } : {}),
           ...(m.custom ? { custom: { ...s.custom, [m.card.player]: m.custom } } : {}),
+          ...(m.heat ? { heat: { ...s.heat, [m.card.player]: m.heat } } : {}),
         });
         break;
       case "moment": {

@@ -16,6 +16,8 @@ from collections.abc import Awaitable, Callable
 from dataclasses import asdict, dataclass
 from functools import cache
 
+import numpy as np
+
 from livecards.agents.director import AutoDirector, Decision
 from livecards.agents.explainer import INSTRUCTIONS, ExplainJob, job_for
 from livecards.agents.llm import make_agent
@@ -111,6 +113,27 @@ def job_for_story(b: dict, meta) -> ExplainJob:
     return ExplainJob(moment=story_moment, facts=b["facts"], names=names, template=b["story"])
 
 
+HEAT_COLS, HEAT_ROWS = 21, 14  # 5 m cells over the 105 x 68 m pitch
+
+
+def heatmap(match: Match, pid: str, until_i: int) -> dict:
+    """Where a player has been up to frame `until_i`: share of frames in each 5 m cell
+    (sampled once a second), x toward the right-hand goal."""
+    idx = np.arange(0, max(1, until_i), FPS)
+    counts = np.zeros((HEAT_ROWS, HEAT_COLS))
+    lineups = [lu.index(pid) if pid in lu else -1 for lu in match.lineups]
+    cols = np.array(lineups)[match.lineup_idx[idx]]
+    on = cols >= 0
+    if on.any():
+        xy = match.pos[idx[on], cols[on], :2]
+        cx = np.clip(((xy[:, 0] + 52.5) / 105 * HEAT_COLS).astype(int), 0, HEAT_COLS - 1)
+        cy = np.clip(((34 - xy[:, 1]) / 68 * HEAT_ROWS).astype(int), 0, HEAT_ROWS - 1)
+        np.add.at(counts, (cy, cx), 1)
+    top = counts.max() or 1
+    return {"cols": HEAT_COLS, "rows": HEAT_ROWS,
+            "grid": (counts / top * 100).round().astype(int).ravel().tolist()}
+
+
 def feed_engine(match: Match, engine: MatchEngine, i: int, ev_j: int) -> int:
     """Advance a bare engine (no director) one tick; returns the new event cursor."""
     t = float(match.times[i])
@@ -177,6 +200,7 @@ class LiveSession:
         self.match = load_match(seed)
         self.meta = self.match.meta
         self.roster = {n for p in self.meta.players for n in (p.name, p.short)}
+        self._heat_at: dict[str, float] = {}
         self.speed = speed
         self.paused = False
         self.sid = secrets.token_hex(3)
@@ -671,6 +695,10 @@ class LiveSession:
                "stats": self.engine.stats(pid), "analyst": self.engine.analyst(pid)}
         if self.shadow is not None and self.spec is not None:
             msg["custom"] = {"name": self.spec.name, **self.shadow.analyst(pid)}
+        now = time.monotonic()
+        if self._heat_at.get(pid, 0) < now - 2.0:  # the heatmap changes slowly: every 2 s
+            self._heat_at[pid] = now
+            msg["heat"] = heatmap(self.match, pid, self.i)
         await self.send(msg)
 
     def team_msg(self) -> dict:

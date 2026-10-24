@@ -198,3 +198,13 @@ def test_summary_flow_adds_up_to_team_shots():
     s = summary(7)
     for code in s["team"]:
         assert sum(b[code]["shots"] for b in s["flow"]) == s["team"][code]["shots"]
+
+
+def test_heatmap_puts_a_player_where_they_played(match):
+    from livecards.server.session import heatmap
+    h = heatmap(match, "RIV-09", len(match))
+    assert len(h["grid"]) == h["cols"] * h["rows"] and max(h["grid"]) == 100
+    # Riverside attack +x: their striker spends more time in the right half than the left.
+    half = h["cols"] // 2
+    rows = [h["grid"][r * h["cols"]:(r + 1) * h["cols"]] for r in range(h["rows"])]
+    assert sum(sum(r[half + 1:]) for r in rows) > sum(sum(r[:half]) for r in rows)
