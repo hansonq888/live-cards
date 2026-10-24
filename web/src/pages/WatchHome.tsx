@@ -36,17 +36,6 @@ export function WatchHome() {
           </div>
         </section>
       )}
-      <section className="l-section">
-        <div className="l-head"><h2>While you watch</h2></div>
-        <div className="l-grid">
-          {[
-            ["The ring", "It follows the player who matters, and moves before a cross lands."],
-            ["Cards that explain", "Each player's form in words, with one checked sentence on why it changed."],
-            ["Tactical view", "Tap the corner map to see the whole pitch from above."],
-            ["Ask", "Ask anything about the match; answers come only from the data."],
-          ].map(([t, d]) => <div key={t} className="l-card l-learn"><h3>{t}</h3><p>{d}</p></div>)}
-        </div>
-      </section>
     </Shell>
   );
 }
