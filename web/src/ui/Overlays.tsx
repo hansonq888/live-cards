@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
+import { Flame } from "./Flame";
 import { band } from "../live/stats";
 import { clock, live, useLang, useLive } from "../live/store";
 import { directorReason, isRtl, statsLine, stepCaption, stepMeaning, storyLine, t as tr, type Lang } from "../i18n";
@@ -123,7 +124,7 @@ export function PlayerCard() {
       <div className="card-meta"><i className="team-dot" />{p.position} · #{p.number}</div>
       <div className={`form ${fresh ? (isUp ? "form-up" : "form-down") : ""}`}>
         <FormMeter level={level} />
-        <span className="form-word">{tr(lang, `form_${level}`)}</span>
+        <span className="form-word">{level === 4 && <Flame size={20} />}{tr(lang, `form_${level}`)}</span>
       </div>
       <div className="story">{story}</div>
       <div className="card-foot">

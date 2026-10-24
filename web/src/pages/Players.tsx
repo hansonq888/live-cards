@@ -4,6 +4,7 @@ import { useState } from "react";
 import { formLevel } from "../ui/Overlays";
 import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
+import { Flame } from "../ui/Flame";
 import { outcomeLabel, useSummary, type PlayerSummary, type Summary } from "./summary";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
@@ -13,7 +14,7 @@ function Form({ rating }: { rating: number }) {
   return (
     <span className="l-form">
       <span className={`l-meter f${level}`}>{[0, 1, 2, 3, 4].map((i) => <i key={i} className={i <= level ? "on" : ""} />)}</span>
-      {FORM[level]}
+      <span className="l-form-word">{level === 4 && <Flame />}{FORM[level]}</span>
     </span>
   );
 }

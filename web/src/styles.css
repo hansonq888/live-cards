@@ -1010,3 +1010,23 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .l-stat .ls-settings b { color: var(--ti); }
 .l-stat .l-btn.primary { background: linear-gradient(135deg, var(--t1), var(--t2)); box-shadow: 0 8px 20px rgba(30,20,80,.18); }
 @media (max-width: 1100px) { .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ls-top { grid-template-columns: 1fr; } }
+
+/* form meter: slanted blades instead of squares, flame for "On fire" */
+.l-meter i, .form-meter i { transform: skewX(-24deg); border-radius: 2px; }
+.l-meter { gap: 6px; padding: 0 3px; }
+.l-meter.f4 i.on { background: linear-gradient(90deg, #ff4d1a, #ff9a1a 60%, #ffd23f); }
+.form-meter.f4 i.on { background: linear-gradient(90deg, #ff4d1a, #ffd23f); }
+.l-form-word, .form-word { display: inline-flex; align-items: center; gap: 6px; }
+.flame { flex: none; filter: drop-shadow(0 2px 4px rgba(255,90,20,.35)); }
+.l-meter.f4 + .l-form-word, .l-form:has(.f4) .l-form-word { color: #e8460d; }
+
+/* player list cards: room to breathe */
+.l-grid.players { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+.l-player { padding: 22px 22px 20px; min-height: 196px; }
+.lpl-pos { min-height: 0; margin-bottom: 18px; }
+.lpl-name { margin-top: 0; font-size: 26px; }
+.lpl-name small { margin-bottom: 4px; }
+.lpl-num { top: 16px; right: 20px; font-size: 48px; }
+.lpl-form { margin-top: auto; padding-top: 16px; }
+.l-player .l-form { gap: 10px; }
+.l-player .l-meter i { height: 10px; }
