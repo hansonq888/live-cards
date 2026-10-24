@@ -11,7 +11,7 @@ const STAGE_LABEL: Record<string, string> = {
 };
 const stageLabel = (s: string) => STAGE_LABEL[s] ?? (s.startsWith("personalizer:") ? `Personalizer ${s.split(":")[1].split(".").slice(0, 2).join(" ").toUpperCase()}` : s);
 
-function Feed() {
+export function Feed() {
   const feed = useLive((s) => s.feed);
   const meta = useLive((s) => s.meta);
   const name = (id: string | null) => meta?.players.find((p) => p.id === id)?.short ?? "";
@@ -267,23 +267,59 @@ export function Plays() {
   );
 }
 
-export function SidePanel() {
-  const [tab, setTab] = useState<"feed" | "ask" | "plays" | "fans" | "trace" | "metrics" | "model">("ask");
+/** "Under the hood": how it works, for judges and power users. A drawer from the header. */
+export function UnderTheHood({ onClose }: { onClose: () => void }) {
+  const [tab, setTab] = useState<"fans" | "trace" | "metrics" | "model" | "settings">("trace");
   return (
-    <aside className="side">
-      <nav className="tabs">
-        {(["ask", "feed", "fans", "trace", "metrics", "model"] as const).map((t) => (
-          <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-            {{ feed: "Feed", plays: "Plays", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics", model: "Model" }[t]}
-          </button>
-        ))}
-      </nav>
-      {tab === "plays" ? <Plays /> : tab === "feed" ? <Feed /> : tab === "ask" ? <Ask /> : tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : tab === "model" ? <YourModelPanel /> : <Metrics />}
-    </aside>
+    <div className="hood-scrim" onClick={onClose}>
+      <aside className="hood" onClick={(e) => e.stopPropagation()}>
+        <header className="hood-head"><b>Under the hood</b><button onClick={onClose} aria-label="Close">✕</button></header>
+        <nav className="tabs">
+          {(["trace", "fans", "metrics", "model", "settings"] as const).map((t) => (
+            <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
+              {{ trace: "Agents", fans: "Fans", metrics: "Metrics", model: "Your model", settings: "Settings" }[t]}
+            </button>
+          ))}
+        </nav>
+        <div className="hood-body">
+          {tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : tab === "model" ? <YourModelPanel /> : tab === "metrics" ? <Metrics /> : <HoodSettings />}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function HoodSettings() {
+  const speed = useLive((s) => s.speed);
+  const modelEnabled = useLive((s) => s.modelEnabled);
+  const director = useLive((s) => s.director);
+  return (
+    <div className="hood-settings">
+      <div className="hs-row"><div><b>Auto-director</b><span>Moves the ring to the player who matters</span></div>
+        <button className={director?.mode !== "manual" ? "on" : ""} onClick={() => live.send({ type: "auto" })}>{director?.mode !== "manual" ? "On" : "Turn on"}</button></div>
+      <div className="hs-row"><div><b>AI explanations</b><span>Off: only the engine's checked stats lines air</span></div>
+        <button className={modelEnabled ? "on" : ""} onClick={() => live.send({ type: "model", enabled: !modelEnabled })}>{modelEnabled ? "On" : "Off"}</button></div>
+      <div className="hs-row"><div><b>Red team</b><span>Plant a false claim and watch the checks block it</span></div>
+        <button className="danger" onClick={() => live.send({ type: "redteam" })}>Run</button></div>
+      <div className="hs-row"><div><b>Playback speed</b><span>How fast the match plays</span></div>
+        <div className="seg-speed">{[0.5, 1, 2, 5, 10, 20].map((v) => <button key={v} className={speed === v ? "on" : ""} onClick={() => live.send({ type: "speed", value: v })}>{v}×</button>)}</div></div>
+    </div>
+  );
+}
+
+/** Ask, as a floating chat: a button bottom-right that opens the conversation. */
+export function AskFloat() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      {open && <div className="askf-drawer"><Ask /></div>}
+      <button className={`askf-btn ${open ? "open" : ""}`} onClick={() => setOpen((o) => !o)}>{open ? "✕ Close" : "Ask the match"}</button>
+    </>
   );
 }
 
 export function Controls() {
+  // Simple transport only; switches live under the hood.
   const speed = useLive((s) => s.speed);
   const paused = useLive((s) => s.paused);
   const modelEnabled = useLive((s) => s.modelEnabled);
@@ -292,13 +328,7 @@ export function Controls() {
   const [settings, setSettings] = useState(false);
   return (
     <div className="controls">
-      <div className="c-side">
-        <button className={director?.mode !== "manual" ? "on" : ""} onClick={() => live.send({ type: "auto" })}>Auto-director</button>
-        <button className={modelEnabled ? "on" : "off"} onClick={() => live.send({ type: "model", enabled: !modelEnabled })}>
-          AI {modelEnabled ? "on" : "off"}
-        </button>
-        <button className="danger" onClick={() => live.send({ type: "redteam" })}>Red team</button>
-      </div>
+      <span className="c-side" />
       <button className="play-main" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={20} /></button>
       <div className="c-side right">
         <select className="ring-pick" value="" onChange={(e) => e.target.value && live.send({ type: "seek", t: Number(e.target.value) })} aria-label="Jump to">
@@ -308,19 +338,6 @@ export function Controls() {
           <option value="3915">65′ · sprint and equaliser</option>
           <option value="5210">87′ · late winner</option>
         </select>
-        <div className="view-menu up">
-          <button className={settings ? "on" : ""} onClick={() => setSettings((o) => !o)} aria-expanded={settings} aria-label="Settings"><Icon name="settings" />{speed !== 1 ? ` ${speed}×` : ""}</button>
-          {settings && (
-            <div className="fb-pop">
-              <span className="pop-label">Playback speed</span>
-              <div className="seg-speed">
-                {[1, 2, 5, 10, 20].map((v) => (
-                  <button key={v} className={speed === v ? "on" : ""} onClick={() => live.send({ type: "speed", value: v })}>{v}×</button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
         <span className={`conn ${connected ? "up" : "down"}`} title={connected ? "connected" : "offline"} />
       </div>
     </div>

@@ -4,9 +4,10 @@ import { useState } from "react";
 import { live, useLive } from "../live/store";
 import { useSummary, type Summary } from "../pages/summary";
 import { XgRace } from "./XgRace";
+import { Feed } from "./SidePanel";
 
-type View = "xg" | "momentum" | "shots" | "leaders";
-const VIEWS: [View, string][] = [["xg", "xG race"], ["momentum", "Momentum"], ["shots", "Shot map"], ["leaders", "Leaders"]];
+type View = "xg" | "momentum" | "shots" | "leaders" | "feed";
+const VIEWS: [View, string][] = [["xg", "xG race"], ["momentum", "Momentum"], ["shots", "Shot map"], ["leaders", "Leaders"], ["feed", "Live feed"]];
 
 export function AnalysisBoard() {
   const [view, setView] = useState<View>("xg");
@@ -16,7 +17,7 @@ export function AnalysisBoard() {
       <nav className="board-tabs">
         {VIEWS.map(([k, label]) => <button key={k} className={view === k ? "on" : ""} onClick={() => setView(k)}>{label}</button>)}
       </nav>
-      {view === "xg" ? <XgRace /> : !s ? <div className="board-empty">Loading the match…</div>
+      {view === "xg" ? <XgRace /> : view === "feed" ? <div className="bd-feed"><Feed /></div> : !s ? <div className="board-empty">Loading the match…</div>
         : view === "momentum" ? <Momentum s={s} /> : view === "shots" ? <ShotMapAll s={s} /> : <Leaders s={s} />}
     </div>
   );

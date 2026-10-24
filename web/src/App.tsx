@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BoardSwitch } from "./viewer/BoardSwitch";
 import { Icon } from "./ui/Icon";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
 import { Wordmark } from "./ui/Wordmark";
-import { Controls, SidePanel, ViewMenu } from "./ui/SidePanel";
+import { AskFloat, Controls, UnderTheHood, ViewMenu } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
@@ -67,6 +67,16 @@ function Live({ initial }: { initial: View }) {
 
 function Analyse({ onFan }: { onFan: () => void }) {
   const meta = useLive((s) => s.meta);
+  const [hood, setHood] = useState(false);
+  // Full screen: the viewer alone, with the player card back on the picture.
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [full, setFull] = useState(false);
+  useEffect(() => {
+    const on = () => setFull(document.fullscreenElement === stageRef.current);
+    document.addEventListener("fullscreenchange", on);
+    return () => document.removeEventListener("fullscreenchange", on);
+  }, []);
+  const toggleFull = () => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen());
   const breakdown = useLive((s) => s.buildup);
   return (
     <div className="app al">
@@ -75,39 +85,41 @@ function Analyse({ onFan }: { onFan: () => void }) {
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <span className="top-spacer" />
         <ViewMenu />
-        <nav className="views">
-          <a href="/">Home</a>
-          <button onClick={onFan}>Watch</button>
-          <button className="on">Analyse</button>
-          <a href="/?page=learn">Learn</a>
-          <a href="/?page=players">Players</a>
-        </nav>
+        <button className="hood-btn" onClick={() => setHood(true)}>Under the hood</button>
+        <a className="an-exit" href="/?page=watch">← Back to the match</a>
       </header>
       <main className="main analyse">
         <section className="broadcast">
           <div className="an-top">
-            <ScaledStage>
-              <Viewer />
-              <BoardSwitch />
-              <ScoreBug />
-              <PlayerCard />
-              <DirectorTicker />
-              <GoalBanner />
-              <RedTeamPanel />
-              <RevisitBadge />
-            </ScaledStage>
-            <LiveStats />
+            <div className="an-stage" ref={stageRef}>
+              <ScaledStage fit={full ? "contain" : "width"}>
+                <Viewer />
+                <BoardSwitch />
+                <ScoreBug />
+                {full && <PlayerCard />}
+                <DirectorTicker />
+                <GoalBanner />
+                <RedTeamPanel />
+                <RevisitBadge />
+              </ScaledStage>
+              <button className="an-full" onClick={toggleFull}>{full ? "Exit full screen" : "⛶ Full screen"}</button>
+            </div>
+            <div className="an-right">
+              <div className="card-dock"><PlayerCard /></div>
+              <LiveStats />
+            </div>
           </div>
           <div className="an-panel an-transport">
-            <div className="studio-row"><Timeline /><ExplainGoalButton /></div>
-            <Controls />
+            <Timeline />
+            <div className="an-controls"><ExplainGoalButton /><Controls /></div>
           </div>
           {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
           {!breakdown && <FocusPanel />}
           <AnalysisBoard />
         </section>
-        <SidePanel />
       </main>
+      <AskFloat />
+      {hood && <UnderTheHood onClose={() => setHood(false)} />}
     </div>
   );
 }
