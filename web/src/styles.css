@@ -2158,3 +2158,103 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .pp-hero h1 { font-size: 46px !important; padding-right: 26px; }
 .pp-hero::after { opacity: 1 !important; inset: 0 0 0 93% !important; }
 .pp-facts b.pp-clubfact { font-family: var(--headline); font-style: normal; text-transform: none; font-size: 15px; font-weight: 700; }
+/* Player hero back to club-led: club gradient, soft white shards, no lime, no offset shadow */
+.pp-hero { background: radial-gradient(90% 90% at 85% 10%, color-mix(in srgb, var(--team) 65%, #fff) 0%, transparent 55%), linear-gradient(140deg, var(--team), color-mix(in srgb, var(--team) 50%, #0b0820)) !important; box-shadow: 0 18px 40px rgba(30,20,90,.2) !important; }
+.pp-hero::before { background: linear-gradient(130deg, rgba(255,255,255,.2), rgba(255,255,255,.04)) !important; }
+.pp-hero::after { background: linear-gradient(130deg, rgba(255,255,255,.28), rgba(255,255,255,.06)) !important; inset: 0 0 0 80% !important; }
+.pp-facts { border-top: 0 !important; }
+/* Players: a squad page per club */
+.sq-tabs { display: flex; gap: 10px; margin-bottom: 16px; }
+.sq-tabs button { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border: 0; border-radius: 10px; background: #fff; color: #160f35; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: var(--hard); }
+.sq-tabs button.on { background: var(--club); color: #fff; box-shadow: none; }
+.sq-head { position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center; gap: 22px; padding: 26px 30px; border-radius: 12px; color: #fff; margin-bottom: 28px;
+  background: radial-gradient(80% 120% at 90% 0%, color-mix(in srgb, var(--club) 60%, #fff) 0%, transparent 55%), linear-gradient(130deg, var(--club), color-mix(in srgb, var(--club) 50%, #0b0820)); }
+.sq-head::before { content: ""; position: absolute; inset: 0 0 0 55%; z-index: -1; background: linear-gradient(130deg, rgba(255,255,255,.2), rgba(255,255,255,.04)); clip-path: polygon(34% 0, 100% 0, 100% 100%, 0 100%, 16% 72%, 4% 72%, 22% 42%, 10% 42%); }
+.sq-head .crest { filter: drop-shadow(0 8px 16px rgba(0,0,0,.35)); }
+.sq-id { flex: 1; }
+.sq-id h2 { margin: 0; font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 52px; line-height: .9; text-transform: uppercase; }
+.sq-id p { margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,.85); }
+.sq-best { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; color: #fff; text-decoration: none; background: rgba(8,5,25,.35); padding: 12px 16px; border-radius: 10px; }
+.sq-best span { font-size: 10.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; opacity: .75; }
+.sq-best b { font-size: 17px; } .sq-best em { font-style: italic; font-family: var(--poster); font-weight: 900; font-size: 30px; line-height: 1; }
+.sq-line { margin-bottom: 30px; }
+.sq-line h3 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 28px; text-transform: uppercase; color: #160f35; }
+.sq-line h3 span { font-family: var(--headline); font-style: normal; font-size: 14px; font-weight: 600; color: #6c668a; }
+@media (max-width: 900px) { .sq-head { flex-wrap: wrap; } .sq-id h2 { font-size: 38px; } }
+/* Fonts: the condensed poster face only for the loudest moments (hero title, scores, club and
+   player names); headings, card titles and numbers go back to Hanken Grotesk */
+.l-head h2, .mc-h, .lp-title, .ls-hero h1, .sp-intro h1, .sq-line h3, .pp-tiles b, .pp-tiles .l-num, .pp-facts b, .mc-score b, .pp2-strip b, .sq-best em {
+  font-family: var(--headline) !important; font-style: normal !important; text-transform: none !important; letter-spacing: -.02em !important; }
+.l-head h2, .mc-h { font-size: 26px !important; font-weight: 700 !important; line-height: 1.1 !important; }
+.lp-title { font-size: 19px !important; font-weight: 700 !important; line-height: 1.2 !important; }
+.l-play.feature .lp-title { font-size: 28px !important; }
+.ls-hero h1 { font-size: 48px !important; font-weight: 700 !important; line-height: 1 !important; }
+.sp-intro h1 { font-weight: 700 !important; line-height: 1.05 !important; }
+.sq-line h3 { font-size: 20px; font-weight: 700; }
+.pp-tiles b, .pp-tiles .l-num { font-size: 34px !important; font-weight: 700 !important; }
+.pp-facts b { font-size: 16px; font-weight: 700; }
+.mc-score b { font-size: 32px !important; font-weight: 700 !important; }
+.sq-best em { font-size: 24px; font-weight: 700; }
+.hc-btn { text-transform: none; letter-spacing: 0; font-size: 14px !important; font-weight: 700 !important; }
+.pp-actions .l-btn { text-transform: none !important; letter-spacing: 0 !important; font-size: 14px !important; font-weight: 700 !important; }
+.sq-tabs { margin: 0 0 14px !important; } .sq-head { margin-bottom: 18px !important; } .sq-line { margin: 0 0 18px !important; }
+.sq-line .l-grid.players { margin-top: 0; }
+.l-main:has(.sq-head) > * + * { margin-top: 0 !important; }
+/* Follow panel, immersive: a club banner with the player breaking out, a dark speed dial, tinted tiles */
+.fp { padding: 0 !important; overflow: hidden; gap: 0 !important; }
+.fp > :not(.fp-head) { margin: 0 20px; }
+.fp-grid { margin-top: 18px !important; } .fp-recent { margin-top: 14px !important; margin-bottom: 18px !important; }
+.fp-head { position: relative; isolation: isolate; overflow: hidden; min-height: 116px; padding: 0 22px 0 150px; color: #fff; gap: 18px !important;
+  background: radial-gradient(70% 140% at 85% 0%, color-mix(in srgb, var(--team) 60%, #fff) 0%, transparent 55%), linear-gradient(120deg, var(--team), color-mix(in srgb, var(--team) 50%, #0b0820)); }
+.fp-head::before { content: ""; position: absolute; inset: 0 0 0 58%; z-index: -1; background: linear-gradient(130deg, rgba(255,255,255,.2), rgba(255,255,255,.04)); clip-path: polygon(34% 0, 100% 0, 100% 100%, 0 100%, 16% 72%, 4% 72%, 22% 42%, 10% 42%); }
+.fp-head.sprinting::after { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .45; background: repeating-linear-gradient(100deg, transparent 0 40px, rgba(255,255,255,.35) 40px 42px, transparent 42px 80px); animation: streak .5s linear infinite; }
+.fp-num { position: absolute; left: 92px; top: -26px; z-index: -1; font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 170px; line-height: 1; color: #fff; opacity: .14; }
+.fp-bust { position: absolute; left: 14px; bottom: 0; line-height: 0; } .fp-bust .avatar { filter: drop-shadow(0 10px 16px rgba(0,0,0,.4)); box-shadow: none !important; }
+.fp-id em { font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.fp-id b { font-family: var(--poster) !important; font-style: italic; font-weight: 900 !important; font-size: 40px !important; text-transform: uppercase; line-height: .95; letter-spacing: 0 !important; }
+.fp-id span { color: rgba(255,255,255,.85) !important; font-size: 13.5px !important; }
+.fp-form { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; background: rgba(8,5,25,.35) !important; color: #fff !important; border-radius: 10px !important; padding: 8px 14px !important;
+  font-family: var(--headline); font-size: 30px !important; font-weight: 700 !important; line-height: 1; }
+.fp-form small { font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; opacity: .8; }
+.fp-form.f4 small { color: #ffb21a; opacity: 1; } .fp-form.f0 small { color: #ff8fa3; opacity: 1; }
+.fp-close { background: rgba(255,255,255,.95) !important; color: #160f35 !important; font-weight: 600; }
+.fp-speed { background: #160f35 !important; color: #fff; position: relative; overflow: hidden; }
+.fp-speed span, .fp-speed em, .fp-speed small { color: rgba(255,255,255,.7) !important; }
+.fp-speed b { font-size: 64px !important; letter-spacing: -2px; }
+.fp-speed.fast b { color: #ffd23f; } .fp-speed.sprint b { color: #d4ff3a; text-shadow: 0 0 18px rgba(212,255,58,.55); }
+.fp-gauge { background: rgba(255,255,255,.12) !important; height: 10px !important; }
+.fp-gauge i { background: linear-gradient(90deg, #7b5cff, #3ddc97) !important; }
+.fp-gauge i.fast { background: linear-gradient(90deg, #7b5cff, #ffd23f) !important; } .fp-gauge i.sprint { background: linear-gradient(90deg, #ffd23f, #d4ff3a) !important; }
+.fp-speed em { font-weight: 700; font-size: 13px !important; text-transform: uppercase; letter-spacing: .8px; color: #fff !important; }
+.fp-tile { --k: #5b3df5; background: color-mix(in srgb, var(--k) 8%, #fff) !important; box-shadow: inset 4px 0 0 var(--k); padding: 12px 14px !important; }
+.fp-tile b { font-family: var(--headline) !important; font-weight: 700 !important; font-size: 26px !important; color: color-mix(in srgb, var(--k) 70%, #160f35); }
+.fp-tile span { font-size: 11px !important; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
+.fp-tile.k-run { --k: #7b5cff; } .fp-tile.k-pass { --k: #0f9f8f; } .fp-tile.k-att { --k: #e0452b; } .fp-tile.k-def { --k: #2158a8; }
+.fp-tile.flash { background: color-mix(in srgb, var(--k) 24%, #fff) !important; }
+.fp-heat { background: #160f35 !important; } .fp-heat > span, .fp-heat em { color: rgba(255,255,255,.7) !important; }
+.fp-recent li b { color: var(--team) !important; }
+/* Players: the starting XI on a pitch */
+.lu { margin-bottom: 26px; }
+.lu-pitch { position: relative; aspect-ratio: 68 / 50; max-height: 620px; margin: 0 auto; width: min(100%, 860px); border-radius: 12px; overflow: hidden;
+  background: repeating-linear-gradient(180deg, #1f6b35 0 8%, #236f3a 8% 16%); box-shadow: 0 18px 40px rgba(20,40,20,.2); }
+.lu-lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lu-lines * { fill: none; stroke: rgba(255,255,255,.55); stroke-width: .25; vector-effect: non-scaling-stroke; }
+.lu-form { position: absolute; top: 12px; left: 14px; z-index: 2; font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #fff; background: rgba(8,5,25,.45); padding: 5px 10px; border-radius: 6px; }
+.lu-p { position: absolute; transform: translate(-50%, -62%); display: flex; flex-direction: column; align-items: center; text-decoration: none; z-index: 1; transition: transform .2s; }
+.lu-p:hover { transform: translate(-50%, -66%) scale(1.06); z-index: 3; }
+.lu-bust { line-height: 0; } .lu-bust .avatar { filter: drop-shadow(0 6px 10px rgba(0,0,0,.4)); }
+.lu-name { margin-top: -2px; background: #fff; color: #160f35; font-size: 12.5px; font-weight: 700; padding: 3px 9px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,.25); white-space: nowrap; }
+.lu-r { position: absolute; top: 4px; right: -10px; min-width: 30px; text-align: center; font-size: 11.5px; font-weight: 800; padding: 2px 5px; border-radius: 4px; background: var(--club); color: #fff; box-shadow: 0 0 0 2px #fff; }
+.lu-r.f4 { background: linear-gradient(90deg, #ff4d1a, #ffb21a); } .lu-r.f0 { background: #c81e45; }
+.lu-bench { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; width: min(100%, 860px); margin: 12px auto 0; font-size: 13px; }
+.lu-bench > span { font-weight: 700; color: #6c668a; text-transform: uppercase; font-size: 11px; letter-spacing: .8px; }
+.lu-bench a { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #160f35; background: #fff; padding: 2px 12px 0 4px; border-radius: 8px; box-shadow: var(--hard); }
+.lu-bench em { font-style: normal; color: #6c668a; font-size: 12px; }
+/* Section titles: heavier, with a lime highlighter across the lower half instead of a slash */
+.l-head h2::before, .mc-h::before, .l-head h2::after, .mc-h::after { content: none !important; display: none !important; }
+.l-head h2, .mc-h { display: inline-block !important; width: fit-content; font-weight: 800 !important; font-size: 28px !important; letter-spacing: -.03em !important; padding: 0 6px; margin-left: -6px;
+  background: linear-gradient(180deg, transparent 58%, #d4ff3a 58%, #d4ff3a 92%, transparent 92%); }
+/* Hero panels: solid violet, with a slight gradient */
+.hero-card { background: linear-gradient(115deg, #4a2ae6 0%, #3a1fd0 45%, #2f17b4 100%) !important; }
+.l-band { background: linear-gradient(100deg, #3a1fd0 0%, #4526e0 60%, #3a1fd0 100%) !important; }
+.l-main:has(.sq-head) { gap: 20px !important; }

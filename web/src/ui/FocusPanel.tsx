@@ -7,15 +7,16 @@ import { formLevel } from "./Overlays";
 import { Avatar } from "./Avatar";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
-const TILES: [string, string, (s: Record<string, number>) => string][] = [
-  ["distance", "Distance", (s) => `${(s.distance_km ?? 0).toFixed(2)} km`],
-  ["top", "Top speed", (s) => `${(s.top_speed_kmh ?? 0).toFixed(1)} km/h`],
-  ["sprints", "Sprints", (s) => String(s.sprints ?? 0)],
-  ["passes", "Passes", (s) => `${s.passes_completed ?? 0}/${s.passes ?? 0}`],
-  ["shots", "Shots", (s) => String(s.shots ?? 0)],
-  ["xg", "xG", (s) => (s.xg ?? 0).toFixed(2)],
-  ["tackles", "Tackles won", (s) => String(s.tackles_won ?? 0)],
-  ["int", "Interceptions", (s) => String(s.interceptions ?? 0)],
+// Each tile is tinted by what it measures: running, passing, attacking, defending.
+const TILES: [string, string, (s: Record<string, number>) => string, string][] = [
+  ["distance", "Distance", (s) => `${(s.distance_km ?? 0).toFixed(2)} km`, "run"],
+  ["top", "Top speed", (s) => `${(s.top_speed_kmh ?? 0).toFixed(1)} km/h`, "run"],
+  ["sprints", "Sprints", (s) => String(s.sprints ?? 0), "run"],
+  ["passes", "Passes", (s) => `${s.passes_completed ?? 0}/${s.passes ?? 0}`, "pass"],
+  ["shots", "Shots", (s) => String(s.shots ?? 0), "att"],
+  ["xg", "xG", (s) => (s.xg ?? 0).toFixed(2), "att"],
+  ["tackles", "Tackles won", (s) => String(s.tackles_won ?? 0), "def"],
+  ["int", "Interceptions", (s) => String(s.interceptions ?? 0), "def"],
 ];
 
 /** Low to high: yellow, orange, red. */
@@ -37,13 +38,13 @@ export function useSpeed(pid: string) {
   return v;
 }
 
-function Tile({ label, value }: { label: string; value: string }) {
+function Tile({ label, value, kind }: { label: string; value: string; kind: string }) {
   const prev = useRef(value);
   const [flash, setFlash] = useState(false);
   useEffect(() => {
     if (prev.current !== value) { prev.current = value; setFlash(true); const t = setTimeout(() => setFlash(false), 900); return () => clearTimeout(t); }
   }, [value]);
-  return <div className={`fp-tile ${flash ? "flash" : ""}`}><span>{label}</span><b>{value}</b></div>;
+  return <div className={`fp-tile k-${kind} ${flash ? "flash" : ""}`}><span>{label}</span><b>{value}</b></div>;
 }
 
 export function FocusPanel() {
@@ -63,21 +64,22 @@ export function FocusPanel() {
   const sprinting = speed >= 25.2, fast = speed >= 19.8;
   const recent = feed.filter((f) => f.player === pid).slice(0, 4);
   return (
-    <section className="an-panel fp">
-      <header className="fp-head">
-        <Avatar player={p} color={team.color} size={48} />
-        <div className="fp-id"><b>{p.name}</b><span>{p.position} · {team.name}</span></div>
-        <span className={`fp-form f${level}`}>{FORM[level]}{card ? ` · ${card.rating.toFixed(1)}` : ""}</span>
+    <section className="an-panel fp" style={{ ["--team" as string]: team.color }}>
+      <header className={`fp-head ${sprinting ? "sprinting" : ""}`}>
+        <span className="fp-num" aria-hidden="true">{p.number}</span>
+        <span className="fp-bust"><Avatar player={p} color={team.color} size={124} bare /></span>
+        <div className="fp-id"><em>Following</em><b>{p.name}</b><span>{p.position} · #{p.number} · {team.name}</span></div>
+        <span className={`fp-form f${level}`}><small>{FORM[level]}</small>{card ? card.rating.toFixed(1) : ""}</span>
         <button className="fp-close" title="Let the auto-director choose who to follow again" onClick={() => live.send({ type: "auto" })}>Stop following</button>
       </header>
       <div className="fp-grid">
-        <div className="fp-speed">
+        <div className={`fp-speed ${sprinting ? "sprint" : fast ? "fast" : ""}`}>
           <span>Speed now</span>
           <b>{speed.toFixed(1)}<small> km/h</small></b>
           <div className="fp-gauge"><i style={{ width: `${Math.min(100, (speed / 36) * 100)}%` }} className={sprinting ? "sprint" : fast ? "fast" : ""} /></div>
           <em>{sprinting ? "Sprinting" : fast ? "High intensity" : speed > 7 ? "Jogging" : "Walking"}</em>
         </div>
-        <div className="fp-tiles">{stats && TILES.map(([k, label, f]) => <Tile key={k} label={label} value={f(stats)} />)}</div>
+        <div className="fp-tiles">{stats && TILES.map(([k, label, f, kind]) => <Tile key={k} label={label} value={f(stats)} kind={kind} />)}</div>
         <div className="fp-heat">
           <span>Where they've played</span>
           {heat ? (

@@ -5,6 +5,7 @@ import type { MatchMeta, Play } from "../live/protocol";
 export interface PlayerSummary {
   id: string; name: string; short: string; team: string; number: number; position: string; role: string;
   rating: number; attrs: Record<string, number>; stats: Record<string, number>; plays: string[];
+  spot?: [number, number] | null; starter?: boolean;
 }
 export interface Summary {
   meta: MatchMeta; score: Record<string, number>; plays: Play[]; players: PlayerSummary[];

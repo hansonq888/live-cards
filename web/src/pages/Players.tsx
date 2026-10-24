@@ -7,6 +7,7 @@ import { PlayCard } from "./PlayCard";
 import { Flame } from "../ui/Flame";
 import { Avatar } from "../ui/Avatar";
 import { Crest } from "../ui/Crest";
+import { CLUBS } from "../clubs";
 import { outcomeLabel, useSummary, type PlayerSummary, type Summary } from "./summary";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
@@ -31,10 +32,6 @@ export function Players() {
     <Shell page="players">
       {player && s ? <PlayerPage p={player} s={s} /> : (
         <>
-          <section className="l-hero small">
-            <p className="l-eyebrow">Players</p>
-            <h1>Who played, and how.</h1>
-          </section>
           {s && <Directory s={s} />}
         </>
       )}
@@ -42,49 +39,94 @@ export function Players() {
   );
 }
 
-const GROUPS: [string, (role: string) => boolean][] = [
-  ["All", () => true], ["Forwards", (r) => r === "ST" || r === "W"], ["Midfielders", (r) => r === "CM" || r === "AM" || r === "DM"],
-  ["Defenders", (r) => r === "CB" || r === "FB"], ["Goalkeepers", (r) => r === "GK"],
-];
-const SORTS: [string, (p: PlayerSummary) => number][] = [
-  ["Form", (p) => p.rating], ["Distance", (p) => p.stats.distance_km ?? 0], ["Top speed", (p) => p.stats.top_speed_kmh ?? 0], ["Passes", (p) => p.stats.passes_completed ?? 0],
+// A squad page per club, the way a club site lists its players: by line, keeper first.
+const LINES: [string, (role: string) => boolean][] = [
+  ["Goalkeepers", (r) => r === "GK"], ["Defenders", (r) => r === "CB" || r === "FB"],
+  ["Midfielders", (r) => r === "CM" || r === "AM" || r === "DM"], ["Forwards", (r) => r === "ST" || r === "W"],
 ];
 
 function Directory({ s }: { s: Summary }) {
-  const [club, setClub] = useState("all");
-  const [group, setGroup] = useState("All");
-  const [sort, setSort] = useState("Form");
-  const g = GROUPS.find((x) => x[0] === group)![1];
-  const key = SORTS.find((x) => x[0] === sort)![1];
-  const rows = s.players.filter((p) => (club === "all" || p.team === club) && g(p.role)).sort((a, b) => key(b) - key(a));
-  const teamOf = (code: string) => (code === s.meta.home.code ? s.meta.home : s.meta.away);
+  const [club, setClub] = useState(s.meta.home.code);
+  const team = club === s.meta.home.code ? s.meta.home : s.meta.away;
+  const info = CLUBS[club];
+  const squad = s.players.filter((p) => p.team === club);
+  const best = [...squad].sort((a, b) => b.rating - a.rating)[0];
   return (
     <>
-      <div className="pd-bar">
-        <div className="bx-tabs">
-          <button className={club === "all" ? "on" : ""} onClick={() => setClub("all")}>Both clubs</button>
-          {[s.meta.home, s.meta.away].map((t) => <button key={t.code} className={club === t.code ? "on" : ""} onClick={() => setClub(t.code)}><Crest code={t.code} size={20} />{t.name}</button>)}
+      <div className="sq-tabs">
+        {[s.meta.home, s.meta.away].map((t) => (
+          <button key={t.code} className={club === t.code ? "on" : ""} style={{ ["--club" as string]: t.color }} onClick={() => setClub(t.code)}>
+            <Crest code={t.code} size={28} />{t.name}
+          </button>
+        ))}
+      </div>
+      <section className="sq-head" style={{ ["--club" as string]: team.color }}>
+        <Crest code={club} size={96} />
+        <div className="sq-id">
+          <h2>{team.name}</h2>
+          {info && <p>{info.nickname} · {info.stadium}, {info.city} · founded {info.founded}</p>}
         </div>
-        <div className="pd-chips">{GROUPS.map(([k]) => <button key={k} className={group === k ? "on" : ""} onClick={() => setGroup(k)}>{k}</button>)}</div>
-        <label className="pd-sort">Sort by <select value={sort} onChange={(e) => setSort(e.target.value)}>{SORTS.map(([k]) => <option key={k}>{k}</option>)}</select></label>
-      </div>
-      <p className="pd-count">{rows.length} players from this match</p>
-      <div className="l-grid players">
-        {rows.map((p) => {
-          const [first, last] = split(p.name);
-          const team = teamOf(p.team);
-          return (
-            <a key={p.id} className="l-card l-player" style={{ ["--club" as string]: team.color }} href={`/?page=players&id=${p.id}`}>
-              <span className="lpl-num"><Avatar player={p} color={team.color} size={128} bare /></span>
-              <span className="lpl-pos">{p.position}</span>
-              <span className="lpl-name"><small>{first}</small>{last}</span>
-              <span className="lpl-club"><Crest code={team.code} size={20} />{team.name}</span>
-              <span className="lpl-form"><Form rating={p.rating} /></span>
-            </a>
-          );
-        })}
-      </div>
+        {best && <a className="sq-best" href={`/?page=players&id=${best.id}`}><span>Best in this match</span><b>{best.short}</b><em>{best.rating.toFixed(1)}</em></a>}
+      </section>
+      <Lineup s={s} club={club} />
+      {LINES.map(([line, is]) => {
+        const rows = squad.filter((p) => is(p.role)).sort((a, b) => a.number - b.number);
+        if (!rows.length) return null;
+        return (
+          <section key={line} className="sq-line">
+            <h3>{line}<span>{rows.length}</span></h3>
+            <div className="l-grid players">
+              {rows.map((p) => {
+                const [first, last] = split(p.name);
+                return (
+                  <a key={p.id} className="l-card l-player" style={{ ["--club" as string]: team.color }} href={`/?page=players&id=${p.id}`}>
+                    <span className="lpl-num"><Avatar player={p} color={team.color} size={128} bare /></span>
+                    <span className="lpl-pos">{p.position}</span>
+                    <span className="lpl-name"><small>{first}</small>{last}</span>
+                    <span className="lpl-club">#{p.number} · {Math.round(p.stats.minutes ?? 0)} min</span>
+                    <span className="lpl-form"><Form rating={p.rating} /></span>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
     </>
+  );
+}
+
+// The starting XI on a pitch, attacking up the page, from each player's formation spot; the
+// substitutes who came on sit on the bench underneath.
+function Lineup({ s, club }: { s: Summary; club: string }) {
+  const team = club === s.meta.home.code ? s.meta.home : s.meta.away;
+  const squad = s.players.filter((p) => p.team === club);
+  const xi = squad.filter((p) => p.starter && p.spot);
+  const bench = squad.filter((p) => !p.starter);
+  const top = (x: number) => ((20 - x) / 76) * 100;   // own goal line (-52.5) near the bottom
+  const left = (y: number) => ((34 - y) / 68) * 100;  // facing up, the right flank is on the right
+  return (
+    <section className="lu" style={{ ["--club" as string]: team.color }}>
+      <div className="lu-pitch">
+        <svg className="lu-lines" viewBox="0 0 68 76" preserveAspectRatio="none" aria-hidden="true">
+          <rect x=".4" y="-1" width="67.2" height="76.6" /><line x1="0" y1="20" x2="68" y2="20" />
+          <circle cx="34" cy="20" r="9.15" /><rect x="13.85" y="58" width="40.3" height="16.6" /><rect x="24.85" y="69.1" width="18.3" height="5.5" />
+        </svg>
+        <span className="lu-form">{CLUBS[club]?.short ?? team.name} · {(team as { formation?: string }).formation ?? ""}</span>
+        {xi.map((p) => (
+          <a key={p.id} className="lu-p" href={`/?page=players&id=${p.id}`} style={{ top: `${top(p.spot![0])}%`, left: `${left(p.spot![1])}%` }}>
+            <span className="lu-bust"><Avatar player={p} color={team.color} size={70} bare /></span>
+            <span className="lu-name">{p.short}</span>
+            <span className={`lu-r f${formLevel(p.rating)}`}>{p.rating.toFixed(1)}</span>
+          </a>
+        ))}
+      </div>
+      {bench.length > 0 && (
+        <div className="lu-bench"><span>Came on</span>{bench.map((p) => (
+          <a key={p.id} href={`/?page=players&id=${p.id}`}><Avatar player={p} color={team.color} size={40} bare /><b>{p.short}</b><em>{Math.round(p.stats.minutes ?? 0)} min</em></a>
+        ))}</div>
+      )}
+    </section>
   );
 }
 

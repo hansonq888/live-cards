@@ -13,6 +13,7 @@ from livecards.engine import metrics as mx
 from livecards.engine.registry import REGISTRY
 from livecards.replay import run_engine
 from livecards.server.session import load_match
+from livecards.sim.roster import FORMATION_SPOTS
 
 STAT_KEYS = ("minutes", "distance_km", "top_speed_kmh", "sprints", "hi_runs", "passes",
              "passes_completed", "pass_pct", "avg_difficulty", "forward_passes", "shots",
@@ -42,6 +43,8 @@ def summary(seed: int = 7) -> dict:
             "attrs": dict(ps.attrs) or dict(p.base_attrs),
             "stats": {k: stats[k] for k in STAT_KEYS if k in stats},
             "plays": [x["id"] for x in plays if x["player"] == p.id],
+            # starting spot in the team's own frame (x toward the goal it attacks), or None for subs
+            "spot": FORMATION_SPOTS.get(p.id), "starter": p.starter,
         })
     goals = [x for x in plays if x["outcome"] == "goal"]
     # Team totals for the match page: from the engine's team state, plus sums of player stats.
