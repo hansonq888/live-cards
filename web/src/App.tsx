@@ -4,7 +4,7 @@ import { Icon } from "./ui/Icon";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
-import { Bolt } from "./ui/Bolt";
+import { Wordmark } from "./ui/Wordmark";
 import { Controls, Plays, SidePanel, ViewMenu } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
@@ -66,7 +66,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
   return (
     <div className="app">
       <header className="top">
-        <a className="brand" href="/"><Bolt size={22} />Live Cards</a>
+        <a className="brand" href="/"><Wordmark /></a>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <span className="top-spacer" />
         <ViewMenu />

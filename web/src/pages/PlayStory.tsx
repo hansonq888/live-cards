@@ -6,7 +6,7 @@ import { live, useLive } from "../live/store";
 import { stepCaption, stepMeaning } from "../i18n";
 import { ScaledStage } from "../ui/ScaledStage";
 import { ScoreBug } from "../ui/Overlays";
-import { Bolt } from "../ui/Bolt";
+import { Wordmark } from "../ui/Wordmark";
 import { Viewer } from "../viewer/Viewer";
 import { TacticalBoard } from "../viewer/TacticalBoard";
 import { xgWords } from "./summary";
@@ -51,7 +51,7 @@ export function PlayStory() {
   return (
     <div className="story-page">
       <header className="sp-top">
-        <a className="brand" href="/"><Bolt size={20} />Live Cards</a>
+        <a className="brand" href="/"><Wordmark /></a>
         <a className="sp-link" href={`/?page=analyse&play=${encodeURIComponent(playId)}`}>Open this play in Analyse</a>
       </header>
       <div className="sp-body">

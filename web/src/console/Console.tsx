@@ -1,5 +1,5 @@
 // Broadcast console: what airs, what was blocked, and who decided. Open with ?view=console.
-import { Bolt } from "../ui/Bolt";
+import { Wordmark } from "../ui/Wordmark";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { clock } from "../live/store";
 
@@ -115,7 +115,7 @@ export function Console() {
   return (
     <div className="console">
       <header className="top">
-        <div className="brand"><Bolt size={22} />Live Cards · Broadcast Console</div>
+        <div className="brand"><Wordmark suffix="Broadcast console" /></div>
         <div className="fixture">Every line on air, every line blocked, and who decided.</div>
         <a className="switch-view" href="/" target="_blank" rel="noreferrer">Open viewer ↗</a>
         <span className={`conn ${connected ? "up" : "down"}`}>{connected ? `connected · ${via}` : "offline"}</span>
