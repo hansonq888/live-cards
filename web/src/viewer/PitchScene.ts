@@ -80,6 +80,7 @@ export class PitchScene {
   private camZ = 0;
   private poses = new Map<string, PlayerPose>();
   ringTarget: string | null = null;
+  clean = false; // capture mode: no ring or trail, just the "camera feed"
   private ringFor: string | null = null; // glide for 0.6 s after a switch, then lock on
   private ringSince = 0;
   // Speed trail behind the followed player: a ground ribbon, wider and hotter with speed.
@@ -312,7 +313,8 @@ export class PitchScene {
       this.ringPos.x += (target.x - this.ringPos.x) * k;
       this.ringPos.z += (-target.y - this.ringPos.z) * k;
     }
-    this.ring.visible = !!target;
+    this.ring.visible = !!target && !this.clean;
+    this.trailMesh.visible = !this.clean;
     this.recordHistory(players, gameT * 1000);
     this.updateTrail(target, gameT * 1000);
     this.ring.position.set(this.ringPos.x, 0.04, this.ringPos.z);
@@ -337,6 +339,13 @@ export class PitchScene {
     if (!p) return null;
     const v = new THREE.Vector3(p.x, height, -p.y).project(this.camera);
     if (v.z > 1) return null;
+    const el = this.renderer.domElement;
+    return [((v.x + 1) / 2) * el.clientWidth, ((1 - v.y) / 2) * el.clientHeight];
+  }
+
+  /** Screen position (px) of any pitch point (x, y in pitch metres, h above the grass). */
+  project(x: number, y: number, h = 0): [number, number] {
+    const v = new THREE.Vector3(x, h, -y).project(this.camera);
     const el = this.renderer.domElement;
     return [((v.x + 1) / 2) * el.clientWidth, ((1 - v.y) / 2) * el.clientHeight];
   }

@@ -85,6 +85,20 @@ service has a local fallback (in-process feed, SQLite, app socket), so the app r
 Identity is keyless in code: a service principal with narrowly scoped roles. See
 [docs/deployment.md](docs/deployment.md) for why it isn't a managed identity.
 
+## Vision layer: no tracking system needed
+
+Live Cards runs on position data. To show it could also run from a broadcast picture, a
+pretrained YOLO model (no training) finds players and splits teams by shirt colour, and a
+pitch homography places them in metres. We measured it against the simulator's ground truth on
+54 rendered frames ([docs/vision.md](docs/vision.md)):
+
+| | Players found | Team right | Position error (median) |
+|---|---|---|---|
+| Clean feed | 95.8% | 99.9% | 0.18 m |
+| Low-bitrate stream + calibration error | 87.7% | 85.5% | 0.26 m |
+
+Synthetic frames are easier than real footage, and player identity isn't solved here.
+
 ## The agents
 
 | Agent | Job | Model | Fallback when it fails |
@@ -217,7 +231,8 @@ backend/livecards/
   feed.py     Event Hubs publish/ingest      telemetry.py   Application Insights
 backend/tests/  149 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
 web/src/    React + three.js: viewer, overlays, Fan/Studio views, console, i18n
-docs/       evaluation, deployment, decisions, pitch, cue schema, media
+vision/     YOLO vision layer, capture with ground truth, evaluation
+docs/       evaluation, vision, deployment, decisions, pitch, cue schema, media
 ```
 
 Clubs, players, venue and data are fictional. No league data, logos or branding are used.

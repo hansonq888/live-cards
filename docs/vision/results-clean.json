@@ -1,0 +1,32 @@
+{
+  "model": "yolov8s.pt",
+  "calibration": "camera",
+  "degraded": false,
+  "calib_noise_px": 0.0,
+  "frames": 54,
+  "players_in_frame": 739,
+  "person_detections": 731,
+  "matched": 708,
+  "recall": 0.958,
+  "precision": 0.969,
+  "recall_by_size": {
+    "mid (35-60 px)": {
+      "players": 701,
+      "recall": 0.956
+    },
+    "near (>60 px tall)": {
+      "players": 38,
+      "recall": 1.0
+    }
+  },
+  "team_accuracy": 0.999,
+  "position_error_m": {
+    "median": 0.18,
+    "p90": 0.35,
+    "max": 0.76
+  },
+  "ball_detected": "37/54",
+  "frames_without_enough_markings": null,
+  "ms_per_frame_median": 110.2,
+  "device": "cpu"
+}

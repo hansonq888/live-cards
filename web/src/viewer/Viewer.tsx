@@ -59,6 +59,20 @@ export function Viewer() {
     const ro = new ResizeObserver(fit);
     ro.observe(el);
     const names = new Map(meta.players.map((p) => [p.id, p]));
+    // ?capture=1: a clean feed plus ground truth, for measuring the vision layer
+    // (backend/vision/). The page exposes exactly what it drew and where.
+    const capture = new URLSearchParams(location.search).has("capture")
+      ? { last: null as ReturnType<typeof interpolate> } : null;
+    if (capture) {
+      scene.clean = true;
+      (window as unknown as Record<string, unknown>).__livecards = {
+        project: (x: number, y: number, h = 0) => scene.project(x, y, h),
+        truth: () => capture.last && {
+          t: capture.last.t, ball: capture.last.ball,
+          players: capture.last.poses.map((p) => ({ id: p.id, team: names.get(p.id)?.team, role: names.get(p.id)?.role, x: p.x, y: p.y, foot: scene.project(p.x, p.y, 0), head: scene.project(p.x, p.y, 1.95) })),
+        },
+      };
+    }
     const statSuffix = (id: string) => {
       const { stat, board: b, lang: l } = statRef.current;
       const v = stat ? b[id]?.[stat] : undefined;
@@ -74,6 +88,7 @@ export function Viewer() {
         const gameDt = Math.max(0, Math.min(1, st.t - lastT));
         lastT = st.t;
         scene.update(st.poses, st.ball, dt, gameDt, st.t);
+        if (capture) capture.last = st;
         const pos = scene.ringScreenPos();
         const p = targetRef.current ? names.get(targetRef.current) : undefined;
         if (tag.current) {

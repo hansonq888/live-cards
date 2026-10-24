@@ -1,0 +1,17 @@
+[project]
+name = "livecards-vision"
+version = "0.1.0"
+description = "Vision layer for Live Cards: detect and place players from a broadcast frame"
+requires-python = ">=3.11"
+dependencies = [
+    "ultralytics>=8.3",
+    "opencv-python-headless>=4.10",
+    "scipy>=1.13",
+    "playwright==1.48.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
