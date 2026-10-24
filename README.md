@@ -24,6 +24,7 @@ before it airs, and each fan gets it in their own language and depth.
 | **Cards that explain themselves** | Ratings and attributes come from published formulas. Each change shows its reason the moment it happens (*"Varenne 7.2 → 8.7: goal +1.00, interception +0.20…"*), then an AI-written line replaces it once it passes two checks. |
 | **Nothing unverified airs** | A code verifier checks every number, name and superlative; a reasoning model checks every claimed event. Planted lies: **0 of 275 aired** ([evaluation](docs/evaluation.md)). A red-team button plants one live. |
 | **Two genuinely different experiences** | *Casual:* the story, in English, Spanish, French, Portuguese or Arabic, in a neutral or home/away fan voice. *Analyst:* the rating ledger, each attribute's metrics against the role baseline, xG, and a team strip. |
+| **Stat rings** | Colour every player's ring by rating or any attribute, cool to hot across the pitch, and hover for the number. See who's running the game at a glance without cluttering the picture. |
 | **Ask, Revisit, Explain this goal** | Fans ask questions and get answers built only from match data, with evidence. A timeline replays any key moment as it was. "Explain the goal" replays the move at half speed while the ring follows each touch. |
 | **Your model** | Analysts set their own rating and attribute weights. A second engine runs their formula next to ours and the card compares them line by line. |
 | **Built for a broadcaster** | A console with kill switches, an insight allowlist, a human-approval mode, and a permanent audit log of every line aired or blocked. Every on-screen element is also a timed, machine-readable overlay cue ([JSON Schema](docs/overlay-cue.schema.json)) for a graphics partner. |
@@ -117,7 +118,7 @@ English, Spanish and French, with lies planted in 275.
 The two layers cover each other: code can't judge an invented header; a model can miss a
 digit. Microsoft Foundry's own evaluators rate the **raw** Explainer 14/15 on groundedness (the
 reason nothing raw airs) and the Q&A agent 5/5 on intent resolution, task adherence and
-tool-call accuracy. The test suite (148 tests) includes a whole-match mutation test: change any
+tool-call accuracy. The test suite (149 tests) includes a whole-match mutation test: change any
 one number in any engine-written line and the verifier must block it.
 
 ## The numbers, and where they come from
@@ -178,7 +179,7 @@ Only numbers we measured (details in [docs/decisions.md](docs/decisions.md)):
 ```bash
 # backend (Python 3.12, uv)
 cd backend && uv sync --extra agents --extra azure
-uv run pytest -q                                   # 148 tests
+uv run pytest -q                                   # 149 tests
 uv run uvicorn livecards.server.app:app --port 8010
 
 # web (Node 22)
@@ -214,7 +215,7 @@ backend/livecards/
   agents/     explainer, verifier, reviewer, personalizer, Q&A, director, red team, pipeline
   server/     FastAPI app, live sessions, console control plane, audit log, cues, Web PubSub
   feed.py     Event Hubs publish/ingest      telemetry.py   Application Insights
-backend/tests/  148 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
+backend/tests/  149 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
 web/src/    React + three.js: viewer, overlays, Fan/Studio views, console, i18n
 docs/       evaluation, deployment, decisions, pitch, cue schema, media
 ```
