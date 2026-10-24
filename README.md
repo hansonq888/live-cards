@@ -135,6 +135,11 @@ reason nothing raw airs) and the Q&A agent 5/5 on intent resolution, task adhere
 tool-call accuracy. The test suite (149 tests) includes a whole-match mutation test: change any
 one number in any engine-written line and the verifier must block it.
 
+**Ask, measured** ([docs/qa-evaluation.md](docs/qa-evaluation.md)): 42 analyst and fan questions run through the Q&A agent at full time. The agent has ten tools over the live engine: cards, rating ledger, moments, team state, leaders, plays, play breakdowns with space control, stat definitions, player comparisons and time windows.
+- 91–94% of answerable questions answered, with the right tool 97% of the time
+- 100% of out-of-scope questions refused (future, other seasons, money, opinions); a code guard catches these before any model runs
+- Every answer passes the same verifier and reviewer as on-screen lines
+
 ## The numbers, and where they come from
 
 **Numbers come from code, words come from agents.** Each formula lives in

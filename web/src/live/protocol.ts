@@ -91,6 +91,9 @@ export interface AnalystView {
 
 export interface ModelSpec { name: string; rating_weights: Record<string, number>; attr_weights: Record<string, Record<string, number>> }
 
+export interface AnswerAction { type: "play" | "moment" | "player"; id?: string; minute?: number; label: string }
+export interface AnswerTable { columns: string[]; rows: (string | number)[][] }
+
 export interface Play { id: string; t: number; minute: number; player: string; team: string; outcome: string; xg: number; ax: number; ay: number } // ax/ay: shot spot, x toward the goal attacked
 
 export interface SpaceSnap { cols: number; rows: number; cell: number; grid: number[]; final_third_m2: number; total_m2: number; gain_m2: number | null }
@@ -132,7 +135,7 @@ export type ServerMsg =
   | { type: "buildup"; error?: string; goal: string; kind?: "goal" | "chance"; team: string; scorer: string; start_t: number; goal_t: number; story: string; story_args?: Record<string, string | number>; steps: BuildStep[] }
   | { type: "buildup_story"; goal: string; text: string; source: string; localized?: string | null; lang?: string }
   | { type: "answer_status"; id: string; question: string; stage: string }
-  | { type: "answer"; id: string; question: string; text: string; verified: boolean; source: string; evidence: string[]; tools: string[]; ms: number; problems: string[]; minute: number }
+  | { type: "answer"; id: string; question: string; text: string; verified: boolean; source: string; evidence: string[]; tools: string[]; ms: number; problems: string[]; minute: number; actions?: AnswerAction[]; table?: AnswerTable | null }
   | { type: "redteam"; stage: "started" | "result" | "unavailable"; mode?: string; moment?: string; player?: string | null; injected?: string; blocked_by?: string | null; reason?: string; aired?: string | null; aired_source?: string | null }
   | { type: "trace"; moment: string; moment_type: string; player: string | null; steps: TraceStep[] }
   | {

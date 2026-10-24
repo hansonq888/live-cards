@@ -21,7 +21,7 @@ const UI: Record<Lang, Dict> = {
     fastest: "FASTEST", in_a_row: "IN A ROW", synthetic: "Synthetic match · fictional clubs",
     key_hint: "Key moments: click one to replay it as it happened", key_empty: "Key moments appear here as they happen (first ones around 23′ and 30′)",
     stats: "stats", ai: "AI", evidence: "evidence",
-    q1: "Why did Varenne's rating jump?", q2: "Who has been the fastest player?", q3: "How is Hearne doing?", q4: "Who controls the game right now?", q5: "Who has run the most?",
+    q1: "How was the latest goal built?", q2: "Compare Varenne and Halden", q3: "What is xG?", q4: "How has Hearne done since the 60th minute?", q5: "Who has been the fastest player?",
   },
   es: {
     auto: "DIRECTOR AUTOMÁTICO", predicted: "DIRECTOR · ANTICIPACIÓN", your_pick: "TU ELECCIÓN", replay: "REPETICIÓN DE LA JUGADA",

@@ -1,0 +1,625 @@
+{
+  "questions": 42,
+  "answerable_answered_pct": 91,
+  "right_tool_pct": 97,
+  "must_refuse_refused_pct": 100,
+  "blocked_by_checks": 3,
+  "refused_by_scope_guard": 7,
+  "latency_ms_p50": 4779,
+  "latency_ms_p95": 8073,
+  "rows": [
+    {
+      "question": "How many shots has Varenne taken?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Luca Varenne has taken 3 shots so far in the match.",
+      "tools": [
+        "player_card"
+      ],
+      "right_tool": true,
+      "ms": 7742,
+      "problems": [],
+      "actions": [
+        "Follow Varenne"
+      ]
+    },
+    {
+      "question": "What is Okelani's top speed?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Okelani's top speed is 34.0 km/h.",
+      "tools": [
+        "leaders"
+      ],
+      "right_tool": true,
+      "ms": 7923,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "How many tackles has Whitcombe won?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Whitcombe has won 6 tackles so far in the match.",
+      "tools": [
+        "player_card"
+      ],
+      "right_tool": true,
+      "ms": 7425,
+      "problems": [],
+      "actions": [
+        "Follow Whitcombe"
+      ]
+    },
+    {
+      "question": "How far has Hearne run?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Hearne has run 11.61 kilometers so far in the match.",
+      "tools": [
+        "player_card"
+      ],
+      "right_tool": true,
+      "ms": 4747,
+      "problems": [],
+      "actions": [
+        "Follow Hearne"
+      ]
+    },
+    {
+      "question": "What is Marchbanks' rating?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Marchbanks' current rating is 7.4.",
+      "tools": [
+        "player_card"
+      ],
+      "right_tool": true,
+      "ms": 4052,
+      "problems": [],
+      "actions": [
+        "Follow Marchbanks"
+      ]
+    },
+    {
+      "question": "Why did Varenne's rating go up?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Varenne's rating went up mainly due to completing several passes under pressure and winning tackles between the 69th and 86th minutes, which improved his performance impact despite a couple of fouls conceded.",
+      "tools": [
+        "rating_breakdown"
+      ],
+      "right_tool": true,
+      "ms": 5507,
+      "problems": [],
+      "actions": [
+        "Follow Varenne"
+      ]
+    },
+    {
+      "question": "Why is Hearne's rating low?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Hearne's rating is low mainly because he lost the ball multiple times in his own half and conceded a foul that resulted in a yellow card at minute 89. Despite some completed passes under pressure and an interception, these errors have significantly lowered his rating.",
+      "tools": [
+        "rating_breakdown"
+      ],
+      "right_tool": true,
+      "ms": 4806,
+      "problems": [],
+      "actions": [
+        "Follow Hearne"
+      ]
+    },
+    {
+      "question": "Who has been the fastest player?",
+      "expected": "answer",
+      "answered": true,
+      "text": "The fastest player so far is Tayo Okelani from Riverside FC, reaching a top speed of 34.0 km/h.",
+      "tools": [
+        "leaders"
+      ],
+      "right_tool": true,
+      "ms": 3496,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "Who has run the most?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Tayo Okelani from Riverside FC has run the most with 14.34 km so far.",
+      "tools": [
+        "leaders"
+      ],
+      "right_tool": true,
+      "ms": 3646,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "Who has the most interceptions?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Viktor Halden from Northgate Athletic has the most interceptions with 9 so far.",
+      "tools": [
+        "leaders"
+      ],
+      "right_tool": true,
+      "ms": 4502,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "Who has the highest rating?",
+      "expected": "answer",
+      "answered": true,
+      "text": "The player with the highest rating is Viktor Halden from Northgate Athletic, with a rating of 10.0.",
+      "tools": [
+        "leaders"
+      ],
+      "right_tool": true,
+      "ms": 3278,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "Which shots were saved?",
+      "expected": "answer",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [
+        "plays",
+        "plays"
+      ],
+      "right_tool": true,
+      "ms": 5478,
+      "problems": [
+        "number 'twice' is not in the evidence",
+        "number 'twice' is not in the evidence"
+      ],
+      "actions": []
+    },
+    {
+      "question": "List Halden's shots.",
+      "expected": "answer",
+      "answered": true,
+      "text": "Halden has had 3 shots: a goal at minute 30, an off-target shot at minute 53, and a saved shot at minute 69.",
+      "tools": [
+        "plays"
+      ],
+      "right_tool": true,
+      "ms": 7211,
+      "problems": [],
+      "actions": [
+        "Halden 30′ · goal",
+        "Halden 53′ · off target",
+        "Halden 69′ · saved"
+      ]
+    },
+    {
+      "question": "What was the best chance that didn't go in?",
+      "expected": "answer",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [
+        "plays",
+        "plays"
+      ],
+      "right_tool": true,
+      "ms": 8073,
+      "problems": [
+        "unsupported claim 'The chance with the highest xG that did not go in was Viktor Halden's shot in the 69th minute, with an xG of 0.144.'"
+      ],
+      "actions": []
+    },
+    {
+      "question": "How many goals were scored?",
+      "expected": "answer",
+      "answered": true,
+      "text": "There have been 3 goals scored so far in the match.",
+      "tools": [
+        "plays"
+      ],
+      "right_tool": true,
+      "ms": 3234,
+      "problems": [],
+      "actions": [
+        "Halden 30′ · goal",
+        "Varenne 65′ · goal",
+        "Marchbanks 87′ · goal"
+      ]
+    },
+    {
+      "question": "How was the latest goal built?",
+      "expected": "answer",
+      "answered": true,
+      "text": "The latest goal was built in 6 seconds with 2 players involved. Whitcombe won the ball in the final third and passed 15 meters to Marchbanks, who then took a shot from 16 meters with an xG of 0.15, scoring at 99 km/h.",
+      "tools": [
+        "play_breakdown"
+      ],
+      "right_tool": true,
+      "ms": 9313,
+      "problems": [],
+      "actions": [
+        "Open this play (goal)"
+      ]
+    },
+    {
+      "question": "How was Varenne's goal built?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Varenne's goal was built through a 14-second attack involving 4 players and 3 passes. It started with Ferreday winning the ball deep in their own half, followed by long passes and a fast sprint from Okelani, who crossed to Varenne. Varenne then scored from 17 meters with a shot speed of 104 km/h and an xG of 0.16.",
+      "tools": [
+        "plays",
+        "play_breakdown"
+      ],
+      "right_tool": true,
+      "ms": 8722,
+      "problems": [],
+      "actions": [
+        "Varenne 65′ · goal",
+        "Open this play (goal)"
+      ]
+    },
+    {
+      "question": "How many passes led to Halden's goal?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Halden's goal came after 12 passes involving 9 different players in a 47-second build-up.",
+      "tools": [
+        "plays",
+        "play_breakdown"
+      ],
+      "right_tool": true,
+      "ms": 5633,
+      "problems": [],
+      "actions": [
+        "Halden 30′ · goal",
+        "Open this play (goal)"
+      ]
+    },
+    {
+      "question": "Did the long ball before Varenne's goal create space?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Yes, the long ball from Dravet to Okelani significantly created space, increasing the final third space from 3 m² to 31 m², which then expanded further as Okelani sprinted forward, leading to a large space area for Varenne to score.",
+      "tools": [
+        "plays",
+        "play_breakdown"
+      ],
+      "right_tool": true,
+      "ms": 7024,
+      "problems": [],
+      "actions": [
+        "Varenne 46′ · saved",
+        "Varenne 65′ · goal",
+        "Varenne 68′ · saved",
+        "Open this play (goal)"
+      ]
+    },
+    {
+      "question": "What is xG?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Expected goals (xG) measures how likely a shot is to score based on its location. For example, an xG of 0.30 means shots like that score about 3 times in 10. Closer and more central shots generally have higher xG values.",
+      "tools": [
+        "stat_definition"
+      ],
+      "right_tool": true,
+      "ms": 4477,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "What does pass difficulty mean?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Pass difficulty measures how hard a pass was on a scale from 1 to 10. Short sideways passes are easy, while long passes forward under pressure into the final third are hard. It considers distance, ground gained toward the goal, pressure, and whether the pass ends in the final third or is a cross or through ball.",
+      "tools": [
+        "stat_definition"
+      ],
+      "right_tool": true,
+      "ms": 6495,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "How is space control calculated?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Space control is calculated by determining which team would win a race to each part of the pitch at a given moment. Each player's arrival time is estimated based on a reaction time while continuing at their current speed, followed by a straight run at their top speed. The team with the faster arrival time \"wins\" that area, with a slight advantage given for a small head start.",
+      "tools": [
+        "stat_definition"
+      ],
+      "right_tool": true,
+      "ms": 4561,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "What counts as a sprint?",
+      "expected": "answer",
+      "answered": true,
+      "text": "A sprint counts as running at sprint speed or faster for at least a second, measured from tracking data of player speed ten times a second. The sprint speed threshold is 25.2 km/h.",
+      "tools": [
+        "stat_definition"
+      ],
+      "right_tool": true,
+      "ms": 4485,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "How is the player rating calculated?",
+      "expected": "answer",
+      "answered": true,
+      "text": "The player rating starts at 6.0 and changes based on actions like goals, assists, chances, tackles, and passes under pressure, which increase the rating. It decreases with losing the ball in their own half, fouls, and cards. Each event has a fixed weight that adds or subtracts from the rating.",
+      "tools": [
+        "stat_definition"
+      ],
+      "right_tool": true,
+      "ms": 4270,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "Compare Varenne and Halden.",
+      "expected": "answer",
+      "answered": true,
+      "text": "Varenne has a rating of 9.5 with 1 goal, 3 shots, 47 completed passes at 87% accuracy, 5 tackles won, and 6 interceptions, covering 12.29 km with a top speed of 29.1 km/h. Halden has a rating of 10.0 with 1 goal, 3 shots, 55 completed passes at 80.9% accuracy, 3 tackles won, and 9 interceptions, covering 14.06 km with a top speed of 28.1 km/h.",
+      "tools": [
+        "compare_players"
+      ],
+      "right_tool": true,
+      "ms": 4426,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "Who has passed better, Dravet or Castagne?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Jules Castagne has passed better with 79 completed passes at 80.6% accuracy, compared to Sami Dravet's 48 completed passes at 77.4% accuracy.",
+      "tools": [
+        "compare_players",
+        "player_card"
+      ],
+      "right_tool": true,
+      "ms": 5410,
+      "problems": [],
+      "actions": [
+        "Follow Dravet",
+        "Follow Castagne"
+      ]
+    },
+    {
+      "question": "Varenne vs Okelani: who has run further?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Tayo Okelani has run further with a distance of 14.34 km, compared to Luca Varenne who has run 12.29 km so far in the match.",
+      "tools": [
+        "leaders",
+        "player_card"
+      ],
+      "right_tool": false,
+      "ms": 4779,
+      "problems": [],
+      "actions": [
+        "Follow Varenne",
+        "Follow Okelani"
+      ]
+    },
+    {
+      "question": "How has Hearne done since the 60th minute?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Since the 60th minute, Hearne has completed 7 of 17 passes, made 1 interception, no tackles won, and no shots or goals, with a rating change of -1.59.",
+      "tools": [
+        "period_stats"
+      ],
+      "right_tool": true,
+      "ms": 6150,
+      "problems": [],
+      "actions": [
+        "Follow Hearne"
+      ]
+    },
+    {
+      "question": "What did Varenne do in the first half?",
+      "expected": "answer",
+      "answered": true,
+      "text": "In the first half, Luca Varenne made 22 passes, completing 19 of them, and made 4 interceptions. He did not take any shots or win any tackles. His rating increased by 0.91 during this period.",
+      "tools": [
+        "period_stats"
+      ],
+      "right_tool": true,
+      "ms": 5124,
+      "problems": [],
+      "actions": [
+        "Follow Varenne"
+      ]
+    },
+    {
+      "question": "How many shots did Halden have after minute 45?",
+      "expected": "answer",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [
+        "plays",
+        "plays"
+      ],
+      "right_tool": true,
+      "ms": 6762,
+      "problems": [
+        "number '2' is not in the evidence",
+        "number '45' is not in the evidence",
+        "number 'one' is not in the evidence",
+        "number 'one' is not in the evidence"
+      ],
+      "actions": []
+    },
+    {
+      "question": "What's the score?",
+      "expected": "answer",
+      "answered": true,
+      "text": "The score is River Plate 2, Nueva Generación de Talentos 1.",
+      "tools": [
+        "team_state"
+      ],
+      "right_tool": true,
+      "ms": 7377,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "Who had more possession?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Ng Tigres had more possession overall with 54.3%, while River Plate had 45.7%. However, in the last 5 minutes, River Plate had more possession at 55.7%.",
+      "tools": [
+        "team_state"
+      ],
+      "right_tool": true,
+      "ms": 4845,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "¿Quién ha sido el jugador más rápido?",
+      "expected": "answer",
+      "answered": true,
+      "text": "El jugador más rápido ha sido Tayo Okelani con una velocidad máxima de 34.0 km/h.",
+      "tools": [
+        "leaders"
+      ],
+      "right_tool": true,
+      "ms": 5043,
+      "problems": [],
+      "actions": []
+    },
+    {
+      "question": "Qui a marqué le premier but ?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Le premier but a été marqué par Viktor Halden à la 30e minute.",
+      "tools": [
+        "plays"
+      ],
+      "right_tool": true,
+      "ms": 4034,
+      "problems": [],
+      "actions": [
+        "Halden 30′ · goal",
+        "Varenne 65′ · goal",
+        "Marchbanks 87′ · goal"
+      ]
+    },
+    {
+      "question": "Quanto correu o Hearne?",
+      "expected": "answer",
+      "answered": true,
+      "text": "Hearne correu 11,61 km até agora no jogo.",
+      "tools": [
+        "player_card"
+      ],
+      "right_tool": true,
+      "ms": 3785,
+      "problems": [],
+      "actions": [
+        "Follow Hearne"
+      ]
+    },
+    {
+      "question": "Who will win the league?",
+      "expected": "refuse",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [],
+      "right_tool": null,
+      "ms": 0.0,
+      "problems": [
+        "outside the match data"
+      ],
+      "actions": []
+    },
+    {
+      "question": "How many goals did Varenne score last season?",
+      "expected": "refuse",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [],
+      "right_tool": null,
+      "ms": 0.0,
+      "problems": [
+        "outside the match data"
+      ],
+      "actions": []
+    },
+    {
+      "question": "What is Varenne's salary?",
+      "expected": "refuse",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [],
+      "right_tool": null,
+      "ms": 0.0,
+      "problems": [
+        "outside the match data"
+      ],
+      "actions": []
+    },
+    {
+      "question": "Will Halden score again?",
+      "expected": "refuse",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [],
+      "right_tool": null,
+      "ms": 0.0,
+      "problems": [
+        "outside the match data"
+      ],
+      "actions": []
+    },
+    {
+      "question": "Who is the best striker in the world?",
+      "expected": "refuse",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [],
+      "right_tool": null,
+      "ms": 0.0,
+      "problems": [
+        "outside the match data"
+      ],
+      "actions": []
+    },
+    {
+      "question": "What did the manager say at half-time?",
+      "expected": "refuse",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [],
+      "right_tool": null,
+      "ms": 0.0,
+      "problems": [
+        "outside the match data"
+      ],
+      "actions": []
+    },
+    {
+      "question": "How many yellow cards did the referee give last week?",
+      "expected": "refuse",
+      "answered": false,
+      "text": "I can't verify that from the match data.",
+      "tools": [],
+      "right_tool": null,
+      "ms": 0.0,
+      "problems": [
+        "outside the match data"
+      ],
+      "actions": []
+    }
+  ]
+}

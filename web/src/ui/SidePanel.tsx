@@ -3,6 +3,7 @@ import { Icon } from "./Icon";
 import { clock, live, STAT_RINGS, useLang, useLive } from "../live/store";
 import { isRtl, t as tr } from "../i18n";
 import { YourModelPanel } from "./YourModel";
+import type { AnswerAction } from "../live/protocol";
 
 const STAGE_LABEL: Record<string, string> = {
   explainer: "Explainer", verifier: "Verifier", "template-check": "Verifier", reviewer: "Reviewer",
@@ -126,6 +127,14 @@ function Fans() {
   );
 }
 
+/** What an answer lets you do next: open the play it talks about, jump to the moment, follow
+ *  the player. Actions come from the tools the agent used, never from its wording. */
+function runAction(act: AnswerAction) {
+  if (act.type === "play" && act.id) live.breakdown(act.id);
+  else if (act.type === "moment" && act.minute !== undefined) live.send({ type: "seek", t: Math.max(0, act.minute * 60 - 5) });
+  else if (act.type === "player" && act.id) live.send({ type: "select", player: act.id });
+}
+
 export function Ask() {
   const answers = useLive((s) => s.answers);
   const lang = useLang();
@@ -153,6 +162,19 @@ export function Ask() {
             ) : (
               <>
                 <div className={`a ${a.source === "refusal" ? "refusal" : ""}`} dir="auto">{a.text}</div>
+                {a.table && (
+                  <table className="a-table">
+                    <thead><tr>{a.table.columns.map((c, i) => <th key={i}>{c}</th>)}</tr></thead>
+                    <tbody>{a.table.rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+                  </table>
+                )}
+                {a.actions && a.actions.length > 0 && (
+                  <div className="a-actions">
+                    {a.actions.map((act, i) => (
+                      <button key={i} onClick={() => runAction(act)}>{act.type === "play" ? "▶ " : act.type === "moment" ? "↺ " : ""}{act.label}</button>
+                    ))}
+                  </div>
+                )}
                 <div className="a-meta">
                   {a.source === "model" ? <span className="verified">{tr(lang, "verified")}</span> : <span className="src src-template">{tr(lang, "refused")}</span>}
                   <span className="evidence">{(a.tools ?? []).join(" · ")} · {Math.round((a.ms ?? 0) / 100) / 10}s</span>

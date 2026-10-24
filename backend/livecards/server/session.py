@@ -16,8 +16,6 @@ from collections.abc import Awaitable, Callable
 from dataclasses import asdict, dataclass
 from functools import cache
 
-import numpy as np
-
 from livecards.agents.director import AutoDirector, Decision
 from livecards.agents.explainer import INSTRUCTIONS, ExplainJob, job_for
 from livecards.agents.llm import make_agent
@@ -394,7 +392,7 @@ class LiveSession:
                              "ms": 0, "problems": [], "minute": int(self.t // 60)})
             return
         with tracer.start_as_current_span("fan.ask") as span:
-            a = await ask(question, self.engine, self.roster, reviewer_agent())
+            a = await ask(question, self.engine, self.roster, reviewer_agent(), match=self.match)
             span.set_attributes({"answer.source": a.source, "answer.ms": a.ms,
                                  "answer.tools": ",".join(a.tools)})
         self._audit("answer", None, text=f"Q: {question}\nA: {a.text}", source=a.source,
@@ -462,7 +460,7 @@ class LiveSession:
         if b is None:
             await self.send({"type": "buildup", "error": "no build-up found"})
             return
-        self._add_space(b)
+        space.add_space(b, self.match, self.meta)
         await self.send({"type": "buildup", **b})
         key = (self.seed, b["goal"], "story")
         if key not in LINE_CACHE and self.model_enabled:
@@ -494,23 +492,6 @@ class LiveSession:
         await self.send({"type": "buildup_story", "goal": b["goal"], "text": text,
                          "source": result.source if result else "template",
                          "localized": localized, "lang": self.profile.lang})
-
-    def _add_space(self, b: dict) -> None:
-        """Space control at each touch of a breakdown, from the tracking frames: the map the
-        viewer shades, and the attacking team's space in the final third with its change."""
-        team = b["team"]
-        d = self.meta.home.attack_dir if team == self.meta.home.code else self.meta.away.attack_dir
-        prev_ahead = None
-        for st in b["steps"]:
-            if st["kind"] in ("goal", "end"):
-                continue
-            i = int(np.clip(np.searchsorted(self.match.times, st["t"]), 1, len(self.match) - 1))
-            dt = float(self.match.times[i] - self.match.times[i - 1])
-            snap = space.snapshot(self.match.pos[i], self.match.pos[i - 1], dt,
-                                  self.match.ids_at(i), team, float(self.match.ball[i][0]), d)
-            snap["gain_m2"] = None if prev_ahead is None else snap["final_third_m2"] - prev_ahead
-            prev_ahead = snap["final_third_m2"]
-            st["space"] = snap
 
     async def _redteam(self) -> None:
         """Re-explain the followed player's latest moment with a corrupted first draft."""

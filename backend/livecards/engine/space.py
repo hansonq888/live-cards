@@ -101,3 +101,22 @@ def snapshot(pos: np.ndarray, prev: np.ndarray, dt: float, ids: list[str], team:
         "final_third_m2": round(cm.area(mask)),
         "total_m2": round(cm.area()),
     }
+
+
+def add_space(b: dict, match, meta) -> None:
+    """Attach space control to each touch of a play breakdown (from `build_up`), from the
+    tracking frames: the map the viewer shades, and the attacking team's final-third space with
+    its change since the previous touch."""
+    team = b["team"]
+    d = meta.home.attack_dir if team == meta.home.code else meta.away.attack_dir
+    prev = None
+    for st in b["steps"]:
+        if st["kind"] in ("goal", "end"):
+            continue
+        i = int(np.clip(np.searchsorted(match.times, st["t"]), 1, len(match) - 1))
+        dt = float(match.times[i] - match.times[i - 1])
+        snap = snapshot(match.pos[i], match.pos[i - 1], dt, match.ids_at(i), team,
+                        float(match.ball[i][0]), d)
+        snap["gain_m2"] = None if prev is None else snap["final_third_m2"] - prev
+        prev = snap["final_third_m2"]
+        st["space"] = snap
