@@ -11,7 +11,9 @@ export function Home() {
   const name = (id: string) => s?.players.find((p) => p.id === id)?.short ?? id;
   const goals = s?.plays.filter((p) => p.outcome === "goal") ?? [];
   const chances = [...(s?.plays ?? [])].filter((p) => p.outcome !== "goal").sort((a, b) => b.xg - a.xg).slice(0, 3);
-  const featured = [...goals, ...chances];
+  // One featured play (the equaliser, the match's turning point) and four more around it.
+  const lead = goals.find((g) => g.player === "RIV-09") ?? goals[0];
+  const rest = [...goals.filter((g) => g !== lead), ...chances].slice(0, 4);
   return (
     <Shell page="home">
       <section className="hero-card">
@@ -40,10 +42,9 @@ export function Home() {
 
       <section className="l-section">
         <div className="l-head"><h2>Plays to break down</h2><a href="/?page=analyse">All {s?.plays.length ?? ""} plays</a></div>
-        <div className="l-grid">
-          {featured.map((p) => (
-            <PlayCard key={p.id} play={p} title={`${possessive(name(p.player))} ${p.outcome === "goal" ? "goal" : "chance"}`} />
-          ))}
+        <div className="plays-grid">
+          {lead && <PlayCard play={lead} title={`${possessive(name(lead.player))} equaliser`} feature />}
+          {rest.map((p) => <PlayCard key={p.id} play={p} title={`${possessive(name(p.player))} ${p.outcome === "goal" ? "goal" : "chance"}`} />)}
         </div>
       </section>
 

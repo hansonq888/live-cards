@@ -950,3 +950,15 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 @media (max-width: 1000px) { .pp-grid, .pp-groups { grid-template-columns: 1fr; } .pp-side { position: static; } .pp-tiles { grid-template-columns: repeat(2, 1fr); } }
 .l-meter.f3 i.on, .l-meter.f4 i.on { background: linear-gradient(90deg, var(--l-accent), #8a5cff); }
 .pp-facts .l-form { font-size: 14px; }
+
+/* plays: one featured play, four around it */
+.plays-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px 20px; }
+.l-play.feature { grid-column: span 2; grid-row: span 2; }
+.l-play.feature .lp-visual { flex: 1; display: flex; align-items: center; padding: 28px 0 20px; }
+.l-play.feature .shot-map { height: 340px; }
+.l-play.feature .lp-tag { font-size: 13px; padding: 5px 11px; left: 16px; top: 16px; }
+.lp-kicker { margin-top: 18px; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--l-accent); }
+.l-play.feature .lp-title { font-size: 34px; letter-spacing: -.8px; margin-top: 6px; }
+.l-play.feature .lp-meta { font-size: 15px; }
+.lp-cta { margin-top: 12px; font-weight: 700; font-size: 15px; color: var(--l-accent); }
+@media (max-width: 1000px) { .plays-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .l-play.feature .shot-map { height: 220px; } }
