@@ -31,6 +31,13 @@ function shade(hex: string, f: number) {
   return `rgb(${c(n >> 16)},${c((n >> 8) & 255)},${c(n & 255)})`;
 }
 
+// Duotone ramp for one channel: deep club shade in the shadows, near-white in the highlights.
+function duo(hex: string, ch: "r" | "g" | "b") {
+  const n = parseInt(hex.slice(1), 16);
+  const v = (ch === "r" ? n >> 16 : ch === "g" ? (n >> 8) & 255 : n & 255) / 255;
+  return `${(v * 0.25).toFixed(3)} ${v.toFixed(3)} ${(0.75 + v * 0.25).toFixed(3)}`;
+}
+
 export function face(id: string) {
   const r = seeded(id);
   const pick = <T,>(xs: readonly T[]) => xs[Math.floor(r() * xs.length)];
@@ -48,8 +55,12 @@ export function face(id: string) {
   };
 }
 
+/** Experimental looks, previewed on ?page=mock: "lit" adds soft studio lighting, "duo" tints
+ * the whole portrait in the club colour, "sticker" adds a white cut-out outline. */
+export type AvatarLook = "flat" | "lit" | "duo" | "sticker";
+
 /** `bare`: no background circle, just the head and shoulders on transparency (for cut-outs). */
-export function Avatar({ player, color, size = 40, number = true, bare = false }: { player: AvatarPlayer; color: string; size?: number; number?: boolean; bare?: boolean }) {
+export function Avatar({ player, color, size = 40, number = true, bare = false, look = "flat" }: { player: AvatarPlayer; color: string; size?: number; number?: boolean; bare?: boolean; look?: AvatarLook }) {
   const uid = useId().replace(/:/g, "");
   const f = face(player.id);
   const kit = player.role === "GK" ? GK_KIT : color;
@@ -63,12 +74,31 @@ export function Avatar({ player, color, size = 40, number = true, bare = false }
     return [cx + Math.cos(a) * (rx + 0.6), cy - 3 + Math.sin(a) * (ry - 1.5)];
   });
   return (
-    <svg className={`avatar ${bare ? "bare" : ""}`} width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={player.name ? `Illustration of ${player.name}` : undefined}>
+    <svg className={`avatar ${bare ? "bare" : ""} look-${look}`} width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={player.name ? `Illustration of ${player.name}` : undefined}>
       <defs>
         <clipPath id={`${uid}c`}>{bare ? <rect x="0" y="0" width="64" height="64" /> : <circle cx="32" cy="32" r="32" />}</clipPath>
         <clipPath id={`${uid}h`}><ellipse cx={cx} cy={cy} rx={rx + 0.7} ry={ry + 0.7} /></clipPath>
+        {look === "lit" && (
+          <>
+            <radialGradient id={`${uid}l`} cx="38%" cy="30%" r="70%">
+              <stop offset="0" stopColor="#fff" stopOpacity=".38" /><stop offset=".55" stopColor="#fff" stopOpacity="0" />
+              <stop offset="1" stopColor="#000" stopOpacity=".32" />
+            </radialGradient>
+            <linearGradient id={`${uid}k`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#fff" stopOpacity=".25" /><stop offset="1" stopColor="#000" stopOpacity=".35" />
+            </linearGradient>
+          </>
+        )}
+        {look === "duo" && (
+          <filter id={`${uid}d`} colorInterpolationFilters="sRGB">
+            <feColorMatrix type="saturate" values="0" />
+            <feComponentTransfer>
+              <feFuncR type="table" tableValues={duo(color, "r")} /><feFuncG type="table" tableValues={duo(color, "g")} /><feFuncB type="table" tableValues={duo(color, "b")} />
+            </feComponentTransfer>
+          </filter>
+        )}
       </defs>
-      <g clipPath={`url(#${uid}c)`}>
+      <g clipPath={`url(#${uid}c)`} filter={look === "duo" ? `url(#${uid}d)` : undefined}>
         {!bare && <circle cx="32" cy="32" r="32" fill={color} fillOpacity=".14" />}
         {f.hairStyle === "long" && <rect x={cx - rx - 3} y={top - 2} width={2 * rx + 6} height={2 * ry + 8} rx="10" fill={f.hair} />}
         {f.hairStyle === "afro" && <ellipse cx={cx} cy={cy - 5} rx={rx + 6.5} ry={ry + 3} fill={f.hair} />}
@@ -98,6 +128,12 @@ export function Avatar({ player, color, size = 40, number = true, bare = false }
         <path d={`M${cx} ${cy + 2} q-1.3 3.3 0.8 3.8`} fill="none" stroke={shade(f.skin, 0.7)} strokeWidth="1" strokeLinecap="round" />
         {f.facial === "moustache" && <path d={`M${cx - 4} ${cy + 7.6} Q${cx} ${cy + 5.2} ${cx + 4} ${cy + 7.6} Q${cx} ${cy + 6.8} ${cx - 4} ${cy + 7.6} Z`} fill={f.hair} stroke={f.hair} strokeWidth="1" strokeLinejoin="round" />}
         <path d={`M${cx - 2.6} ${cy + 8.6} q2.6 1.6 5.2 0`} fill="none" stroke={f.facial === "beard" ? shade(f.skin, 1.05) : shade(f.skin, 0.55)} strokeWidth="1.1" strokeLinecap="round" />
+        {look === "lit" && (
+          <>
+            <ellipse cx={cx} cy={cy - 2} rx={rx + 6} ry={ry + 6} fill={`url(#${uid}l)`} clipPath={`url(#${uid}h)`} />
+            <path d={bare ? "M4 64 V57 C6 52 14 49.5 25 48.5 Q32 53 39 48.5 C50 49.5 58 52 60 57 V64 Z" : "M2 66 C4 54 14 49.5 25 48.5 Q32 53 39 48.5 C50 49.5 60 54 62 66 Z"} fill={`url(#${uid}k)`} />
+          </>
+        )}
       </g>
     </svg>
   );

@@ -8,6 +8,16 @@ import { Crest } from "../ui/Crest";
 
 const possessive = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
 
+// A white zigzag band behind the player, in the spirit of matchday posters.
+function Bolt() {
+  return (
+    <svg className="vs2-bolt" viewBox="0 0 100 160" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points="58,0 82,0 66,34 84,34 60,74 78,74 44,160 20,160 40,92 22,92 46,52 28,52" />
+      <polygon points="88,0 100,0 100,30 92,30" opacity=".5" />
+    </svg>
+  );
+}
+
 export function Home() {
   const s = useSummary();
   useRegistry();  // stat names and thresholds
@@ -31,21 +41,23 @@ export function Home() {
           </div>
         </div>
         {meta && s && (
-          <div className="vs">
-            <div className="vs-head"><span className="vs-live">Latest result</span><span>Matchweek 9 · Sat 24 Oct</span></div>
-            {[meta.home, meta.away].map((t, side) => (
-              <div key={t.code} className={`vs-team ${side ? "away" : "home"}`}>
-                <Crest code={t.code} size={96} />
-                <b>{t.name}</b>
-                <ul>{goals.filter((g) => g.team === t.code).map((g) => <li key={g.id}>{name(g.player)} {g.minute}′</li>)}</ul>
-              </div>
-            ))}
-            <div className="vs-score">
-              <span className="vs-ft">Full time</span>
+          <div className="vs2">
+            {[meta.home, meta.away].map((t, side) => {
+              return (
+                <a key={t.code} className={`vs2-team ${side ? "away" : "home"}`} href="/?page=watch" style={{ ["--club" as string]: t.color }}>
+                  <Bolt />
+                  <span className="vs2-crest"><Crest code={t.code} size={96} /></span>
+                  <span className="vs2-name">{t.name}</span>
+                  <ul className="vs2-goals">{goals.filter((g) => g.team === t.code).map((g) => <li key={g.id}>{name(g.player)} {g.minute}′</li>)}</ul>
+                </a>
+              );
+            })}
+            <div className="vs2-mid">
+              <span className="vs2-tag">Latest result</span>
               <b>{s.score[meta.home.code]}<i>–</i>{s.score[meta.away.code]}</b>
-              <span className="vs-venue">{meta.venue}</span>
+              <span className="vs2-ft">Full time</span>
+              <span className="vs2-when">Sat 24 Oct · {meta.venue}</span>
             </div>
-            <a className="vs-foot" href="/?page=watch">Match report, box score and every play →</a>
           </div>
         )}
       </section>
