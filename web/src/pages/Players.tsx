@@ -96,15 +96,15 @@ function Directory({ s }: { s: Summary }) {
   );
 }
 
-// The starting XI on a pitch, attacking up the page, from each player's formation spot; the
+// The starting XI in their lines, attacking up the page, from each player's formation spot; the
 // substitutes who came on sit on the bench underneath.
 function Lineup({ s, club }: { s: Summary; club: string }) {
   const team = club === s.meta.home.code ? s.meta.home : s.meta.away;
   const squad = s.players.filter((p) => p.team === club);
   const xi = squad.filter((p) => p.starter && p.spot);
   const bench = squad.filter((p) => !p.starter);
-  const top = (x: number) => ((20 - x) / 76) * 100;   // own goal line (-52.5) near the bottom
-  const left = (y: number) => ((34 - y) / 68) * 100;  // facing up, the right flank is on the right
+  const top = (x: number) => 14 + ((14 - x) / 64) * 76;  // keeper (-48) near the bottom, forwards near the top
+  const left = (y: number) => 8 + ((30 - y) / 60) * 84;  // facing up, the right flank is on the right
   return (
     <section className="lu" style={{ ["--club" as string]: team.color }}>
       <div className="lu-pitch">
@@ -160,7 +160,7 @@ function PlayerPage({ p, s }: { p: PlayerSummary; s: Summary }) {
             <span className="pp-bust"><Avatar player={p} color={team.color} size={200} bare /></span>
             <div>
               <Crest code={team.code} size={44} className="pp-crest" />
-              <h1><small>{first}</small>{last}</h1>
+              <h1 style={{ fontSize: `${Math.min(46, 172 / (last.length * 0.58))}px` }}><small>{first}</small>{last}</h1>
               <p className="pp-club">{p.position} · #{p.number}</p>
             </div>
           </div>

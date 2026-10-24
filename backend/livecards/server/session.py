@@ -255,7 +255,14 @@ class LiveSession:
             await self._send_director(d)
             await self._send_card(d.target)
         elif kind == "auto":
+            # Decide straight away from the current frame and tell the viewer: when the replay
+            # is paused (or at full time) no tick would run to report the switch back to auto.
             self.director.set_auto()
+            i = min(self.i, len(self.match) - 1)
+            d = self.director.update(self.t, (float(self.match.ball[i, 0]), float(self.match.ball[i, 1])),
+                                     list(positions(self.match, i)))
+            await self._send_director(d)
+            await self._send_card(d.target)
         elif kind == "speed":
             self.speed = max(0.25, min(40.0, float(msg.get("value", 1))))
         elif kind == "pause":

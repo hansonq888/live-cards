@@ -5,6 +5,7 @@ import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { stat, useRegistry } from "../live/stats";
 import { useSummary } from "./summary";
 import { Crest } from "../ui/Crest";
+import { Doodle } from "../ui/Doodle";
 
 const possessive = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
 
@@ -30,6 +31,7 @@ export function Home() {
   const rest = [...goals.filter((g) => g !== lead), ...chances].slice(0, 4);
   return (
     <Shell page="home">
+      <Doodle className="home-doodle" />
       <section className="hero-card">
         <div className="hc-text">
           <p className="hc-eyebrow">Match analysis, explained</p>

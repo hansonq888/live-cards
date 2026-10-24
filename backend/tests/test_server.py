@@ -208,3 +208,27 @@ def test_heatmap_puts_a_player_where_they_played(match):
     half = h["cols"] // 2
     rows = [h["grid"][r * h["cols"]:(r + 1) * h["cols"]] for r in range(h["rows"])]
     assert sum(sum(r[half + 1:]) for r in rows) > sum(sum(r[:half]) for r in rows)
+
+
+def test_stop_following_while_paused_reports_auto(monkeypatch):
+    """Regression: at full time (or paused) no tick runs, so going back to auto must send the
+    director's new decision at once, or the Follow panel never closes."""
+    import asyncio
+
+    from livecards.server import session as S
+    monkeypatch.setattr(S, "explainer_agent", lambda: None)
+
+    async def main():
+        got = []
+
+        async def send(m):
+            got.append(m)
+        s = S.LiveSession(send, start=3000)
+        s.paused = True
+        await s.command({"type": "select", "player": "NGT-05"})
+        got.clear()
+        await s.command({"type": "auto"})
+        return got
+    got = asyncio.run(main())
+    d = [m for m in got if m["type"] == "director"]
+    assert d and d[-1]["mode"] == "auto"
