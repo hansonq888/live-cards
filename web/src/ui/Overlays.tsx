@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
 import { clock, live, useLang, useLive } from "../live/store";
-import { directorReason, isRtl, statsLine, stepCaption, storyLine, t as tr, type Lang } from "../i18n";
+import { directorReason, isRtl, statsLine, stepCaption, stepMeaning, storyLine, t as tr, type Lang } from "../i18n";
 import { AnalystCard, TeamStrip } from "./Analyst";
 
 const STORY_TYPES = new Set(["goal", "rating_upgrade", "rating_downgrade", "big_chance", "momentum_swing", "fastest_sprint", "attr_upgrade", "attr_downgrade"]);
@@ -161,9 +161,10 @@ export function PlayerCard() {
 
 export function DirectorTicker() {
   const director = useLive((s) => s.director);
+  const breakdown = useLive((s) => s.buildup);
   const lang = useLang();
   const now = useTicker();
-  if (!director) return null;
+  if (!director || breakdown) return null;  // during a breakdown the panel says what's happening
   const fresh = now - director.at < 1500;
   const label = director.mode === "replay" ? "replay" : director.mode === "manual" ? "your_pick" : director.predicted ? "predicted" : "auto";
   return (
@@ -198,6 +199,7 @@ export function RedTeamPanel() {
 
 export function RevisitBadge() {
   const revisit = useLive((s) => s.revisit);
+  const breakdown = useLive((s) => s.buildup);
   const lang = useLang();
   if (!revisit) return null;
   return (
@@ -205,6 +207,7 @@ export function RevisitBadge() {
       <span className="rv-tag">{tr(lang, "revisit")}</span>
       <span className="rv-time">{clock(revisit.t)}</span>
       <span>{revisit.label}</span>
+      {revisit.play && !breakdown && <button className="rv-break" onClick={() => live.breakdown(revisit.play!)}>{tr(lang, "bd_open")}</button>}
       <button onClick={() => live.backToLive()}>{tr(lang, "back_live")}</button>
     </div>
   );
@@ -227,25 +230,46 @@ export function GoalBanner() {
 export function BuildUpPanel() {
   const b = useLive((s) => s.buildup);
   const t = useLive((s) => s.t);
+  const paused = useLive((s) => s.paused);
+  const meta = useLive((s) => s.meta);
   const lang = useLang();
-  const now = useTicker(200);
   useEffect(() => { live.stepBuildup(t); }, [t]);
-  if (!b || (!b.playing && now - b.at > 60000)) return null;
-  const cur = [...b.steps].reverse().find((s) => s.t <= t);
+  if (!b) return null;
+  const idx = live.stepIndex(t);
   // Story: the AI line in your language if it passed the checks; else the facts-based line.
   const aiStory = lang === "en" ? (b.storySource === "model" ? b.story : null) : b.localized;
   const story = aiStory ?? storyLine(lang, b.storyArgs, b.story);
+  const who = meta?.players.find((p) => p.id === b.scorer)?.short ?? "";
   return (
     <div className="buildup" dir={isRtl(lang) ? "rtl" : undefined}>
-      <div className="bu-title">{tr(lang, "how_built")}</div>
+      <div className="bu-head">
+        <span className={`bu-kind ${b.kind}`}>{tr(lang, b.kind === "goal" ? "bd_goal" : "bd_chance")}</span>
+        <span className="bu-title">{tr(lang, "bd_title")} · {who} {Math.floor(b.goalT / 60)}′</span>
+      </div>
       <div className="bu-story">{story}{aiStory && <span className="verified"> {tr(lang, "verified")}</span>}</div>
       <ol>
         {b.steps.map((s, i) => (
-          <li key={i} className={`bu-${s.kind} ${s.t <= t ? "done" : ""} ${s === cur ? "cur" : ""}`}>
-            <span className="bu-time">{(s.t - b.goalT).toFixed(1)}s</span>{stepCaption(lang, s)}
+          <li key={i} className={`bu-${s.kind} ${i < idx ? "done" : ""} ${i === idx ? "cur" : ""}`}>
+            <button onClick={() => live.stepTo(i)}>
+              <span className="bu-time">{(s.t - b.goalT).toFixed(1)}s</span>
+              <span className="bu-cap">{stepCaption(lang, s)}</span>
+            </button>
+            {i === idx && (
+              <div className="bu-stats">
+                {stepMeaning(lang, s).map((m, j) => (
+                  <div key={j} className="bu-stat"><b>{m.label}</b>{m.meaning && <span>{m.meaning}</span>}</div>
+                ))}
+              </div>
+            )}
           </li>
         ))}
       </ol>
+      <div className="bu-controls">
+        <button onClick={() => live.stepPrev()} aria-label="Previous touch"><Icon name="back" /></button>
+        <button className="bu-play" onClick={() => live.toggleBreakdown()} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={16} /></button>
+        <button onClick={() => live.stepNext()} aria-label="Next touch"><span className="flip"><Icon name="back" /></span></button>
+        <span className="bu-count">{tr(lang, "bd_step", { i: Math.max(1, idx + 1), n: b.steps.length })}</span>
+      </div>
     </div>
   );
 }

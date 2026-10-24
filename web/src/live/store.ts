@@ -2,7 +2,7 @@
 // read by the render loop (no React re-render per frame); everything else is React state.
 import { useSyncExternalStore } from "react";
 import { stepCaption, type Lang } from "../i18n";
-import type { AnalystView, BuildStep, CardState, ModelSpec, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
+import type { AnalystView, BuildStep, Play, CardState, ModelSpec, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
 
 export interface Director {
   target: string;
@@ -48,7 +48,7 @@ export interface Line {
   variants: Record<string, Variant>;
 }
 
-export interface KeyMoment { id: string; t: number; type: string; player: string | null; label: string }
+export interface KeyMoment { id: string; t: number; type: string; player: string | null; label: string; play?: string }
 
 const KEY_TYPES = new Set(["goal", "big_chance", "fastest_sprint", "rating_upgrade", "rating_downgrade", "momentum_swing", "card", "substitution"]);
 
@@ -75,7 +75,10 @@ export interface LiveState {
   lines: Record<string, Line>;
   profile: string; // audience.lang.voice
   keyMoments: KeyMoment[];
-  buildup: { goal: string; steps: BuildStep[]; start: number; goalT: number; story: string; storyArgs?: Record<string, string | number>; localized?: string | null; storySource: string; playing: boolean; at: number; resumeSpeed: number } | null;
+  // Play breakdown: the steps of one attack, replayed from the data. `pauseAt` stops the
+  // replay on a touch so it can be studied; `playing` is false once it has run to the end.
+  buildup: { goal: string; kind: "goal" | "chance"; scorer: string; steps: BuildStep[]; start: number; goalT: number; story: string; storyArgs?: Record<string, string | number>; localized?: string | null; storySource: string; playing: boolean; at: number; resumeSpeed: number; pauseAt: number | null } | null;
+  plays: Play[];
   liveEdge: number; // furthest match time watched
   revisit: KeyMoment | null;
   answers: { id: string; question: string; text?: string; source?: string; evidence?: string[]; tools?: string[]; ms?: number; problems?: string[]; minute?: number; pending: boolean }[];
@@ -103,6 +106,13 @@ export interface LiveState {
   statRing: string | null;
 }
 
+/** Plays already seen stay listed after a rewind; new ones are added in time order. */
+function mergePlays(seen: Play[], now: Play[] | undefined): Play[] {
+  if (!now) return seen;
+  const ids = new Set(now.map((p) => p.id));
+  return [...now, ...seen.filter((p) => !ids.has(p.id))].sort((a, b) => a.t - b.t);
+}
+
 export const STAT_RINGS = ["rating", "pace", "passing", "threat", "defending", "engine"] as const;
 
 function savedStatRing(): string | null {
@@ -117,7 +127,7 @@ function savedStatRing(): string | null {
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
   director: null, cards: {}, stats: {}, analyst: {}, custom: {}, yourModel: { status: "off", spec: null }, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
-  keyMoments: [], liveEdge: 0, revisit: null, buildup: null,
+  keyMoments: [], liveEdge: 0, revisit: null, buildup: null, plays: [],
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null, board: {}, statRing: null,
 };
@@ -177,14 +187,60 @@ class LiveStore {
     this.send({ type: "explain_goal", goal });
   }
 
+  /** Break down any play (a shot's event id). */
+  breakdown(play: string) {
+    this.send({ type: "breakdown", play });
+  }
+
+  /** Jump to a step of the breakdown: replay into it at half speed and stop on the touch. */
+  stepTo(i: number) {
+    const b = this.state.buildup;
+    if (!b) return;
+    const k = Math.max(0, Math.min(b.steps.length - 1, i));
+    const s = b.steps[k];
+    this.lastBuildPlayer = null;
+    this.set({ buildup: { ...b, pauseAt: s.t + 0.15, playing: true } });
+    this.send({ type: "seek", t: Math.max(b.start - 2, s.t - 1.4) });
+    this.send({ type: "speed", value: 0.5 });
+    this.send({ type: "play" });
+  }
+
+  stepIndex(t: number): number {
+    const b = this.state.buildup;
+    if (!b) return -1;
+    let i = -1;
+    b.steps.forEach((s, j) => { if (s.t <= t + 0.05) i = j; });
+    return i;
+  }
+
+  stepNext() { this.stepTo(this.stepIndex(this.state.t) + 1); }
+  stepPrev() { this.stepTo(this.stepIndex(this.state.t) - 1); }
+
+  /** Play the rest of the breakdown without stopping (or pause it). */
+  toggleBreakdown() {
+    const b = this.state.buildup;
+    if (!b) return;
+    if (this.state.paused) {
+      if (this.state.t > b.goalT + 1) { this.stepTo(0); this.set({ buildup: { ...this.state.buildup!, pauseAt: null } }); return; }
+      this.set({ buildup: { ...b, pauseAt: null, playing: true } });
+      this.send({ type: "speed", value: 0.5 });
+      this.send({ type: "play" });
+    } else {
+      this.send({ type: "pause" });
+    }
+  }
+
   /** Called as the build-up replays: follow each step's player; hand back control at the end. */
   stepBuildup(t: number) {
     const b = this.state.buildup;
     if (!b || !b.playing) return;
-    if (t > b.goalT + 3) {
+    if (b.pauseAt !== null && t >= b.pauseAt) {
+      this.set({ buildup: { ...b, pauseAt: null } });
+      this.send({ type: "pause" });
+    } else if (t > b.goalT + 2) {
+      // The play is over: hold on the final frame so it can be studied; Back to live resumes.
       this.set({ buildup: { ...b, playing: false } });
-      this.send({ type: "speed", value: b.resumeSpeed || 1 });
-      this.send({ type: "auto" });
+      this.send({ type: "pause" });
       return;
     }
     const step = [...b.steps].reverse().find((s) => s.t <= t);
@@ -196,6 +252,12 @@ class LiveStore {
   private lastBuildPlayer: string | null = null;
 
   backToLive() {
+    const b = this.state.buildup;
+    if (b) {
+      this.send({ type: "speed", value: b.resumeSpeed || 1 });
+      this.send({ type: "auto" });
+      this.send({ type: "play" });
+    }
     this.set({ buildup: null });
     this.lastBuildPlayer = null;
     const edge = this.state.liveEdge;
@@ -206,7 +268,7 @@ class LiveStore {
   private keyMoment(mo: Moment): KeyMoment {
     const who = this.name(mo.player);
     const what = mo.type === "goal" ? "Goal" : mo.type === "rating_upgrade" ? `Card ▲ ${mo.facts.to}` : mo.type === "rating_downgrade" ? `Card ▼ ${mo.facts.to}` : mo.type === "fastest_sprint" ? `${mo.facts.speed_kmh} km/h` : mo.type === "momentum_swing" ? "Momentum swing" : mo.type === "big_chance" ? "Big chance" : mo.type === "card" ? "Yellow card" : "Substitution";
-    return { id: mo.id, t: mo.t, type: mo.type, player: mo.player, label: `${what}${who ? " · " + who : ""}` };
+    return { id: mo.id, t: mo.t, type: mo.type, player: mo.player, label: `${what}${who ? " · " + who : ""}`, play: mo.type === "goal" || mo.type === "big_chance" ? mo.evidence[0] : undefined };
   }
 
   setStatRing(stat: string | null) {
@@ -318,12 +380,13 @@ class LiveStore {
         if (m.error) break;
         const resume = s.speed;
         this.set({
-          buildup: { goal: m.goal, steps: m.steps, start: m.start_t, goalT: m.goal_t, story: m.story, storyArgs: m.story_args, storySource: "stats", playing: true, at: now, resumeSpeed: resume },
-          revisit: { id: m.goal, t: m.goal_t, type: "goal", player: m.scorer, label: `Build-up · ${this.name(m.scorer)}` },
+          buildup: { goal: m.goal, kind: m.kind ?? "goal", scorer: m.scorer, steps: m.steps, start: m.start_t, goalT: m.goal_t, story: m.story, storyArgs: m.story_args, storySource: "stats", playing: true, at: now, resumeSpeed: s.buildup ? s.buildup.resumeSpeed : resume, pauseAt: null },
+          revisit: { id: m.goal, t: m.goal_t, type: m.kind === "chance" ? "big_chance" : "goal", player: m.scorer, label: `${m.kind === "chance" ? "Chance" : "Goal"} · ${this.name(m.scorer)}` },
           liveEdge: Math.max(s.liveEdge, s.t),
         });
         this.send({ type: "seek", t: Math.max(0, m.start_t - 2) });
         this.send({ type: "speed", value: 0.5 });
+        this.send({ type: "play" });
         break;
       }
       case "buildup_story":
@@ -353,7 +416,7 @@ class LiveStore {
       case "team":
         this.set({
           team: { possession: m.possession, possession_5m: m.possession_5m, momentum: m.momentum, chaos: m.chaos, score: m.score, xg: m.xg, shots: m.shots, shots_on_target: m.shots_on_target },
-          metrics: m.metrics, speed: m.speed, modelEnabled: m.model_enabled, board: m.board ?? {},
+          metrics: m.metrics, speed: m.speed, modelEnabled: m.model_enabled, board: m.board ?? {}, plays: mergePlays(s.plays, m.plays),
         });
         break;
       case "model":

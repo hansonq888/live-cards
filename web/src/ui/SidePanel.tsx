@@ -214,18 +214,42 @@ export function ViewMenu({ up = false }: { up?: boolean }) {
   );
 }
 
+/** Every attack so far that ended in a shot; open any one in the play breakdown. */
+export function Plays() {
+  const plays = useLive((s) => s.plays);
+  const meta = useLive((s) => s.meta);
+  const lang = useLang();
+  const name = (id: string) => meta?.players.find((p) => p.id === id)?.short ?? id;
+  const team = (code: string) => (meta?.home.code === code ? meta.home : meta?.away);
+  if (!plays.length) return <div className="feed"><div className="empty">Attacks that end in a shot appear here.</div></div>;
+  return (
+    <div className="feed plays">
+      {[...plays].reverse().map((p) => (
+        <button key={p.id} className="play-row" onClick={() => live.breakdown(p.id)}>
+          <span className="pr-min">{p.minute}′</span>
+          <span className="pr-main">
+            <b><i className="team-dot" style={{ ["--team" as string]: team(p.team)?.color }} />{name(p.player)}</b>
+            <span>{p.outcome === "goal" ? tr(lang, "bd_goal") : tr(lang, `out_${p.outcome}`)} · xG {p.xg.toFixed(2)}</span>
+          </span>
+          <span className={`pr-tag ${p.outcome === "goal" ? "goal" : ""}`}>{tr(lang, "bd_open")}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function SidePanel() {
-  const [tab, setTab] = useState<"feed" | "ask" | "fans" | "trace" | "metrics" | "model">("ask");
+  const [tab, setTab] = useState<"feed" | "ask" | "plays" | "fans" | "trace" | "metrics" | "model">("ask");
   return (
     <aside className="side">
       <nav className="tabs">
-        {(["ask", "feed", "fans", "trace", "metrics", "model"] as const).map((t) => (
+        {(["ask", "plays", "feed", "fans", "trace", "metrics", "model"] as const).map((t) => (
           <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-            {{ feed: "Feed", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics", model: "Model" }[t]}
+            {{ feed: "Feed", plays: "Plays", ask: "Ask", fans: "Fans", trace: "Agents", metrics: "Metrics", model: "Model" }[t]}
           </button>
         ))}
       </nav>
-      {tab === "feed" ? <Feed /> : tab === "ask" ? <Ask /> : tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : tab === "model" ? <YourModelPanel /> : <Metrics />}
+      {tab === "plays" ? <Plays /> : tab === "feed" ? <Feed /> : tab === "ask" ? <Ask /> : tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : tab === "model" ? <YourModelPanel /> : <Metrics />}
     </aside>
   );
 }

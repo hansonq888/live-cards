@@ -86,6 +86,7 @@ const UI: Record<Lang, Dict> = {
 // Director reasons (keyed by the engine), build-up captions and stats lines: templates over facts.
 const TPL: Record<Lang, Dict> = {
   en: {
+    bd_title: "Play breakdown", bd_goal: "Goal", bd_chance: "Chance", bd_step: "Touch {i} of {n}", diff: "Difficulty {d}/10", diff_0: "a routine pass", diff_1: "harder than most passes", diff_2: "a very hard pass", gain: "{m} m closer to goal", press: "Under pressure", xg: "xG {xg}", xg_n: "chances like this go in about {n} times in 10", xg_0: "fewer than 1 in 10 chances like this go in", sprint_m: "sprint speed starts at 25 km/h", shot_kmh: "struck at {kmh} km/h", out_saved: "Saved", out_off_target: "Off target", out_blocked: "Blocked", bd_open: "Break it down",
     cross_incoming: "Cross incoming: {name} arriving, xG {xg} from there", box_incoming: "Ball into the box: {name} arriving, xG {xg} from there",
     long_ball: "Long ball toward {name}", scores: "{name} scores", fastest_sprint: "{name} at {kmh} km/h, fastest sprint of the match",
     sprint: "{name} sprinting at {kmh} km/h", big_chance: "Big chance for {name}", rating_upgrade: "{name}'s card upgrades to {to}",
@@ -103,6 +104,7 @@ const TPL: Record<Lang, Dict> = {
     m_momentum: "Momentum swing: {team} take control", m_km: "{player} has covered {km} km",
   },
   es: {
+    bd_title: "Análisis de la jugada", bd_goal: "Gol", bd_chance: "Ocasión", bd_step: "Toque {i} de {n}", diff: "Dificultad {d}/10", diff_0: "un pase sencillo", diff_1: "más difícil que la mayoría", diff_2: "un pase muy difícil", gain: "{m} m más cerca de la portería", press: "Bajo presión", xg: "xG {xg}", xg_n: "ocasiones así acaban en gol unas {n} de cada 10", xg_0: "menos de 1 de cada 10 ocasiones así acaba en gol", sprint_m: "el sprint empieza en 25 km/h", shot_kmh: "disparo a {kmh} km/h", out_saved: "Parada", out_off_target: "Fuera", out_blocked: "Bloqueado", bd_open: "Analizar la jugada",
     cross_incoming: "Centro en camino: llega {name}, xG {xg} desde ahí", box_incoming: "Balón al área: llega {name}, xG {xg} desde ahí",
     long_ball: "Balón largo hacia {name}", scores: "¡Marca {name}!", fastest_sprint: "{name} a {kmh} km/h, el sprint más rápido del partido",
     sprint: "{name} esprinta a {kmh} km/h", big_chance: "Ocasión clara para {name}", rating_upgrade: "La carta de {name} sube a {to}",
@@ -120,6 +122,7 @@ const TPL: Record<Lang, Dict> = {
     m_momentum: "Cambio de dinámica: {team} toma el control", m_km: "{player} ya ha recorrido {km} km",
   },
   fr: {
+    bd_title: "Décryptage de l'action", bd_goal: "But", bd_chance: "Occasion", bd_step: "Touche {i} sur {n}", diff: "Difficulté {d}/10", diff_0: "une passe simple", diff_1: "plus dure que la plupart", diff_2: "une passe très difficile", gain: "{m} m gagnés vers le but", press: "Sous pression", xg: "xG {xg}", xg_n: "ce type d'occasion finit au fond environ {n} fois sur 10", xg_0: "moins d'une fois sur 10 au fond", sprint_m: "le sprint commence à 25 km/h", shot_kmh: "frappe à {kmh} km/h", out_saved: "Arrêté", out_off_target: "Non cadré", out_blocked: "Contré", bd_open: "Décrypter l'action",
     cross_incoming: "Centre en approche : {name} arrive, xG {xg} de là", box_incoming: "Ballon dans la surface : {name} arrive, xG {xg} de là",
     long_ball: "Ballon long vers {name}", scores: "{name} marque", fastest_sprint: "{name} à {kmh} km/h, sprint le plus rapide du match",
     sprint: "{name} sprinte à {kmh} km/h", big_chance: "Grosse occasion pour {name}", rating_upgrade: "La carte de {name} passe à {to}",
@@ -137,6 +140,7 @@ const TPL: Record<Lang, Dict> = {
     m_momentum: "Bascule du match : {team} prend le contrôle", m_km: "{player} a parcouru {km} km",
   },
   pt: {
+    bd_title: "Análise da jogada", bd_goal: "Gol", bd_chance: "Chance", bd_step: "Toque {i} de {n}", diff: "Dificuldade {d}/10", diff_0: "um passe simples", diff_1: "mais difícil que a maioria", diff_2: "um passe muito difícil", gain: "{m} m mais perto do gol", press: "Sob pressão", xg: "xG {xg}", xg_n: "chances assim viram gol cerca de {n} em 10 vezes", xg_0: "menos de 1 em 10 chances assim vira gol", sprint_m: "o sprint começa em 25 km/h", shot_kmh: "chute a {kmh} km/h", out_saved: "Defendido", out_off_target: "Para fora", out_blocked: "Bloqueado", bd_open: "Analisar a jogada",
     cross_incoming: "Cruzamento a caminho: {name} chegando, xG {xg} dali", box_incoming: "Bola na área: {name} chegando, xG {xg} dali",
     long_ball: "Bola longa para {name}", scores: "{name} marca!", fastest_sprint: "{name} a {kmh} km/h, o sprint mais rápido da partida",
     sprint: "{name} em sprint a {kmh} km/h", big_chance: "Grande chance para {name}", rating_upgrade: "A carta de {name} sobe para {to}",
@@ -154,6 +158,7 @@ const TPL: Record<Lang, Dict> = {
     m_momentum: "Virada no jogo: {team} assume o controle", m_km: "{player} já percorreu {km} km",
   },
   ar: {
+    bd_title: "تحليل اللعبة", bd_goal: "هدف", bd_chance: "فرصة", bd_step: "اللمسة {i} من {n}", diff: "الصعوبة {d}/10", diff_0: "تمريرة سهلة", diff_1: "أصعب من معظم التمريرات", diff_2: "تمريرة صعبة جدًا", gain: "اقترب {m} م من المرمى", press: "تحت الضغط", xg: "xG {xg}", xg_n: "مثل هذه الفرص تُسجَّل نحو {n} مرات من 10", xg_0: "أقل من مرة من كل 10 فرص مماثلة تُسجَّل", sprint_m: "يبدأ العدو السريع من 25 كم/س", shot_kmh: "تسديدة بسرعة {kmh} كم/س", out_saved: "تصدٍّ", out_off_target: "خارج المرمى", out_blocked: "مُبعدة", bd_open: "حلّل اللعبة",
     cross_incoming: "عرضية قادمة: {name} يصل، xG {xg} من هناك", box_incoming: "كرة داخل المنطقة: {name} يصل، xG {xg} من هناك",
     long_ball: "كرة طويلة نحو {name}", scores: "{name} يسجل", fastest_sprint: "{name} بسرعة {kmh} كم/س، أسرع انطلاقة في المباراة",
     sprint: "{name} ينطلق بسرعة {kmh} كم/س", big_chance: "فرصة كبيرة لـ {name}", rating_upgrade: "بطاقة {name} ترتفع إلى {to}",
@@ -189,7 +194,7 @@ const REASONS: Record<string, Record<Lang, string>> = {
 const fill = (s: string, a: Args = {}) => s.replace(/\{(\w+)\}/g, (_, k) => (a[k] === undefined || a[k] === null ? "" : String(a[k])));
 
 export function t(lang: Lang, key: string, args?: Args): string {
-  return fill(UI[lang]?.[key] ?? UI.en[key] ?? key, args);
+  return fill(UI[lang]?.[key] ?? TPL[lang]?.[key] ?? UI.en[key] ?? TPL.en[key] ?? key, args);
 }
 
 export function tpl(lang: Lang, key: string, args?: Args): string {
@@ -217,6 +222,7 @@ export function stepCaption(lang: Lang, s: StepLike): string {
     case "sprint": return tpl(lang, "sprint_step", { name: a.name, kmh: Number(a.kmh).toFixed(1), fastest: a.fastest ? tpl(lang, "fastest_tag") : "" });
     case "shot": return tpl(lang, "shot", { name: a.name, m: a.m, xg: Number(a.xg).toFixed(2) });
     case "goal": return a.kmh ? tpl(lang, "goal_step", { kmh: a.kmh }) : t(lang, "goal");
+    case "end": return tpl(lang, `out_${a.outcome}`);
     default: return s.text;
   }
 }
@@ -253,4 +259,25 @@ export function statsLine(lang: Lang, type: string, f: Args, player: string, eng
     case "distance_milestone": return L("m_km", { player, km: f.km });
     default: return english;
   }
+}
+
+/** What a step's numbers mean, in words. The numbers come from the engine; the meaning is a
+ *  fixed rule here (difficulty bands, xG as "n in 10"), so nothing is guessed. */
+export function stepMeaning(lang: Lang, s: StepLike): { label: string; meaning?: string }[] {
+  const a = s.args ?? {};
+  const out: { label: string; meaning?: string }[] = [];
+  if (s.kind === "pass") {
+    const d = Number(a.difficulty);
+    if (!Number.isNaN(d)) out.push({ label: tpl(lang, "diff", { d: d.toFixed(1) }), meaning: tpl(lang, d >= 6.5 ? "diff_2" : d >= 4.5 ? "diff_1" : "diff_0") });
+    if (Number(a.gain) > 0) out.push({ label: tpl(lang, "gain", { m: a.gain }) });
+    if (a.pressure) out.push({ label: tpl(lang, "press") });
+  } else if (s.kind === "shot") {
+    const q = Number(a.xg), n = Math.round(q * 10);
+    out.push({ label: tpl(lang, "xg", { xg: q.toFixed(2) }), meaning: n >= 1 ? tpl(lang, "xg_n", { n }) : tpl(lang, "xg_0") });
+    if (a.kmh) out.push({ label: tpl(lang, "shot_kmh", { kmh: a.kmh }) });
+    if (a.pressure) out.push({ label: tpl(lang, "press") });
+  } else if (s.kind === "sprint") {
+    out.push({ label: `${Number(a.kmh).toFixed(1)} km/h`, meaning: tpl(lang, "sprint_m") });
+  }
+  return out;
 }

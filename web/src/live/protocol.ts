@@ -91,6 +91,8 @@ export interface AnalystView {
 
 export interface ModelSpec { name: string; rating_weights: Record<string, number>; attr_weights: Record<string, Record<string, number>> }
 
+export interface Play { id: string; t: number; minute: number; player: string; team: string; outcome: string; xg: number }
+
 export interface BuildStep { t: number; kind: string; player: string; text: string; evidence: string[]; args?: Record<string, string | number | boolean | null> }
 
 export interface TraceStep {
@@ -126,7 +128,7 @@ export type ServerMsg =
   | { type: "variants"; cue: string; moment: string; moment_type: string; player: string | null; t: number; base: string; variants: Variant[] }
   | { type: "profile"; key: string }
   | { type: "history"; moments: Moment[] }
-  | { type: "buildup"; error?: string; goal: string; team: string; scorer: string; start_t: number; goal_t: number; story: string; story_args?: Record<string, string | number>; steps: BuildStep[] }
+  | { type: "buildup"; error?: string; goal: string; kind?: "goal" | "chance"; team: string; scorer: string; start_t: number; goal_t: number; story: string; story_args?: Record<string, string | number>; steps: BuildStep[] }
   | { type: "buildup_story"; goal: string; text: string; source: string; localized?: string | null; lang?: string }
   | { type: "answer_status"; id: string; question: string; stage: string }
   | { type: "answer"; id: string; question: string; text: string; verified: boolean; source: string; evidence: string[]; tools: string[]; ms: number; problems: string[]; minute: number }
@@ -147,6 +149,7 @@ export type ServerMsg =
       speed: number;
       model_enabled: boolean;
       board: Record<string, Record<string, number>>; // player -> rating + attributes
+      plays?: Play[]; // every attack so far that ended in a shot
     }
   | { type: "model"; enabled: boolean }
   | { type: "seeked"; t: number }
@@ -164,4 +167,5 @@ export type ClientMsg =
   | { type: "redteam" }
   | { type: "ask"; id: string; question: string }
   | { type: "explain_goal"; goal?: string }
+  | { type: "breakdown"; play: string }
   | { type: "your_model"; spec: ModelSpec | null };

@@ -33,6 +33,7 @@ from livecards.agents.redteam import RedTeamAgent
 from livecards.agents.reviewer import make_reviewer
 from livecards.agents.verifier import check
 from livecards.contracts import FPS, Moment
+from livecards.engine import metrics as mx
 from livecards.engine.buildup import build_up
 from livecards.engine.engine import MatchEngine
 from livecards.replay import positions
@@ -98,11 +99,12 @@ def tick(match: Match, engine: MatchEngine, director: AutoDirector, i: int,
 
 
 def job_for_story(b: dict, meta) -> ExplainJob:
-    """The explain job for a goal's one-line story: its facts and the players involved."""
+    """The explain job for a play's one-line story: its facts and the players involved."""
     names = {n for p in meta.players if p.id in b["players"] for n in (p.name, p.short)}
     goal_step = b["steps"][-1]
     story_moment = Moment(id=f"{b['goal']}-story", t=b["goal_t"], minute=int(b["goal_t"] // 60),
-                          type="goal", player=b["scorer"], team=b["team"], importance=1.0,
+                          type="goal" if b.get("kind", "goal") == "goal" else "big_chance",
+                          player=b["scorer"], team=b["team"], importance=1.0,
                           facts=b["facts"], evidence=[s["evidence"][0] for s in b["steps"]] or
                           goal_step["evidence"], template=b["story"])
     return ExplainJob(moment=story_moment, facts=b["facts"], names=names, template=b["story"])
@@ -256,6 +258,8 @@ class LiveSession:
             self._spawn(self._set_model(msg.get("spec")))  # building takes a moment; don't block
         elif kind == "explain_goal":
             self._spawn(self._explain_goal(msg.get("goal")))
+        elif kind == "breakdown":
+            self._spawn(self._explain_goal(None, play_id=msg.get("play")))
         elif kind == "model":
             plane().update({"features": {"ai_lines": bool(msg.get("enabled"))}})
             await self.send({"type": "model", "enabled": self.model_enabled})
@@ -432,16 +436,25 @@ class LiveSession:
         if self.director.current:
             await self._send_card(self.director.current.target)
 
-    async def _explain_goal(self, goal_id: str | None) -> None:
-        """Build-up of a goal (the latest so far, or a given one): steps now, AI story after."""
-        goals = [m for m in self.engine.moments if m.type == "goal"]
-        if goal_id:
-            goals = [m for m in goals if m.evidence and m.evidence[0] == goal_id] or goals
-        if not goals:
-            await self.send({"type": "buildup", "error": "no goal yet"})
+    async def _explain_goal(self, goal_id: str | None, play_id: str | None = None) -> None:
+        """Break down a play: a goal (the latest so far, or a given one), or any shot by its
+        event id. Steps now, AI story after."""
+        events = self.engine.events
+        goal_ev = None
+        if play_id and play_id in events and events[play_id].type in ("shot", "goal"):
+            goal_ev = events[play_id]
+            if goal_ev.type == "shot" and goal_ev.outcome == "goal":  # break down the goal itself
+                goal_ev = next((e for e in events.values() if e.type == "goal"
+                                and e.player == goal_ev.player and e.t >= goal_ev.t), goal_ev)
+        else:
+            goals = [m for m in self.engine.moments if m.type == "goal"]
+            if goal_id:
+                goals = [m for m in goals if m.evidence and m.evidence[0] == goal_id] or goals
+            if goals:
+                goal_ev = events[goals[-1].evidence[0]]
+        if goal_ev is None:
+            await self.send({"type": "buildup", "error": "no play to break down"})
             return
-        gm = goals[-1]
-        goal_ev = self.engine.events[gm.evidence[0]]
         b = build_up(list(self.engine.events.values()), goal_ev, self.meta, self.engine.moments)
         if b is None:
             await self.send({"type": "buildup", "error": "no build-up found"})
@@ -665,4 +678,13 @@ class LiveSession:
         m["latency_p50_ms"] = lat[len(lat) // 2] if lat else None
         m["latency_p95_ms"] = lat[int(len(lat) * 0.95)] if lat else None
         return {"type": "team", **asdict(ts), "metrics": m, "speed": self.speed,
-                "model_enabled": self.model_enabled, "board": self.engine.board()}
+                "model_enabled": self.model_enabled, "board": self.engine.board(),
+                "plays": self.plays()}
+
+    def plays(self) -> list[dict]:
+        """Every attack so far that ended in a shot: the units a viewer can break down."""
+        dirs = {self.meta.home.code: self.meta.home.attack_dir,
+                self.meta.away.code: self.meta.away.attack_dir}
+        return [{"id": e.id, "t": e.t, "minute": e.minute, "player": e.player, "team": e.team,
+                 "outcome": e.outcome, "xg": mx.xg(e.x, e.y, dirs[e.team])}
+                for e in self.engine.events.values() if e.type == "shot"]
