@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "./Icon";
 import { clock, live, useLang, useLive } from "../live/store";
 import { directorReason, isRtl, statsLine, stepCaption, storyLine, t as tr, type Lang } from "../i18n";
 import { AnalystCard, TeamStrip } from "./Analyst";
@@ -255,5 +256,5 @@ export function ExplainGoalButton({ className = "" }: { className?: string }) {
   const lang = useLang();
   const goals = keys.filter((k) => k.type === "goal" && k.t <= t + 1);
   if (!goals.length) return null;
-  return <button className={`explain-goal ${className}`} onClick={() => live.explainGoal()}>{tr(lang, "explain_goal")}</button>;
+  return <button className={`explain-goal ${className}`} onClick={() => live.explainGoal()}><Icon name="replay" size={15} />{tr(lang, "explain_goal")}</button>;
 }

@@ -17,11 +17,11 @@ function pitchTexture(): THREE.CanvasTexture {
   cv.height = 68 * PX + 2 * pad;
   const g = cv.getContext("2d")!;
   for (let i = 0; i < 18; i++) {
-    g.fillStyle = i % 2 ? "#2f7d32" : "#3a8c3c";
+    g.fillStyle = i % 2 ? "#245e2a" : "#2a6a30"; // graded darker so the graphics carry
     g.fillRect((i * cv.width) / 18, 0, cv.width / 18 + 1, cv.height);
   }
-  g.strokeStyle = "rgba(255,255,255,0.92)";
-  g.fillStyle = "rgba(255,255,255,0.92)";
+  g.strokeStyle = "rgba(255,255,255,0.8)";
+  g.fillStyle = "rgba(255,255,255,0.8)";
   g.lineWidth = 3.2;
   const P = (x: number, z: number): [number, number] => [pad + (x + 52.5) * PX, pad + (z + 34) * PX];
   const rect = (x0: number, z0: number, x1: number, z1: number) => {

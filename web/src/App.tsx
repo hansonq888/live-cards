@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Icon } from "./ui/Icon";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
@@ -48,7 +49,7 @@ function Studio({ onFan }: { onFan: () => void }) {
         <nav className="views">
           <button onClick={onFan}>Fan</button>
           <button className="on">Studio</button>
-          <a href="/?view=console" target="_blank" rel="noreferrer">Console ↗</a>
+          <a href="/?view=console" target="_blank" rel="noreferrer">Console <Icon name="external" size={13} /></a>
           <a href="/?view=vision">Vision</a>
         </nav>
       </header>

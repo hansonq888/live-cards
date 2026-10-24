@@ -1,6 +1,5 @@
 import { clock, live, useLive } from "../live/store";
 
-const ICON: Record<string, string> = { goal: "⚽" };
 const TICKS = [0, 15, 30, 45, 60, 75, 90];
 
 /** Revisit: every key moment so far; click to replay it with the ring and card as they were. */
@@ -20,7 +19,6 @@ export function Timeline() {
           <button key={k.id} className={`tl-mark tl-${k.type} ${revisit?.id === k.id ? "on" : ""}`}
             style={{ left: pct(k.t) }} data-label={`${clock(k.t)} · ${k.label}`} aria-label={`${clock(k.t)} ${k.label}`}
             onClick={() => live.revisitMoment(k)}>
-            {ICON[k.type] ?? ""}
           </button>
         ))}
         <div className="tl-head" style={{ left: pct(t) }} />

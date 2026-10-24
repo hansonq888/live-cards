@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Icon } from "./Icon";
 import { clock, live, STAT_RINGS, useLang, useLive } from "../live/store";
 import { isRtl, t as tr } from "../i18n";
 import { YourModelPanel } from "./YourModel";
@@ -207,7 +208,7 @@ export function ViewMenu({ up = false }: { up?: boolean }) {
   const lang = useLang();
   return (
     <div className={`view-menu ${up ? "up" : ""}`}>
-      <button className={`switch-view ${open ? "on" : ""}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>{tr(lang, "view")} ▾</button>
+      <button className={`switch-view ${open ? "on" : ""}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>{tr(lang, "view")} <Icon name="chevron" size={14} /></button>
       {open && <div className="fb-pop"><ProfilePicker /><StatRingPicker /></div>}
     </div>
   );
@@ -245,7 +246,7 @@ export function Controls() {
         </button>
         <button className="danger" onClick={() => live.send({ type: "redteam" })}>Red team</button>
       </div>
-      <button className="play-main" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}>{paused ? "▶" : "❚❚"}</button>
+      <button className="play-main" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={20} /></button>
       <div className="c-side right">
         <select className="ring-pick" value="" onChange={(e) => e.target.value && live.send({ type: "seek", t: Number(e.target.value) })} aria-label="Jump to">
           <option value="">Jump to…</option>
@@ -254,7 +255,7 @@ export function Controls() {
           <option value="5210">87′ · late winner</option>
         </select>
         <div className="view-menu up">
-          <button className={settings ? "on" : ""} onClick={() => setSettings((o) => !o)} aria-expanded={settings} aria-label="Settings">⚙{speed !== 1 ? ` ${speed}×` : ""}</button>
+          <button className={settings ? "on" : ""} onClick={() => setSettings((o) => !o)} aria-expanded={settings} aria-label="Settings"><Icon name="settings" />{speed !== 1 ? ` ${speed}×` : ""}</button>
           {settings && (
             <div className="fb-pop">
               <span className="pop-label">Playback speed</span>

@@ -1,6 +1,7 @@
 // Vision view (?view=vision): the ring on real footage, with no tracking system. Players were
 // found and tracked offline by vision/track_clip.py (pretrained YOLO + ByteTrack, no training);
 // this page plays the clip and draws the tracks in sync with the video's own frames.
+import { Icon } from "../ui/Icon";
 import { useEffect, useRef, useState } from "react";
 
 type Team = "light" | "dark" | "other";
@@ -139,7 +140,7 @@ export function VisionView() {
         </div>
       </div>
       <div className="vv-bar">
-        <button className="round" onClick={toggle} aria-label={paused ? "Play" : "Pause"}>{paused ? "▶" : "❚❚"}</button>
+        <button className="round" onClick={toggle} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={18} /></button>
         <div className="vv-copy">
           <b>No tracking system. Just a camera.</b>
           <span>Pretrained detector and tracker, no training. Click any player to follow them.</span>
