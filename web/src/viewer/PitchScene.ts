@@ -6,7 +6,7 @@ import type { MatchMeta } from "../live/protocol";
 export interface PlayerPose { id: string; x: number; y: number; v: number }
 
 // Ring colour comes from the theme (--ring), read when the scene is built.
-const ringColour = () => getComputedStyle(document.documentElement).getPropertyValue("--ring").trim() || "#ff7a1a";
+const ringColour = () => getComputedStyle(document.documentElement).getPropertyValue("--ring").trim() || "#d4ff3a";
 const TRAIL_POINTS = 48;
 const TRAIL_MS = 2200;
 
@@ -103,7 +103,7 @@ export class PitchScene {
     this.renderer = r;
 
     const s = this.scene;
-    const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#0f1115";
+    const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#0a0720";
     s.background = new THREE.Color(bg);
     s.fog = new THREE.Fog(bg, 120, 220);
     s.add(new THREE.HemisphereLight("#dfe8ff", "#2a4a22", 0.95));
@@ -123,7 +123,7 @@ export class PitchScene {
     apron.rotation.x = -Math.PI / 2;
     apron.position.y = -0.02;
     s.add(apron);
-    const boardMat = new THREE.MeshLambertMaterial({ color: "#16181d" });
+    const boardMat = new THREE.MeshLambertMaterial({ color: "#141b2b" });
     const board = new THREE.Mesh(new THREE.BoxGeometry(120, 1, 0.2),
       [boardMat, boardMat, boardMat, boardMat, new THREE.MeshBasicMaterial({ map: boardTexture(meta.home.name) }), boardMat]);
     board.position.set(0, 0.5, -39);
