@@ -188,3 +188,12 @@ def test_board_matches_cards_and_lists_only_players_on_the_pitch(played):
         card = played.card(pid)
         assert row["rating"] == card.rating
         assert {k: row[k] for k in card.attrs} == card.attrs
+
+
+def test_player_shots_on_target_add_up_to_the_team_total(played):
+    """A goal or a save is on target; each player's count must sum to the team's."""
+    for team in ("RIV", "NGT"):
+        players = sum(ps.stats.shots_on_target for ps in played.players.values() if ps.meta.team == team)
+        assert players == played.team_state().shots_on_target[team]
+    varenne = played.players["RIV-09"].stats
+    assert varenne.shots_on_target >= varenne.goals >= 1

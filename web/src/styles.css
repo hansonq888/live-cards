@@ -905,3 +905,36 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .lp-tag.goal { background: #fff; color: #160f35; }
 .lp-title { font-family: var(--headline); font-weight: 800; font-size: 21px; letter-spacing: -.4px; line-height: 1.2; margin: 14px 0 4px; color: var(--l-ink); }
 .lp-meta { margin: 0; font-size: 13.5px; color: var(--l-muted); }
+
+/* player page: club hero and facts on the left, tabs and grouped stats on the right */
+.pp-grid { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.pp-side { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 16px; }
+.pp-hero { min-height: 220px; align-items: flex-end; padding: 28px; }
+.pp-hero h1 { font-size: 48px; }
+.pp-club { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; font-size: 14px; color: rgba(255,255,255,.88); }
+.pp-club i { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.7); }
+.pp-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 14px; padding: 22px; }
+.pp-facts span { display: block; font-size: 12.5px; color: var(--l-muted); margin-bottom: 4px; }
+.pp-facts b { font-family: var(--display); font-weight: 700; font-size: 16px; }
+.pp-actions { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pp-actions .l-btn { justify-content: center; align-self: stretch; }
+.pp-tabs { display: flex; gap: 24px; margin-bottom: 18px; box-shadow: inset 0 -1px 0 var(--l-line); }
+.pp-tabs button { background: none; border: 0; padding: 10px 0; font: inherit; font-size: 16px; color: var(--l-muted); cursor: pointer; box-shadow: inset 0 -3px 0 transparent; }
+.pp-tabs button.on { color: var(--l-ink); font-weight: 700; box-shadow: inset 0 -3px 0 var(--l-accent); }
+.pp-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+.pp-tiles .l-card { padding: 18px 20px; }
+.pp-tiles span { font-family: var(--display); font-weight: 600; font-size: 15px; }
+.pp-tiles b { display: block; margin-top: 10px; font-family: var(--headline); font-weight: 900; font-size: 40px; letter-spacing: -1px; line-height: 1; }
+.pp-tiles small { font-size: 16px; font-weight: 600; color: var(--l-muted); }
+.pp-explained, .pp-group { padding: 20px 22px; }
+.pp-explained h3, .pp-group h3 { margin: 0 0 8px; font-family: var(--headline); font-weight: 800; font-size: 19px; letter-spacing: -.3px; }
+.pp-row { display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 12px 0; box-shadow: inset 0 -1px 0 var(--l-line); }
+.pp-row > span { color: var(--l-muted); font-size: 14px; }
+.pp-row b { font-family: var(--display); font-weight: 700; font-size: 18px; }
+.pp-row p { margin: 2px 0 0; color: var(--l-muted); font-size: 13.5px; }
+.pp-link { display: inline-block; margin-top: 12px; color: var(--l-accent); text-decoration: none; font-weight: 600; font-size: 14px; }
+.pp-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pp-stat { display: flex; justify-content: space-between; align-items: baseline; padding: 11px 0; font-size: 15px; box-shadow: inset 0 -1px 0 var(--l-line); }
+.pp-stat:last-child { box-shadow: none; }
+.pp-stat b { font-family: var(--display); font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 1000px) { .pp-grid, .pp-groups { grid-template-columns: 1fr; } .pp-side { position: static; } .pp-tiles { grid-template-columns: repeat(2, 1fr); } }

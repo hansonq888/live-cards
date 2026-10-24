@@ -258,6 +258,7 @@ class MatchEngine:
         touched = set()
         on_target = e.outcome in ("goal", "saved")
         if on_target:
+            s.shots_on_target += 1
             touched.add(self._rate(e.player, e, "shot_on_target"))
         self._streak(e.player, on_target, e.id)
         key = self.last_pass.get(e.team)
