@@ -145,6 +145,12 @@ Collected Oct 24 as the product became an analysis platform. Pick and rewrite wh
   women's and academy football) could use space control too. Label this roadmap: events
   (who passed to whom) from video are a further step.
 
+**Immersive, not a table**
+- Stats sites give you tables and charts. Live Cards puts you inside the moment: the match
+  replays in 3D, the ring follows each touch, the pitch shades with space as it opens up, and
+  the explanation arrives at the touch it's about. You learn by watching, not by reading.
+- Line to try: "Other stats sites show you the numbers. Live Cards puts you inside the play."
+
 **Trust (keep, it's measured)**
 - 0 of 275 planted lies aired in the safety evaluation; two independent checks (code verifier and
   reasoning reviewer); a red-team button that tries to make it lie on screen.
