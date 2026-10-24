@@ -16,17 +16,50 @@ without permission.
 
 **Live Cards: every number explains itself.**
 
-Fans watching football see stats with no story, and AI commentary they can't trust. Live Cards
-puts a ring under any player and gives them a live card that updates and explains every change
-in their language and voice, and nothing airs until it's checked against the match data.
+Football fans get stats with no story, and AI commentary they can't trust. Live Cards puts a
+ring under any player and gives them a live card that updates and explains every change, in
+the fan's language, depth and club voice. Nothing airs until it's checked against the match data.
 
 A team of agents on **Microsoft Foundry**, orchestrated with **Microsoft Agent Framework**:
 a predictive auto-director, an Explainer, a code verifier plus a reasoning reviewer that block
-unsupported claims, and a Personalizer that fans each verified moment out to casual and analyst
-fans in five languages. Broadcasters get a control console and machine-readable overlay cues.
+unsupported claims, a tool-calling Q&A agent, and a Personalizer that fans each verified moment
+out to five languages. Broadcasters get a control console, an audit log and machine-readable
+overlay cues.
 
-*Measured: 0 unverified lines aired across N matches; instant stats line in under 100 ms; AI
-line p50 X s.* Report only measured numbers; fill these in Sunday.
+*Measured: 0 of 275 planted lies aired; the stats line airs instantly (0.3 ms to verify); the
+AI line follows in about 3.3 s in the cloud.*
+
+## Submission description (paste into the project page)
+
+**What we built.** Live Cards is a live match-insights layer for football broadcasts and
+streams. A ring follows any player; their card (a 0–10 rating and five attributes) updates as
+events happen, and every change carries its reason and the events behind it. Fans can ask
+questions, replay key moments, and choose casual or analyst depth in English, Spanish, French,
+Portuguese or Arabic, with a neutral or home/away voice. Analysts can plug in their own rating
+weights and compare. Broadcasters get a console with kill switches, a human-approval mode and an
+audit log, and every on-screen element is also a timed JSON overlay cue for a graphics partner.
+
+**The problem.** Live stats are numbers without reasons, and generative commentary can state
+things that never happened. A broadcaster can't air either at scale. Live Cards separates the
+two jobs: deterministic code computes every number, agents only write the words around them,
+and two independent checks (a code verifier and a reasoning reviewer) must pass before
+anything airs. In our 330-line evaluation, 0 of 275 planted lies got through.
+
+**Microsoft technology.**
+- **Microsoft Foundry:** gpt-4.1-mini (Explainer, Personalizer, Q&A) and gpt-5-mini (Reviewer);
+  Foundry's built-in evaluators score the Explainer (groundedness, fluency, coherence) and the
+  Q&A agent (intent resolution, task adherence, tool-call accuracy).
+- **Microsoft Agent Framework:** workflows with conditional edges (explain → verify → review →
+  rewrite or fall back → publish), a fan-out/fan-in Personalizer, a tool-calling Q&A agent,
+  OpenTelemetry spans.
+- **Azure Container Apps** + Container Registry: hosts the API, live streams and web app.
+- **Azure Event Hubs:** the match feed (simulator publishes, engine ingests).
+- **Azure Web PubSub:** pushes audit entries, approvals and control changes to every console.
+- **Azure Cosmos DB:** the permanent audit log of every line aired, blocked or held.
+- **Application Insights:** traces each moment through every agent and service.
+
+**Data.** Everything is synthetic: fictional clubs, players and venue, from our own 10 fps
+simulator with planted storylines.
 
 ## Why it beats today's player-tracking overlays
 
@@ -48,19 +81,26 @@ Say this as a story in the video, not a table: *"Rings and stat cards came to ba
 season. We built them for football, and made them smarter: predictive, explainable,
 personal, and verified."*
 
-## Video script (target 1:50)
+## Video script (target 1:50): "pull back the curtain"
 
-| Time | Shot | Voiceover (draft, rewrite in your words) | Brief stage on screen |
+Structure: start as a fan, then open the studio, then the control room. Each layer reveals the
+machinery under the one before. Record at 1600×900; voiceover in your own words.
+
+| Time | Shot | Voiceover (draft) | Brief stage |
 |---|---|---|---|
-| 0:00–0:08 | Cold open: ring glides to Varenne as the cross comes in, GOAL, card 7.2 → 8.7 | "This ring knew where the goal was coming from before the ball got there." | |
-| 0:08–0:18 | Title card + one line | "Rings and stat cards came to basketball last season. Football has nothing like it. This is Live Cards." | |
-| 0:18–0:40 | Replay the move: sprint alert 34 km/h, PREDICTED ticker, instant stats line, AI line replaces it | "Every change explains itself: the stats appear instantly, then a verified sentence." | Ingest → Interpret → Explain → Render |
-| 0:40–0:55 | Fans tab: same goal, analyst / Spanish home fan / Arabic / French away fan | "Same moment, four fans, each version re-checked in its own language." | Personalize |
-| 0:55–1:10 | Red-team button: false claim injected, Verifier blocks, rewrite airs | "We tried to make it lie. It refused." | Explain (trust) |
-| 1:10–1:20 | Kill switch: model off, templates keep airing, metrics show 0 unverified | "Take the AI down mid-match and nothing breaks." | |
-| 1:20–1:32 | Ask: "Why did his rating jump?", verified answer with evidence | "Ask it anything. It only answers what it can prove." | |
-| 1:32–1:45 | Architecture (Foundry, Agent Framework workflow graph, Container Apps, Event Hubs, Web PubSub, App Insights trace) | "Six agents on Microsoft Foundry, orchestrated with Agent Framework, running on Azure." | |
-| 1:45–1:50 | Optional 3-second real-footage clip with the ring, then end card with the URL | "Built for football. Ready for any league." | |
+| 0:00–0:08 | **Fan view.** Cold open at 64:50: Okelani sprint alert, ring glides to Varenne *before* the cross lands, GOAL | "This ring knew where the goal was coming from before the ball got there." | Ingest, Render |
+| 0:08–0:16 | Card 7.2 → 8.7 with the stats line, then the AI line replaces it with "verified" | "Rings and stat cards came to basketball last season. We built them for football, and every change explains itself." | Interpret, Explain |
+| 0:16–0:28 | Press **Explain the goal**: half-speed replay, ring follows each touch, captions per step | "Want the why? It rebuilds the move from the event data, touch by touch." | Explain |
+| 0:28–0:42 | Switch language to Spanish + home voice; then **Studio → Fans tab**: analyst, Spanish home fan, Arabic, French | "Same moment, four fans. Different depth, language and voice, each re-checked in its own language." | Personalize |
+| 0:42–0:54 | **Studio → Analyst mode**: rating ledger, attributes vs role baseline; **Your model** sets pressured passes to 0 → 8.67 vs 7.80 | "Analysts see every formula, and can plug in their own." | Interpret, Personalize |
+| 0:54–1:04 | **Ask**: "Why did Varenne's rating jump?" → answer with evidence chips | "Ask it anything. It answers only what it can prove." | Explain |
+| 1:04–1:18 | **Red-team** button: false claim injected, Verifier blocks it, Reviewer passes the rewrite, correct line airs | "We built a button that makes it lie. Out of 275 planted lies, none aired." | Trust |
+| 1:18–1:32 | **Console**: approval mode holds a line, operator approves; kill switch turns the AI off and the stats line keeps airing; audit log | "Broadcasters stay in control: approve, switch off, audit every line." | Enterprise |
+| 1:32–1:46 | Architecture diagram (README mermaid), App Insights trace of one moment, Foundry evaluation page | "Agents on Microsoft Foundry, orchestrated with Agent Framework, streaming through Event Hubs and Web PubSub on Container Apps." | |
+| 1:46–1:50 | End card: name, live URL, repo URL. Optional 3-second real-footage clip before it. | "Live Cards. Every number explains itself." | |
+
+Check before recording: start the live site with `?start=3890` so the sprint and goal arrive
+in the first seconds; set Studio speed to 1×; close other tabs (Foundry rate limits).
 
 ## Bigger "better than" ideas (not committed; pitch to Hanson first)
 
@@ -75,5 +115,5 @@ personal, and verified."*
 - [ ] Decide whether `CLAUDE.md` (internal brief and competitive notes) stays, gets trimmed, or moves out.
 - [ ] Confirm the license of `vision/vision_test.jpg` allows redistribution, or remove it.
 - [ ] `git log` and the tree contain no secrets (`backend/.env` is ignored; check again).
-- [ ] README top: GIF, live URL, video link.
+- [x] README top: GIF, live URL. Add the video link once uploaded.
 - [ ] Repo, video and live URL all open in a logged-out browser.

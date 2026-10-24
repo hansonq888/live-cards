@@ -129,8 +129,7 @@ button { font: inherit; }
 .ac-adv span { font-size: 8.5px; color: var(--dim); text-transform: uppercase; letter-spacing: .3px; }
 .ac-line { margin-top: 8px; font-size: 11.5px; line-height: 1.35; color: #e9d5ff; border-top: 1px solid rgba(167,139,250,.3); padding-top: 6px; }
 .ac-formula { margin-top: 5px; font-family: ui-monospace, monospace; font-size: 9px; color: var(--dim); }
-.team-strip { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: flex; gap: 2px; background: rgba(8,12,20,.88); border: 1px solid rgba(167,139,250,.4); border-radius: 8px; padding: 5px 6px; pointer-events: none; }
-.team-strip ~ .revisit-badge { top: 64px; }
+.team-strip { position: absolute; left: 20px; top: 62px; display: flex; gap: 2px; background: rgba(8,12,20,.88); border: 1px solid rgba(167,139,250,.4); border-radius: 8px; padding: 5px 6px; pointer-events: none; }
 .ts-cell { padding: 0 9px; border-right: 1px solid var(--line); display: flex; flex-direction: column; justify-content: center; }
 .ts-cell:last-child { border-right: 0; }
 .ts-cell span { font-size: 8.5px; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
