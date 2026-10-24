@@ -1765,3 +1765,4 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .card-bust .avatar { display: block; filter: drop-shadow(0 6px 10px rgba(5,3,20,.35)); }
 .card .card-id, .card .card-meta { padding-right: 92px; }
 .card .form { position: relative; margin-top: 18px; padding-top: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.card-dock .card { top: auto !important; right: auto !important; left: auto !important; width: 100% !important; margin: 0; }
