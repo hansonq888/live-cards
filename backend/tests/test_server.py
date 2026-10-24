@@ -181,3 +181,13 @@ def test_summary_has_every_play_and_player():
     assert len([p for p in s["plays"] if p["outcome"] == "goal"]) == sum(s["score"].values())
     assert len(s["players"]) >= 22 and all(0 <= p["rating"] <= 10 for p in s["players"])
     assert s["examples"]["xg"] in {p["id"] for p in s["plays"]}
+
+
+def test_summary_team_totals_and_events_agree_with_the_score():
+    from livecards.server.summary import summary
+    s = summary(7)
+    goals = [e for e in s["events"] if e["type"] == "goal"]
+    assert len(goals) == sum(s["score"].values())
+    home, away = s["meta"]["home"]["code"], s["meta"]["away"]["code"]
+    assert abs(s["team"][home]["possession"] + s["team"][away]["possession"] - 100) < 0.5
+    assert all(s["team"][c]["shots"] >= s["team"][c]["shots_on_target"] for c in (home, away))

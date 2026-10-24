@@ -9,6 +9,8 @@ export interface PlayerSummary {
 export interface Summary {
   meta: MatchMeta; score: Record<string, number>; plays: Play[]; players: PlayerSummary[];
   examples: Record<string, string | null>;
+  team: Record<string, Record<string, number>>;
+  events: { minute: number; t: number; type: string; team: string; player: string; off?: string }[];
 }
 
 let cached: Promise<Summary> | null = null;

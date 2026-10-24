@@ -2,7 +2,7 @@
 import type { ReactNode } from "react";
 import { Wordmark } from "../ui/Wordmark";
 
-const LINKS = [["home", "Home"], ["watch", "Watch"], ["analyse", "Analyse"], ["learn", "Learn"], ["players", "Players"]] as const;
+const LINKS = [["home", "Home"], ["watch", "Match"], ["analyse", "Analyse"], ["learn", "Learn"], ["players", "Players"]] as const;
 
 export function Shell({ page, children }: { page: string; children: ReactNode }) {
   return (
