@@ -73,6 +73,12 @@ function MatchCentre({ s }: { s: Summary }) {
   const keyPlays = [...s.plays].sort((a, b) => (b.outcome === "goal" ? 1 : 0) - (a.outcome === "goal" ? 1 : 0) || b.xg - a.xg).slice(0, 4);
   return (
     <div className="mc">
+      <section className="mc-plays">
+        <div className="l-head"><h2>Key plays</h2><a href="/?page=analyse">All {s.plays.length} plays</a></div>
+        <div className="plays-grid four">
+          {keyPlays.map((p) => <PlayCard key={p.id} play={p} title={`${name(p.player)} · ${p.outcome === "goal" ? "goal" : "chance"}`} />)}
+        </div>
+      </section>
       <section className="l-card mc-timeline">
         <h2 className="mc-h">Match timeline</h2>
         <div className="mc-teams"><span><i style={{ background: home.color }} />{home.name}</span><span>{away.name}<i style={{ background: away.color }} /></span></div>
@@ -122,12 +128,6 @@ function MatchCentre({ s }: { s: Summary }) {
       </section>
       <BoxScore s={s} />
       <Clubs s={s} />
-      <section className="mc-plays">
-        <div className="l-head"><h2>Key plays</h2><a href="/?page=analyse">All {s.plays.length} plays</a></div>
-        <div className="plays-grid four">
-          {keyPlays.map((p) => <PlayCard key={p.id} play={p} title={`${name(p.player)} · ${p.outcome === "goal" ? "goal" : "chance"}`} />)}
-        </div>
-      </section>
     </div>
   );
 }

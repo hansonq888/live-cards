@@ -2098,8 +2098,6 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .l-play.feature .lp-title { font-size: 40px !important; }
 .vs2-name { font-size: 22px !important; }
 /* hard edges everywhere */
-.l-card, .lp-visual, .hero-card, .vs2, .pp-hero2, .mc-player, .ls-lesson, .stat-tile, .ls-example, .bx, .mc-clubs, .card, .l-player, .pp-group, .pp-explained, .an-panel, .an-stage, .sp-stage, details, .lse-bust { border-radius: 4px !important; }
-.l-btn, .hc-btn, .lp-tag, .vs2-tag, .mc-form, .pp2-pos, .numbers-btn, .hood-btn, .an-exit, .fan-back { border-radius: 3px !important; }
 .l-card, .l-player, .ls-lesson, .bx, .mc-clubs { box-shadow: var(--hard) !important; }
 .hero-card, .vs2, .pp-hero2, .lp-visual { box-shadow: 6px 6px 0 var(--plum) !important; }
 .l-play:hover .lp-visual { box-shadow: 9px 9px 0 var(--plum) !important; transform: translate(-3px, -3px); }
@@ -2140,3 +2138,23 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .pp2-id h1 { font-size: 52px !important; }
 .pp-tiles b, .pp-tiles .l-num { font-family: var(--poster) !important; font-style: italic; font-weight: 900 !important; font-size: 44px !important; }
 .pp-tiles .l-card { border-top: 4px solid var(--plum) !important; }
+/* Player page: the earlier hero and facts card, in the rugged look */
+.pp-hero { background: var(--team) !important; box-shadow: 6px 6px 0 var(--plum) !important; }
+.pp-hero::before { inset: 0 0 0 46% !important; background: color-mix(in srgb, var(--team) 55%, var(--plum)) !important;
+  clip-path: polygon(34% 0, 100% 0, 100% 100%, 0 100%, 16% 72%, 4% 72%, 22% 42%, 10% 42%) !important; }
+.pp-hero::after { inset: 0 0 0 90% !important; background: #d4ff3a !important;
+  clip-path: polygon(56% 0, 100% 0, 100% 100%, 20% 100%, 40% 64%, 28% 64%, 48% 30%, 36% 30%) !important; }
+.pp-hero h1 { font-family: var(--poster) !important; font-style: italic; font-weight: 900 !important; text-transform: uppercase; font-size: 56px !important; line-height: .9 !important; letter-spacing: 0 !important; }
+.pp-hero h1 small { font-family: var(--headline); font-style: normal; text-transform: none; font-weight: 500; font-size: 17px; }
+.pp-club { font-weight: 600; }
+.pp-facts { border-top: 4px solid var(--plum) !important; }
+.pp-facts b { font-family: var(--poster); font-style: italic; font-weight: 800; font-size: 22px; text-transform: uppercase; }
+.pp-facts b.pp-clubfact { font-size: 18px; }
+.pp-actions .l-btn { text-transform: uppercase; font-weight: 800; letter-spacing: .5px; font-size: 12.5px; }
+/* Top performers: give the rating room */
+.mc-score { gap: 8px !important; padding: 14px 20px 14px 0; min-width: 120px; }
+.mc-score b { line-height: .85 !important; margin: 2px 0; }
+.mc-rl { margin-bottom: 0; }
+.pp-hero h1 { font-size: 46px !important; padding-right: 26px; }
+.pp-hero::after { opacity: 1 !important; inset: 0 0 0 93% !important; }
+.pp-facts b.pp-clubfact { font-family: var(--headline); font-style: normal; text-transform: none; font-size: 15px; font-weight: 700; }

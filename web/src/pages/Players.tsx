@@ -113,25 +113,29 @@ function PlayerPage({ p, s }: { p: PlayerSummary; s: Summary }) {
   return (
     <div className="pp-grid">
       <aside className="pp-side">
-        <section className="pp-hero2" style={{ ["--team" as string]: team.color }}>
-          <span className="pp2-num" aria-hidden="true">{p.number}</span>
-          <span className="pp2-bust"><Avatar player={p} color={team.color} size={230} bare /></span>
-          <div className="pp2-id">
-            <span className="pp2-club"><Crest code={team.code} size={26} />{team.name}</span>
-            <h1><small>{first}</small>{last}</h1>
-            <span className="pp2-pos">{p.position}<b>#{p.number}</b></span>
-          </div>
-          <div className="pp2-strip">
-            <div><span>Rating</span><b>{p.rating.toFixed(1)}</b></div>
-            <div><span>Form</span><Form rating={p.rating} /></div>
-            <div><span>Minutes</span><b>{Math.round(st.minutes)}</b></div>
+        <section className="l-phead pp-hero" style={{ ["--team" as string]: team.color }}>
+          <div className="pp-id">
+            <span className="pp-bust"><Avatar player={p} color={team.color} size={200} bare /></span>
+            <div>
+              <Crest code={team.code} size={44} className="pp-crest" />
+              <h1><small>{first}</small>{last}</h1>
+              <p className="pp-club">{p.position} · #{p.number}</p>
+            </div>
           </div>
         </section>
-        <div className="pp2-actions">
-          {goal ? <a className="l-btn primary" href={`/?page=play&play=${goal.id}`}>Break down goal</a>
-            : plays[0] && <a className="l-btn primary" href={`/?page=play&play=${plays[0].id}`}>Break down chance</a>}
-          <a className="l-btn" href="/?page=players">All players</a>
-        </div>
+        <section className="l-card pp-facts">
+          <div><span>Club</span><b className="pp-clubfact"><Crest code={team.code} size={20} />{team.name}</b></div>
+          <div><span>Position</span><b>{p.position}</b></div>
+          <div><span>Number</span><b>{p.number}</b></div>
+          <div><span>Minutes</span><b>{Math.round(st.minutes)}</b></div>
+          <div><span>Rating</span><b>{p.rating.toFixed(1)}</b></div>
+          <div><span>Form</span><b><Form rating={p.rating} /></b></div>
+          <div className="pp-actions">
+            {goal ? <a className="l-btn primary" href={`/?page=play&play=${goal.id}`}>Break down goal</a>
+              : plays[0] && <a className="l-btn primary" href={`/?page=play&play=${plays[0].id}`}>Break down chance</a>}
+            <a className="l-btn" href="/?page=players">All players</a>
+          </div>
+        </section>
       </aside>
       <div className="pp-main">
         <nav className="pp-tabs">
