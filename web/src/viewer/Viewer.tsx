@@ -19,7 +19,7 @@ function setTag(el: HTMLElement, name: string, detail: string) {
   el.replaceChildren(b, span);
 } // play slightly behind the newest frame so we can interpolate
 
-function interpolate(now: number): { poses: PlayerPose[]; ball: [number, number, number]; t: number } | null {
+export function interpolate(now: number): { poses: PlayerPose[]; ball: [number, number, number]; t: number } | null {
   const fs = live.frames;
   if (!fs.length) return null;
   const at = now - RENDER_DELAY_MS;

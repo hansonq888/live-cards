@@ -96,12 +96,13 @@ def build_up(events: list[Event], goal: Event, meta: MatchMeta,
                                "difficulty": mx.pass_difficulty(e.x, e.y, e.end_x, e.end_y, d,
                                                                 bool(e.under_pressure), e.kind),
                                "gain": round(max(0.0, mx.pass_progress(e.x, e.end_x, d))),
-                               "pressure": bool(e.under_pressure)}))
+                               "pressure": bool(e.under_pressure),
+                               "x": e.x, "y": e.y, "end_x": e.end_x, "end_y": e.end_y}))
         else:
             victim = f" from {short[e.target]}" if e.type == "tackle" and e.target else ""
             steps.append(Step(e.t, "win", e.player, f"{who} wins it{victim} {_zone(e.x, d)}", [e.id],
                               {"name": who, "from": short.get(e.target) if victim else None,
-                               "zone": _zone_key(e.x, d)}))
+                               "zone": _zone_key(e.x, d), "x": e.x, "y": e.y}))
     start_t = steps[0].t if steps else shot.t
     for m in moments:
         if m.type in ("fastest_sprint", "sprint") and m.team == team and start_t <= m.t <= goal.t:
@@ -116,7 +117,8 @@ def build_up(events: list[Event], goal: Event, meta: MatchMeta,
     steps.append(Step(shot.t, "shot", scorer, f"{short[scorer]} shoots from {dist_m} m, xG {q:.2f}",
                       [shot.id], {"name": short[scorer], "m": dist_m, "xg": q,
                                   "kmh": round(shot.speed_kmh) if shot.speed_kmh else None,
-                                  "pressure": bool(shot.under_pressure)}))
+                                  "pressure": bool(shot.under_pressure),
+                                  "x": shot.x, "y": shot.y, "goal_x": 52.5 * d}))
     if scored:
         steps.append(Step(goal.t, "goal", scorer,
                           f"GOAL at {shot.speed_kmh:.0f} km/h" if shot.speed_kmh else "GOAL",

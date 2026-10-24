@@ -1,4 +1,5 @@
 // Fan view: the broadcast, full screen, nothing else. Controls appear when you move the mouse.
+import { BoardSwitch } from "../viewer/BoardSwitch";
 import { Icon } from "./Icon";
 import { Bolt } from "./Bolt";
 import { useEffect, useRef, useState } from "react";
@@ -28,6 +29,7 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
     <div className={`fan-view ${active || askOpen || viewOpen ? "awake" : ""}`} onMouseMove={wake}>
       <ScaledStage fit="contain">
         <Viewer />
+        <BoardSwitch />
         <ScoreBug />
         <PlayerCard />
         <DirectorTicker />

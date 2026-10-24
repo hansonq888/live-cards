@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BoardSwitch } from "./viewer/BoardSwitch";
 import { Icon } from "./ui/Icon";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
@@ -84,6 +85,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
         <section className="broadcast">
           <ScaledStage>
             <Viewer />
+            <BoardSwitch />
             <ScoreBug />
             <PlayerCard />
             <DirectorTicker />
