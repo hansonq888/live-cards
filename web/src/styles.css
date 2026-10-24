@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&display=swap");
 
 :root {
   /* Ink violet, royal violet and electric lime: our own palette. */
@@ -2044,3 +2044,99 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .l-play:hover .lp-bust { transform: translateY(-4px) scale(1.03); }
 .lp-visual.media .lp-tag { z-index: 3; }
 .lp-visual.media { aspect-ratio: 16 / 9; height: auto !important; } .l-play.feature .lp-visual.media { aspect-ratio: 16 / 9.2; }
+/* Watch viewer: a way back to the match page, shown with the controls */
+.fan-back { position: absolute; top: 18px; left: 18px; z-index: 20; display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px 9px 10px; border-radius: 999px;
+  background: rgba(13,10,36,.72); backdrop-filter: blur(10px); color: #fff; font-size: 13.5px; font-weight: 600; text-decoration: none;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.14); opacity: 0; transform: translateY(-6px); transition: opacity .25s, transform .25s, background .2s; pointer-events: none; }
+.fan-back svg { transform: rotate(90deg); }
+.fan-view.awake .fan-back { opacity: 1; transform: none; pointer-events: auto; }
+.fan-back:hover { background: rgba(13,10,36,.92); }
+/* Play tiles: the site's thunder shards instead of stripes */
+.lp-visual.media::before { content: ""; position: absolute; inset: 0 0 0 30%; z-index: -1; opacity: 1;
+  background: linear-gradient(130deg, rgba(255,255,255,.26), rgba(255,255,255,.05));
+  clip-path: polygon(40% 0, 100% 0, 100% 100%, 4% 100%, 30% 52%, 20% 48%); }
+.lp-visual.media::after { content: ""; position: absolute; inset: 0 0 0 62%; z-index: -1;
+  background: linear-gradient(130deg, rgba(212,255,58,.5), rgba(212,255,58,.08));
+  clip-path: polygon(66% 0, 100% 0, 100% 100%, 26% 100%, 52% 50%, 42% 46%); }
+.lp-min { display: none; }
+/* Player page hero: club panel, giant number, the player breaking out, key numbers in a strip */
+.pp-hero2 { position: relative; overflow: hidden; isolation: isolate; border-radius: 12px; color: #fff; min-height: 380px; display: grid; grid-template-rows: 1fr auto;
+  background: radial-gradient(90% 90% at 85% 15%, color-mix(in srgb, var(--team) 60%, #fff) 0%, transparent 55%), linear-gradient(140deg, var(--team), color-mix(in srgb, var(--team) 45%, #0b0820));
+  box-shadow: 0 20px 50px rgba(30,20,90,.25); }
+.pp-hero2::before { content: ""; position: absolute; inset: 0 0 0 40%; z-index: -1; background: linear-gradient(130deg, rgba(255,255,255,.22), rgba(255,255,255,.04)); clip-path: polygon(40% 0, 100% 0, 100% 100%, 4% 100%, 30% 52%, 20% 48%); }
+.pp-hero2::after { content: ""; position: absolute; inset: 0 0 0 72%; z-index: -1; background: linear-gradient(130deg, rgba(212,255,58,.45), rgba(212,255,58,.08)); clip-path: polygon(66% 0, 100% 0, 100% 100%, 26% 100%, 52% 50%, 42% 46%); }
+.pp2-num { position: absolute; right: -10px; top: -30px; font-family: var(--headline); font-weight: 900; font-size: 260px; line-height: 1; letter-spacing: -12px; color: #fff; opacity: .12; z-index: -1; }
+.pp2-bust { position: absolute; left: -6px; bottom: 74px; line-height: 0; z-index: 0; }
+.pp2-bust .avatar { filter: drop-shadow(0 14px 24px rgba(0,0,0,.4)); }
+.pp2-id { position: relative; z-index: 1; align-self: start; margin-left: 52%; padding: 26px 22px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.pp2-club { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); }
+.pp2-id h1 { margin: 6px 0 0; font-family: var(--headline); font-weight: 700; font-size: 44px; line-height: .95; letter-spacing: -1px; text-shadow: 0 2px 14px rgba(0,0,0,.2); }
+.pp2-id h1 small { display: block; font-size: 17px; font-weight: 400; letter-spacing: 0; opacity: .85; margin-bottom: 4px; }
+.pp2-pos { align-self: flex-start; display: inline-flex; gap: 8px; align-items: center; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.16); padding: 5px 10px; border-radius: 4px; }
+.pp2-pos b { font-weight: 800; }
+.pp2-strip { position: relative; z-index: 2; grid-row: 2; display: grid; grid-template-columns: repeat(3, 1fr); background: rgba(8,5,25,.55); backdrop-filter: blur(8px); }
+.pp2-strip > div { padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; border-left: 1px solid rgba(255,255,255,.1); }
+.pp2-strip > div:first-child { border-left: 0; }
+.pp2-strip span:first-child { font-size: 10.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: rgba(255,255,255,.65); }
+.pp2-strip b { font-family: var(--headline); font-size: 24px; font-weight: 700; line-height: 1; }
+.pp2-strip .l-form-word { color: #fff; font-size: 14px; font-weight: 600; }
+.pp2-actions { display: flex; gap: 10px; margin-top: 14px; } .pp2-actions .l-btn { flex: 1; text-align: center; }
+
+/* ===== Rugged pass: poster type, hard edges, jagged slabs, no soft glow ===== */
+:root { --poster: "Barlow Condensed", "Hanken Grotesk", system-ui, sans-serif; --plum: #1c0733; --hard: 0 0 0 1px rgba(22,15,53,.1); }
+/* poster type for the loud moments */
+.hc-text h1, .l-head h2, .mc-h, .ls-hero h1, .pp2-id h1, .sp-intro h1 { font-family: var(--poster) !important; font-weight: 900 !important; text-transform: uppercase; font-style: italic; letter-spacing: -.5px !important; line-height: .92 !important; }
+.hc-text h1 { font-size: 76px !important; }
+.l-head h2, .mc-h { font-size: 34px !important; }
+.pp2-id h1 { font-size: 58px !important; } .pp2-id h1 small { font-family: var(--headline); font-style: normal; text-transform: none; font-weight: 500; }
+.ls-hero h1 { font-size: 64px !important; }
+.vs2-mid b, .mc-score b, .pp2-strip b, .card-name .last, .vs2-name, .lp-title { font-family: var(--poster) !important; font-style: italic; font-weight: 900 !important; text-transform: uppercase; letter-spacing: 0 !important; }
+.vs2-mid b { font-size: 84px !important; }
+.mc-score b { font-size: 40px !important; } .pp2-strip b { font-size: 32px !important; }
+.card-name .last { font-size: 32px !important; line-height: .9; }
+.lp-title { font-size: 26px !important; line-height: 1 !important; margin-top: 12px !important; }
+.l-play.feature .lp-title { font-size: 40px !important; }
+.vs2-name { font-size: 22px !important; }
+/* hard edges everywhere */
+.l-card, .lp-visual, .hero-card, .vs2, .pp-hero2, .mc-player, .ls-lesson, .stat-tile, .ls-example, .bx, .mc-clubs, .card, .l-player, .pp-group, .pp-explained, .an-panel, .an-stage, .sp-stage, details, .lse-bust { border-radius: 4px !important; }
+.l-btn, .hc-btn, .lp-tag, .vs2-tag, .mc-form, .pp2-pos, .numbers-btn, .hood-btn, .an-exit, .fan-back { border-radius: 3px !important; }
+.l-card, .l-player, .ls-lesson, .bx, .mc-clubs { box-shadow: var(--hard) !important; }
+.hero-card, .vs2, .pp-hero2, .lp-visual { box-shadow: 6px 6px 0 var(--plum) !important; }
+.l-play:hover .lp-visual { box-shadow: 9px 9px 0 var(--plum) !important; transform: translate(-3px, -3px); }
+.hc-btn { font-weight: 800 !important; text-transform: uppercase; letter-spacing: .6px; font-size: 13px !important; }
+/* jagged slabs: dark plum lightning cut into the hero, the page header band and play tiles */
+.hero-card::before { inset: -2px -2px -2px 52% !important; background: var(--plum) !important; opacity: .9;
+  clip-path: polygon(34% 0, 100% 0, 100% 100%, 0 100%, 16% 72%, 4% 72%, 22% 42%, 10% 42%) !important; }
+.hero-card::after { inset: 0 0 0 82% !important; background: linear-gradient(160deg, #d4ff3a, #3ddc97) !important; opacity: 1;
+  clip-path: polygon(56% 0, 100% 0, 100% 100%, 20% 100%, 40% 64%, 28% 64%, 48% 30%, 36% 30%) !important; }
+.lp-visual.media::before { inset: 0 0 0 46% !important; background: var(--plum) !important; opacity: .55;
+  clip-path: polygon(34% 0, 100% 0, 100% 100%, 0 100%, 16% 72%, 4% 72%, 22% 42%, 10% 42%) !important; }
+.lp-visual.media::after { inset: 0 0 0 80% !important; background: linear-gradient(160deg, #d4ff3a, #3ddc97) !important; opacity: .9;
+  clip-path: polygon(56% 0, 100% 0, 100% 100%, 20% 100%, 40% 64%, 28% 64%, 48% 30%, 36% 30%) !important; }
+.pp-hero2::before { inset: 0 0 0 44% !important; background: var(--plum) !important; opacity: .45;
+  clip-path: polygon(34% 0, 100% 0, 100% 100%, 0 100%, 16% 72%, 4% 72%, 22% 42%, 10% 42%) !important; }
+.pp-hero2::after { inset: 0 0 0 84% !important; background: linear-gradient(160deg, #d4ff3a, #3ddc97) !important;
+  clip-path: polygon(56% 0, 100% 0, 100% 100%, 20% 100%, 40% 64%, 28% 64%, 48% 30%, 36% 30%) !important; }
+/* section heads get a lime slash */
+.l-head h2::before, .mc-h::before { content: ""; display: inline-block; width: 8px; height: .8em; margin-right: 12px; background: linear-gradient(180deg, #d4ff3a, #3ddc97); transform: skewX(-18deg); vertical-align: -2px; }
+/* Solid + gradient mix: solid grounds and plum bolts; the lime bolt is the one gradient accent */
+.hero-card { background: #3a1fd0 !important; }
+.l-band { background: #3a1fd0 !important; }
+.l-band::before { background: var(--plum) !important; opacity: .55; }
+.l-band::after { background: #d4ff3a !important; opacity: 1; }
+.lp-visual.media { background: var(--club) !important; }
+.lp-visual.media::before { opacity: 1 !important; background: color-mix(in srgb, var(--club) 55%, var(--plum)) !important; }
+.lp-visual.media::after { background: #d4ff3a !important; }
+.vs2-team { background: var(--club) !important; }
+.vs2-bolt polygon { fill: var(--plum); opacity: .35 !important; }
+.pp-hero2 { background: var(--team) !important; }
+.pp-hero2::before { opacity: 1 !important; background: color-mix(in srgb, var(--team) 55%, var(--plum)) !important; }
+.card-hero { background: var(--team) !important; }
+.mc-player { background: var(--club) !important; }
+.lb-note { color: var(--plum) !important; font-weight: 600; }
+.hero-card.w-match::after { inset: 0 0 0 94% !important; }
+.hero-card.w-match::before { inset: -2px -2px -2px 62% !important; }
+.pp-hero2::after { inset: 0 0 0 91% !important; }
+.pp2-id h1 { font-size: 52px !important; }
+.pp-tiles b, .pp-tiles .l-num { font-family: var(--poster) !important; font-style: italic; font-weight: 900 !important; font-size: 44px !important; }
+.pp-tiles .l-card { border-top: 4px solid var(--plum) !important; }

@@ -38,6 +38,7 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
         <RevisitBadge />
         <BuildUpPanel />
       </ScaledStage>
+      <a className="fan-back" href="/?page=watch" onMouseMove={(e) => e.stopPropagation()}><Icon name="chevron" size={16} /> Back to the match</a>
       <div className="fan-bar" onMouseMove={(e) => e.stopPropagation()} onMouseEnter={() => { window.clearTimeout(timer.current); setActive(true); }}>
         <Timeline />
         <div className="fb-row">
