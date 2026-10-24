@@ -4,6 +4,7 @@ import { PlayCard } from "./PlayCard";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { stat, useRegistry } from "../live/stats";
 import { useSummary } from "./summary";
+import { Crest } from "../ui/Crest";
 
 const possessive = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
 
@@ -32,9 +33,9 @@ export function Home() {
         {meta && s && (
           <div className="hc-board">
             <div className="hb-row">
-              <span className="hb-team" style={{ background: meta.home.color }}>{meta.home.code}</span>
+              <span className="hb-team" style={{ background: meta.home.color }}><Crest code={meta.home.code} size={36} />{meta.home.code}</span>
               <span className="hb-score">{s.score[meta.home.code]}<i>–</i>{s.score[meta.away.code]}</span>
-              <span className="hb-team" style={{ background: meta.away.color }}>{meta.away.code}</span>
+              <span className="hb-team" style={{ background: meta.away.color }}><Crest code={meta.away.code} size={36} />{meta.away.code}</span>
               <span className="hb-ft">FT</span>
             </div>
             <div className="hb-names"><span>{meta.home.name}</span><span>{meta.away.name}</span></div>

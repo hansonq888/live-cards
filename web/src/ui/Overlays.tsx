@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
 import { Flame } from "./Flame";
 import { Avatar } from "./Avatar";
+import { Crest } from "./Crest";
 import { band } from "../live/stats";
 import { clock, live, useLang, useLive } from "../live/store";
 import { directorReason, isRtl, statsLine, stepCaption, stepMeaning, storyLine, t as tr, type Lang } from "../i18n";
@@ -53,9 +54,9 @@ export function ScoreBug() {
   const sc = team?.score ?? { [meta.home.code]: 0, [meta.away.code]: 0 };
   return (
     <div className="bug">
-      <div className="team" style={{ background: meta.home.color }}>{meta.home.code}</div>
+      <div className="team" style={{ background: meta.home.color }}><Crest code={meta.home.code} size={26} />{meta.home.code}</div>
       <div className="score">{sc[meta.home.code]} – {sc[meta.away.code]}</div>
-      <div className="team" style={{ background: meta.away.color }}>{meta.away.code}</div>
+      <div className="team" style={{ background: meta.away.color }}><Crest code={meta.away.code} size={26} />{meta.away.code}</div>
       <div className="clock">{clock(t)}</div>
     </div>
   );

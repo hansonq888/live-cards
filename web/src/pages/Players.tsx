@@ -6,6 +6,7 @@ import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
 import { Flame } from "../ui/Flame";
 import { Avatar } from "../ui/Avatar";
+import { Crest } from "../ui/Crest";
 import { outcomeLabel, useSummary, type PlayerSummary, type Summary } from "./summary";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
@@ -62,7 +63,7 @@ function Directory({ s }: { s: Summary }) {
       <div className="pd-bar">
         <div className="bx-tabs">
           <button className={club === "all" ? "on" : ""} onClick={() => setClub("all")}>Both clubs</button>
-          {[s.meta.home, s.meta.away].map((t) => <button key={t.code} className={club === t.code ? "on" : ""} onClick={() => setClub(t.code)}><i style={{ background: t.color }} />{t.name}</button>)}
+          {[s.meta.home, s.meta.away].map((t) => <button key={t.code} className={club === t.code ? "on" : ""} onClick={() => setClub(t.code)}><Crest code={t.code} size={20} />{t.name}</button>)}
         </div>
         <div className="pd-chips">{GROUPS.map(([k]) => <button key={k} className={group === k ? "on" : ""} onClick={() => setGroup(k)}>{k}</button>)}</div>
         <label className="pd-sort">Sort by <select value={sort} onChange={(e) => setSort(e.target.value)}>{SORTS.map(([k]) => <option key={k}>{k}</option>)}</select></label>
@@ -77,7 +78,7 @@ function Directory({ s }: { s: Summary }) {
               <span className="lpl-num"><Avatar player={p} color={team.color} size={128} bare /></span>
               <span className="lpl-pos">{p.position}</span>
               <span className="lpl-name"><small>{first}</small>{last}</span>
-              <span className="lpl-club"><i style={{ background: team.color }} />{team.name}</span>
+              <span className="lpl-club"><Crest code={team.code} size={20} />{team.name}</span>
               <span className="lpl-form"><Form rating={p.rating} /></span>
             </a>
           );
@@ -116,13 +117,14 @@ function PlayerPage({ p, s }: { p: PlayerSummary; s: Summary }) {
           <div className="pp-id">
             <span className="pp-bust"><Avatar player={p} color={team.color} size={200} bare /></span>
             <div>
+              <Crest code={team.code} size={44} className="pp-crest" />
               <h1><small>{first}</small>{last}</h1>
-              <p className="pp-club"><i style={{ background: team.color }} />{team.name} · {p.number} {p.position}</p>
+              <p className="pp-club">{team.name} · {p.number} {p.position}</p>
             </div>
           </div>
         </section>
         <section className="l-card pp-facts">
-          <div><span>Club</span><b>{team.name}</b></div>
+          <div><span>Club</span><b className="pp-clubfact"><Crest code={team.code} size={20} />{team.name}</b></div>
           <div><span>Position</span><b>{p.position}</b></div>
           <div><span>Number</span><b>{p.number}</b></div>
           <div><span>Minutes</span><b>{Math.round(st.minutes)}</b></div>

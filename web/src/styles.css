@@ -1793,3 +1793,30 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .l-player .lpl-num .avatar { width: 120px !important; height: 120px !important; }
 .l-player .lpl-form { margin-top: 0 !important; padding-top: 16px !important; box-shadow: inset 0 1px 0 #ebe8f5 !important; border-top: 0 !important; }
 .l-player::before { content: ""; position: absolute; right: 0; top: 0; width: 160px; height: calc(100% - 64px); background: radial-gradient(90% 90% at 70% 100%, color-mix(in srgb, var(--club, #c9c4dc) 16%, transparent), transparent 70%); pointer-events: none; }
+
+/* ===== Club identity: crests (ui/Crest.tsx) and club panels (clubs.ts) ===== */
+.crest { flex: none; display: block; overflow: visible; }
+.bug .team { gap: 7px; padding: 0 12px 0 8px; }
+.bug .crest { filter: drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
+.hb-team { gap: 9px; padding: 0 14px 0 10px; }
+.hb-team .crest, .wm-team .crest { filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+.wm-team { display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; column-gap: 14px; align-content: center; justify-content: start; }
+.wm-team .crest { grid-row: 1 / 3; align-self: center; }
+.mc-club .crest, .bx-tabs .crest, .lpl-club .crest { margin: -2px 0; }
+.lpl-club .crest { margin-right: 1px; }
+.pp-hero .pp-crest { margin-bottom: 10px; filter: drop-shadow(0 2px 5px rgba(0,0,0,.3)); }
+.pp-clubfact { display: inline-flex; align-items: flex-start; gap: 7px; }
+.mc-clubs { grid-column: 1 / -1; }
+.cl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 4px; }
+.cl-club { display: flex; gap: 18px; align-items: flex-start; padding: 18px; border-radius: 8px; background: linear-gradient(120deg, color-mix(in srgb, var(--club) 10%, #fff), #fff 70%); border: 1px solid color-mix(in srgb, var(--club) 18%, #e9e7f2); }
+.cl-text { min-width: 0; }
+.cl-side { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--club); }
+.cl-club h3 { margin: 2px 0 0; font-family: var(--headline); font-size: 22px; font-weight: 700; color: #160f35; letter-spacing: -.01em; }
+.cl-nick { margin: 4px 0 0; font-size: 14px; color: #6c668a; }
+.cl-club dl { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 12px 0 0; }
+.cl-club dl div { display: flex; flex-direction: column; }
+.cl-club dt { font-size: 11px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: #8a85a3; }
+.cl-club dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; color: #160f35; }
+.cl-hist { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: #4a4466; }
+@media (max-width: 900px) { .cl-grid { grid-template-columns: 1fr; } .wm-team .crest { width: auto; height: 40px; } }
+/* ===== end club identity ===== */

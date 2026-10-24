@@ -6,6 +6,8 @@ import { PlayCard } from "./PlayCard";
 import { Avatar } from "../ui/Avatar";
 import { useState } from "react";
 import { useSummary, type Summary } from "./summary";
+import { Crest } from "../ui/Crest";
+import { club } from "../clubs";
 
 const STATS: [string, string, (v: number) => string][] = [
   ["possession", "Possession", (v) => `${v.toFixed(0)}%`], ["xg", "Expected goals (xG)", (v) => v.toFixed(2)],
@@ -30,9 +32,9 @@ export function WatchHome() {
           <div className="wm-board">
             <span className="wm-status">Full time · {meta.venue}</span>
             <div className="wm-score">
-              <span className="wm-team" style={{ background: meta.home.color }}><b>{meta.home.code}</b><em>{meta.home.name}</em></span>
+              <span className="wm-team" style={{ background: meta.home.color }}><Crest code={meta.home.code} size={56} /><b>{meta.home.code}</b><em>{meta.home.name}</em></span>
               <span className="wm-num">{s.score[meta.home.code]}<i>–</i>{s.score[meta.away.code]}</span>
-              <span className="wm-team" style={{ background: meta.away.color }}><b>{meta.away.code}</b><em>{meta.away.name}</em></span>
+              <span className="wm-team" style={{ background: meta.away.color }}><Crest code={meta.away.code} size={56} /><b>{meta.away.code}</b><em>{meta.away.name}</em></span>
             </div>
           </div>
           <div className="wm-side">
@@ -96,7 +98,7 @@ function MatchCentre({ s }: { s: Summary }) {
         <h2 className="mc-h">Top performers</h2>
         {[home, away].map((t) => (
           <div key={t.code} className="mc-col">
-            <span className="mc-club"><i style={{ background: t.color }} />{t.name}</span>
+            <span className="mc-club"><Crest code={t.code} size={22} />{t.name}</span>
             {top(t.code).map((p, i) => (
               <a key={p.id} className="mc-player" style={{ ["--club" as string]: t.color }} href={`/?page=players&id=${p.id}`}>
                 <span className="mc-rank">{i + 1}</span>
@@ -109,6 +111,7 @@ function MatchCentre({ s }: { s: Summary }) {
         ))}
       </section>
       <BoxScore s={s} />
+      <Clubs s={s} />
       <section className="mc-plays">
         <div className="l-head"><h2>Key plays</h2><a href="/?page=analyse">All {s.plays.length} plays</a></div>
         <div className="plays-grid four">
@@ -148,7 +151,7 @@ function BoxScore({ s }: { s: Summary }) {
         <h2 className="mc-h">Player stats</h2>
         <div className="bx-tabs">
           {[s.meta.home, s.meta.away].map((x) => (
-            <button key={x.code} className={team === x.code ? "on" : ""} onClick={() => setTeam(x.code)}><i style={{ background: x.color }} />{x.name}</button>
+            <button key={x.code} className={team === x.code ? "on" : ""} onClick={() => setTeam(x.code)}><Crest code={x.code} size={20} />{x.name}</button>
           ))}
         </div>
       </div>
@@ -171,6 +174,38 @@ function BoxScore({ s }: { s: Summary }) {
         </table>
       </div>
       <p className="bx-note">Click a column to sort. Bold marks the team's best. G goals, Sh shots, SoT shots on target, Tkl tackles won, Int interceptions.</p>
+    </section>
+  );
+}
+
+/** Who's playing: each club's crest, nickname, ground and a line of history. */
+function Clubs({ s }: { s: Summary }) {
+  return (
+    <section className="l-card mc-clubs">
+      <h2 className="mc-h">The clubs</h2>
+      <div className="cl-grid">
+        {[s.meta.home, s.meta.away].map((t, i) => {
+          const c = club(t.code);
+          return (
+            <div key={t.code} className="cl-club" style={{ ["--club" as string]: t.color }}>
+              <Crest code={t.code} size={88} />
+              <div className="cl-text">
+                <span className="cl-side">{i === 0 ? "Home" : "Away"}</span>
+                <h3>{t.name}</h3>
+                {c && <>
+                  <p className="cl-nick">“{c.nickname}” · {c.city}, {c.region}</p>
+                  <dl>
+                    <div><dt>Founded</dt><dd>{c.founded}</dd></div>
+                    <div><dt>Ground</dt><dd>{c.stadium}</dd></div>
+                    <div><dt>Capacity</dt><dd>{c.capacity.toLocaleString("en-GB")}</dd></div>
+                  </dl>
+                  <p className="cl-hist">{c.history}</p>
+                </>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
