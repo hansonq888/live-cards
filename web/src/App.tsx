@@ -92,6 +92,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
       <main className="main analyse">
         <section className="broadcast">
           <div className="an-top">
+            <div className="an-left">
             <div className="an-stage" ref={stageRef}>
               <ScaledStage fit={full ? "contain" : "width"}>
                 <Viewer />
@@ -105,14 +106,15 @@ function Analyse({ onFan }: { onFan: () => void }) {
               </ScaledStage>
               <button className="an-full" onClick={toggleFull}>{full ? "Exit full screen" : "⛶ Full screen"}</button>
             </div>
+            <div className="an-panel an-transport">
+              <Timeline />
+              <div className="an-controls"><ExplainGoalButton /><Controls /></div>
+            </div>
+            </div>
             <div className="an-right">
               <div className="card-dock"><PlayerCard /></div>
               <LiveStats />
             </div>
-          </div>
-          <div className="an-panel an-transport">
-            <Timeline />
-            <div className="an-controls"><ExplainGoalButton /><Controls /></div>
           </div>
           {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
           {!breakdown && <FocusPanel />}

@@ -1851,3 +1851,51 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .lse-text b { font-family: var(--headline); font-weight: 700; font-size: 20px; }
 .lse-text span { font-size: 13.5px; color: #4d4670; }
 .lse-go { font-weight: 600; color: var(--ti, #3a1fd0); white-space: nowrap; }
+
+/* ---------- type and spacing pass: fewer heavy weights, smaller secondary text, more air ---------- */
+.light, .al, .story-page { --w-title: 600; --w-num: 600; }
+.l-hero h1, .hero-card h1 { font-size: 54px !important; letter-spacing: -.025em !important; }
+.l-head h2, .mc-h { font-size: 20px !important; }
+.lp-title { font-size: 18px !important; }
+.l-play.feature .lp-title { font-size: 28px !important; }
+.lpl-name { font-size: 22px !important; }
+.lpl-name small, .l-phead h1 small { font-size: 12.5px !important; }
+.l-player b, .mc-player .mc-pname b { font-weight: 600 !important; }
+.mc-player .mc-pname b { font-size: 19px !important; }
+.mc-score b { font-size: 26px !important; font-weight: 600 !important; }
+.mc-min { font-size: 20px !important; font-weight: 700 !important; }
+.mc-what { font-size: 14.5px !important; font-weight: 600 !important; }
+.mc-vals b { font-size: 16px !important; font-weight: 500 !important; } .mc-vals b.lead { font-weight: 700 !important; }
+.mc-vals span { font-size: 12.5px !important; font-weight: 500 !important; color: #6c668a !important; }
+.pp-tiles b { font-size: 36px !important; }
+.pp-row b { font-size: 19px !important; font-weight: 600 !important; }
+.bx-table { font-size: 13.5px; } .bx-table td.best { font-weight: 600 !important; }
+.vs-score b { font-size: 56px !important; font-weight: 700 !important; }
+.vs-team b { font-size: 15px !important; font-weight: 600 !important; }
+.wm-num { font-weight: 700 !important; }
+.wm-team b { font-weight: 700 !important; font-size: 34px !important; }
+.lsl-score b { font-size: 22px !important; font-weight: 600 !important; }
+.lsl-vals b { font-weight: 500 !important; font-size: 12.5px; }
+.lsl-best b { font-weight: 600; }
+.card-name .last { font-size: 23px !important; }
+.form-word { font-size: 16px !important; font-weight: 600 !important; }
+.story { font-size: 13.5px !important; }
+.lse-text b { font-size: 17px !important; font-weight: 600 !important; }
+.ls-hero h1 { font-size: 42px !important; }
+.ls-t { font-size: 14px !important; }
+/* air */
+.l-main { gap: 64px !important; }
+.mc { gap: 24px !important; }
+.mc .l-card, .bx { padding: 28px 30px !important; }
+.mc-col { gap: 12px !important; }
+.l-section { gap: 20px !important; }
+.lsl-rows { gap: 12px !important; }
+.ls-live { padding: 18px 18px !important; gap: 18px !important; }
+.card { padding: 18px 20px 16px !important; }
+.pp-grid { gap: 32px !important; }
+.pp-facts { gap: 22px 16px !important; padding: 24px !important; }
+.an-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.an-left .an-controls .c-side.right { padding-right: 0; }
+.al .an-top { align-items: start; }
+.card-dock .card .form { padding-right: 0; margin-top: 26px !important; }
+.card-dock .card-bust { width: 78px; height: 78px; } .card-dock .card-bust .avatar { width: 78px; height: 78px; }
