@@ -3,6 +3,8 @@ import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
 import { useSummary } from "./summary";
 
+const possessive = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
+
 export function Home() {
   const s = useSummary();
   const meta = s?.meta;
@@ -23,15 +25,15 @@ export function Home() {
           </div>
         </div>
         {meta && s && (
-          <div className="hc-result">
-            <span className="hc-ft">Full time · {meta.venue}</span>
-            <div className="hc-teams">
-              <span><i style={{ background: meta.home.color }} />{meta.home.name}</span>
-              <b>{s.score[meta.home.code]}</b>
-              <span><i style={{ background: meta.away.color }} />{meta.away.name}</span>
-              <b>{s.score[meta.away.code]}</b>
+          <div className="hc-board">
+            <div className="hb-row">
+              <span className="hb-team" style={{ background: meta.home.color }}>{meta.home.code}</span>
+              <span className="hb-score">{s.score[meta.home.code]}<i>–</i>{s.score[meta.away.code]}</span>
+              <span className="hb-team" style={{ background: meta.away.color }}>{meta.away.code}</span>
+              <span className="hb-ft">FT</span>
             </div>
-            <div className="hc-goals">{goals.map((g) => <span key={g.id}>⚽ {name(g.player)} {g.minute}′</span>)}</div>
+            <div className="hb-names"><span>{meta.home.name}</span><span>{meta.away.name}</span></div>
+            <div className="hb-goals">{goals.map((g) => <span key={g.id}><b>{g.minute}′</b> {name(g.player)}</span>)}</div>
           </div>
         )}
       </section>
@@ -40,7 +42,7 @@ export function Home() {
         <div className="l-head"><h2>Plays to break down</h2><a href="/?page=analyse">All {s?.plays.length ?? ""} plays</a></div>
         <div className="l-grid">
           {featured.map((p) => (
-            <PlayCard key={p.id} play={p} title={name(p.player)} />
+            <PlayCard key={p.id} play={p} title={`${possessive(name(p.player))} ${p.outcome === "goal" ? "goal" : "chance"}`} />
           ))}
         </div>
       </section>

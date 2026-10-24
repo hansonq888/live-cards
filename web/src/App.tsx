@@ -11,6 +11,7 @@ import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
 import { XgRace } from "./ui/XgRace";
 import { PlayStory } from "./pages/PlayStory";
+import { WatchHome } from "./pages/WatchHome";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
 import { Console } from "./console/Console";
@@ -31,6 +32,8 @@ export default function App() {
   if (page === "learn") return <Learn />;
   if (page === "players") return <Players />;
   if (page === "play") return <PlayStory />;
+  // Watch starts on a match page; the broadcast opens once you pick how to watch (?start=).
+  if (page === "watch" && !q.has("start") && !q.has("play") && view !== "fan") return <WatchHome />;
   if (page === "watch" || page === "analyse") return <Live initial={page === "analyse" ? "studio" : "fan"} />;
   return <Home />;
 }
