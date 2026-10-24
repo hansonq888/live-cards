@@ -1659,3 +1659,26 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .tl-ticks span { color: #9a94b8; font-weight: 500; }
 .fan-bar .tl-mark.tl-goal { box-shadow: 0 0 0 2px #d4ff3a !important; }
 .askf-btn { right: 20px; bottom: 20px; padding: 12px 18px; font-size: 14px; }
+
+/* match page, sportier: broadcast headers, club-coloured edges, chunkier numbers */
+.mc .mc-h, .bx .mc-h { position: relative; padding-left: 14px; font-size: 21px; }
+.mc .mc-h::before, .bx .mc-h::before { content: ""; position: absolute; left: 0; top: 3px; bottom: 3px; width: 5px; background: linear-gradient(180deg, #c8102e 50%, #1d4ed8 50%); transform: skewX(-12deg); }
+.mc-vals b { font-family: var(--headline) !important; font-size: 19px !important; }
+.mc-vals span { font-weight: 600; color: #3a3358 !important; font-size: 13.5px !important; }
+.mc-bar { height: 10px !important; }
+.mc-bar i { border-radius: 2px; transform: skewX(-14deg); }
+.mc-row { padding: 11px 0 !important; }
+.mc-min { font-size: 19px !important; }
+.mc-ev.ev-goal .mc-what { font-weight: 800; }
+.mc-ev.ev-goal { background: linear-gradient(90deg, transparent, rgba(91,61,245,.06), transparent); }
+.mc-player { box-shadow: inset 4px 0 0 var(--club, #ccc); }
+.mc-num { transform: skewX(-8deg); border-radius: 4px !important; font-size: 16px !important; }
+.mc-form { transform: skewX(-8deg); border-radius: 3px !important; text-transform: uppercase; letter-spacing: .5px; font-size: 11.5px !important; }
+.bx-table thead th { background: #160f35; color: rgba(255,255,255,.75); box-shadow: none; }
+.bx-table thead th.on { color: #fff; }
+.bx-table thead th:first-child { border-radius: 6px 0 0 6px; } .bx-table thead th:last-child { border-radius: 0 6px 6px 0; }
+.bx-table td.best { color: #3a1fd0 !important; }
+.bx-num { transform: skewX(-8deg); border-radius: 3px; }
+.bx-tabs button.on { background: #160f35; color: #fff; }
+.hs-h { display: block; margin: 18px 0 2px; font-size: 12px; font-weight: 600; color: #6c668a; }
+.hs-row select { font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 6px; border: 0; background: #efedf8; color: #160f35; max-width: 170px; }

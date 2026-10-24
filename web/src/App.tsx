@@ -5,7 +5,7 @@ import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
 import { Wordmark } from "./ui/Wordmark";
-import { AskFloat, Controls, UnderTheHood, ViewMenu } from "./ui/SidePanel";
+import { AskFloat, Controls, UnderTheHood } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
@@ -84,8 +84,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
         <a className="brand" href="/"><Wordmark /></a>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <span className="top-spacer" />
-        <ViewMenu />
-        <button className="hood-btn" onClick={() => setHood(true)}>Under the hood</button>
+        <button className="hood-btn" onClick={() => setHood(true)}>⚙ Settings</button>
         <a className="an-exit" href="/?page=watch">← Back to the match</a>
       </header>
       <main className="main analyse">

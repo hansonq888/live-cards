@@ -68,7 +68,7 @@ export function FocusPanel() {
         <Shirt number={p.number} color={team.color} size={40} />
         <div className="fp-id"><b>{p.name}</b><span>{p.position} · {team.name}</span></div>
         <span className={`fp-form f${level}`}>{FORM[level]}{card ? ` · ${card.rating.toFixed(1)}` : ""}</span>
-        <button className="fp-close" onClick={() => live.send({ type: "auto" })}>Back to auto</button>
+        <button className="fp-close" title="Let the auto-director choose who to follow again" onClick={() => live.send({ type: "auto" })}>Stop following</button>
       </header>
       <div className="fp-grid">
         <div className="fp-speed">

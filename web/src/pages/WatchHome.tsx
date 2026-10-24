@@ -97,7 +97,7 @@ function MatchCentre({ s }: { s: Summary }) {
           <div key={t.code} className="mc-col">
             <span className="mc-club"><i style={{ background: t.color }} />{t.name}</span>
             {top(t.code).map((p) => (
-              <a key={p.id} className="mc-player" href={`/?page=players&id=${p.id}`}>
+              <a key={p.id} className="mc-player" style={{ ["--club" as string]: t.color }} href={`/?page=players&id=${p.id}`}>
                 <span className="mc-num" style={{ background: t.color }}>{p.number}</span>
                 <span className="mc-pname"><b>{p.short}</b><em>{p.position}</em></span>
                 <span className={`mc-form f${formLevel(p.rating)}`}>{FORM[formLevel(p.rating)]}</span>

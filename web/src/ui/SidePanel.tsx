@@ -269,15 +269,15 @@ export function Plays() {
 
 /** "Under the hood": how it works, for judges and power users. A drawer from the header. */
 export function UnderTheHood({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<"fans" | "trace" | "metrics" | "model" | "settings">("trace");
+  const [tab, setTab] = useState<"fans" | "trace" | "metrics" | "model" | "settings">("settings");
   return (
     <div className="hood-scrim" onClick={onClose}>
       <aside className="hood" onClick={(e) => e.stopPropagation()}>
-        <header className="hood-head"><b>Under the hood</b><button onClick={onClose} aria-label="Close">✕</button></header>
+        <header className="hood-head"><b>Settings</b><button onClick={onClose} aria-label="Close">✕</button></header>
         <nav className="tabs">
-          {(["trace", "fans", "metrics", "model", "settings"] as const).map((t) => (
+          {(["settings", "trace", "fans", "metrics", "model"] as const).map((t) => (
             <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-              {{ trace: "Agents", fans: "Fans", metrics: "Metrics", model: "Your model", settings: "Settings" }[t]}
+              {{ trace: "Agents", fans: "Fans", metrics: "Metrics", model: "Your model", settings: "General" }[t]}
             </button>
           ))}
         </nav>
@@ -293,8 +293,24 @@ function HoodSettings() {
   const speed = useLive((s) => s.speed);
   const modelEnabled = useLive((s) => s.modelEnabled);
   const director = useLive((s) => s.director);
+  const profile = useLive((s) => s.profile);
+  const meta = useLive((s) => s.meta);
+  const stat = useLive((s) => s.statRing);
+  const lang = useLang();
+  const [aud, lg, voice] = profile.split(".");
+  const set = (a: string, l: string, v: string) => live.send({ type: "profile", key: `${a}.${l}.${v}` });
   return (
     <div className="hood-settings">
+      <span className="hs-h">Display</span>
+      <div className="hs-row"><div><b>Explanations for</b><span>Casual: plain words. Analyst: the full working.</span></div>
+        <select value={aud} onChange={(e) => set(e.target.value, lg, voice)}><option value="casual">Casual fan</option><option value="analyst">Analyst</option></select></div>
+      <div className="hs-row"><div><b>Language</b><span>Every line is re-checked in your language</span></div>
+        <select value={lg} onChange={(e) => set(aud, e.target.value, voice)}>{Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
+      <div className="hs-row"><div><b>Voice</b><span>Neutral, or as a supporter of one club</span></div>
+        <select value={voice} onChange={(e) => set(aud, lg, e.target.value)}><option value="neutral">Neutral</option>{meta && <><option value="home">{meta.home.name} fan</option><option value="away">{meta.away.name} fan</option></>}</select></div>
+      <div className="hs-row"><div><b>Stat rings</b><span>Colour every player by a stat</span></div>
+        <select value={stat ?? ""} onChange={(e) => live.setStatRing(e.target.value || null)}><option value="">Off</option>{STAT_RINGS.map((k) => <option key={k} value={k}>{tr(lang, k)}</option>)}</select></div>
+      <span className="hs-h">Playback and AI</span>
       <div className="hs-row"><div><b>Auto-director</b><span>Moves the ring to the player who matters</span></div>
         <button className={director?.mode !== "manual" ? "on" : ""} onClick={() => live.send({ type: "auto" })}>{director?.mode !== "manual" ? "On" : "Turn on"}</button></div>
       <div className="hs-row"><div><b>AI explanations</b><span>Off: only the engine's checked stats lines air</span></div>
