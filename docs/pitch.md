@@ -110,6 +110,54 @@ in the first seconds; set Studio speed to 1×; close other tabs (Foundry rate li
    (builds on Revisit). About 2 hours.
 3. **Fantasy points with reasons**, live on the card. About 2 hours.
 
+## Ideas bank (raw material for the script; not final)
+
+Collected Oct 24 as the product became an analysis platform. Pick and rewrite when scripting.
+
+**One-liners**
+- "Stats are everywhere. Understanding isn't."
+- "Understand any moment of the match, live or after the whistle."
+- "Walk through any play: every touch replayed from tracking data, the space it created, every
+  stat explained and checked by AI agents."
+- "The broadcast follows the ball. Live Cards follows the moment that mattered, and explains it."
+
+**The problem**
+- The league already publishes xG, xA and dozens of advanced stats; most fans can't read them.
+- Stats without meaning are noise to a casual fan and a number dump to an analyst. Live Cards
+  gives the first a story and the second a toolbox.
+
+**Comparison (familiar reference point)**
+- "Baseball has Statcast's public stats site, where fans can explore the tracking data. Football
+  has nothing like it for fans, and the stats are only getting harder to read. Live Cards is that,
+  but it teaches: every stat explained inside the moment it happened."
+  Sources: MLB's Statcast glossary and Baseball Savant (mlb.com/glossary/statcast). Football
+  analytics education today is aimed at professionals (Soccermatics/Twelve courses, accredited xG
+  courses, university modules). Say "we're not aware of a fan-facing equivalent", not "nothing
+  exists".
+
+**Real-world grounding**
+- Premier League grounds already have optical tracking (Second Spectrum, Genius Sports) at 25
+  frames a second, and the league uses it for semi-automated offside. Live Cards runs on that kind
+  of feed; our simulator stands in for it. (Sources in the conversation of Oct 24; cite carefully.)
+- Replays are rendered from data, not video, which sidesteps broadcast-rights limits: data-drawn
+  match trackers are an existing pattern in apps without video rights.
+- With one camera, the vision layer produces positions, so clubs without tracking (lower leagues,
+  women's and academy football) could use space control too. Label this roadmap: events
+  (who passed to whom) from video are a further step.
+
+**Trust (keep, it's measured)**
+- 0 of 275 planted lies aired in the safety evaluation; two independent checks (code verifier and
+  reasoning reviewer); a red-team button that tries to make it lie on screen.
+- "Numbers come from code; words come from agents."
+
+**Demo beats to consider**
+- Home → "Break it down" on the equaliser → step to the long ball → space shading,
+  "+844 m² of the final third since the last touch" at Okelani's sprint.
+- Learn → xG in plain words → "See it in a real play".
+- A player page: form in words, numbers explained.
+- Analyse: Ask "why did his rating jump?" → verified answer; Agents tab trace; red team blocked.
+- Console: approval and audit (enterprise); Vision: "no tracking system, just a camera".
+
 ## Before making the repo public (Monday)
 
 - [ ] Decide whether `CLAUDE.md` (internal brief and competitive notes) stays, gets trimmed, or moves out.
