@@ -4,6 +4,7 @@
 import { useEffect } from "react";
 import { useRegistry } from "../live/stats";
 import { Shell } from "./Shell";
+import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { playHref, useSummary } from "./summary";
 
 const fmt = (v: number) => (Number.isInteger(v) ? String(v) : String(Number(v.toFixed(3))));
@@ -27,9 +28,15 @@ export function Learn() {
         {reg?.stats.map((st) => {
           const play = s?.examples[st.id];
           return (
-            <section key={st.id} id={st.id} className="l-card l-stat">
-              <h2>{st.name}</h2>
-              <p className="ls-plain">{st.plain}</p>
+            <section key={st.id} id={st.id} className={`l-card l-stat t-${STAT_LOOK[st.id]?.tint ?? "xg"}`}>
+              <div className="ls-top">
+                <div>
+                  <span className={`sc-chip t-${STAT_LOOK[st.id]?.tint ?? "xg"}`}>{STAT_LOOK[st.id]?.short ?? st.id}</span>
+                  <h2>{st.name}</h2>
+                  <p className="ls-plain">{st.plain}</p>
+                </div>
+                <StatVisual id={st.id} big />
+              </div>
               <div className="ls-cols">
                 <div><h4>How we calculate it</h4><p>{st.how}</p><code>{st.formula}</code></div>
                 <div>

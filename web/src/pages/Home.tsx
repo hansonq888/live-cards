@@ -1,12 +1,15 @@
 // Home: the match at a glance, the plays worth studying, and the way in to each stat.
 import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
+import { STAT_LOOK, StatVisual } from "./StatVisual";
+import { stat, useRegistry } from "../live/stats";
 import { useSummary } from "./summary";
 
 const possessive = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
 
 export function Home() {
   const s = useSummary();
+  useRegistry();  // stat names and thresholds
   const meta = s?.meta;
   const name = (id: string) => s?.players.find((p) => p.id === id)?.short ?? id;
   const goals = s?.plays.filter((p) => p.outcome === "goal") ?? [];
@@ -50,14 +53,13 @@ export function Home() {
 
       <section className="l-section">
         <div className="l-head"><h2>Learn the numbers</h2><a href="/?page=learn">All stats</a></div>
-        <div className="l-grid">
-          {[
-            ["xg", "Expected goals (xG)", "How likely a shot is to go in, from where it was taken."],
-            ["space_control", "Space control", "Which team would win the race to each part of the pitch."],
-            ["pass_difficulty", "Pass difficulty", "How hard a pass was: distance, pressure, where it went."],
-          ].map(([id, title, text]) => (
-            <a key={id} className="l-card l-learn" href={`/?page=learn#${id}`}>
-              <h3>{title}</h3><p>{text}</p><span className="lp-go">Learn with a real play →</span>
+        <div className="stat-grid">
+          {Object.entries(STAT_LOOK).map(([id, look]) => (
+            <a key={id} className="stat-card" href={`/?page=learn#${id}`}>
+              <StatVisual id={id} />
+              <span className={`sc-chip t-${look.tint}`}>{look.short}</span>
+              <h3>{stat(id)?.name ?? look.short}</h3>
+              <p>{look.line}</p>
             </a>
           ))}
         </div>

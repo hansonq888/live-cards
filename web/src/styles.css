@@ -962,3 +962,51 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .l-play.feature .lp-meta { font-size: 15px; }
 .lp-cta { margin-top: 12px; font-weight: 700; font-size: 15px; color: var(--l-accent); }
 @media (max-width: 1000px) { .plays-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .l-play.feature .shot-map { height: 220px; } }
+
+/* stat tiles: one colour per stat, a diagram that teaches it */
+.t-xg { --t1: #6d4bff; --t2: #3fb8ff; --tc: #efeaff; --ti: #3a1fd0; }
+.t-space { --t1: #0fb5a5; --t2: #4f7bff; --tc: #e3f8f5; --ti: #087a6f; }
+.t-pass { --t1: #ff7a45; --t2: #ffb648; --tc: #fff0e6; --ti: #b5440f; }
+.t-sprint { --t1: #ff4f8b; --t2: #ff8a5c; --tc: #ffe9f0; --ti: #b3195a; }
+.t-rating { --t1: #8bd42a; --t2: #2fc49a; --tc: #effbe2; --ti: #3f7a06; }
+.stat-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; }
+.stat-card { display: flex; flex-direction: column; text-decoration: none; color: var(--l-ink); }
+.stat-card:hover .stat-tile { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(30,20,80,.2); }
+.stat-tile { border-radius: 10px; padding: 12px; background: radial-gradient(160px 100px at 100% 0%, rgba(255,255,255,.35), transparent 70%), linear-gradient(135deg, var(--t1), var(--t2)); box-shadow: 0 8px 22px rgba(30,20,80,.12); transition: transform .18s, box-shadow .18s; }
+.stat-card h3 { margin: 8px 0 4px; font-family: var(--headline); font-weight: 800; font-size: 18px; letter-spacing: -.3px; }
+.stat-card p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--l-muted); }
+.sc-chip { align-self: flex-start; margin-top: 14px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 9px; border-radius: 4px; background: var(--tc); color: var(--ti); }
+.sv { width: 100%; height: auto; display: block; }
+.sv-pitch { fill: rgba(255,255,255,.12); stroke: rgba(255,255,255,.6); stroke-width: 1; }
+.sv-line { fill: none; stroke: rgba(255,255,255,.6); stroke-width: 1; }
+.sv-goal { fill: none; stroke: #fff; stroke-width: 1.2; }
+.sv-dot { fill: #fff; }
+.sv-edge { fill: none; stroke: #fff; stroke-width: 2; stroke-dasharray: 4 3; }
+.sv-red { fill: #c8102e; stroke: #fff; stroke-width: 1.5; }
+.sv-blue { fill: #1d4ed8; stroke: #fff; stroke-width: 1.5; }
+.sv-band0 { fill: rgba(255,255,255,.35); } .sv-band1 { fill: rgba(255,255,255,.65); } .sv-band2 { fill: #fff; }
+.sv-tick { stroke: var(--ti, #160f35); stroke-width: 2.5; }
+.sv-lab { fill: #fff; font: 700 10px Inter, sans-serif; }
+.sv-cap { fill: rgba(255,255,255,.9); font: 500 9px Inter, sans-serif; }
+.sv-ten { display: flex; align-items: center; gap: 10px; color: #fff; flex-wrap: wrap; }
+.sv-ten b { font-family: var(--headline); font-weight: 900; font-size: 34px; }
+.sv-ten span { font-size: 22px; opacity: .8; }
+.sv-ten div { display: grid; grid-template-columns: repeat(5, 14px); gap: 4px; }
+.sv-ten i { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(255,255,255,.75); }
+.sv-ten i.on { background: #fff; box-shadow: none; }
+.sv-ten em { flex-basis: 100%; font-style: normal; font-size: 13px; font-weight: 600; }
+.sv-form { display: flex; align-items: flex-end; gap: 6px; height: 108px; padding: 4px 4px 0; }
+.svf { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.svf i { width: 100%; border-radius: 3px 3px 0 0; background: rgba(255,255,255,.4); }
+.svf4 i { background: #fff; } .svf3 i { background: rgba(255,255,255,.75); }
+.svf span { font-size: 9px; font-weight: 700; color: #fff; text-align: center; line-height: 1.1; }
+.stat-tile.big { padding: 18px; min-width: 300px; }
+.sv-pair { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; align-items: center; }
+.ls-top { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, 1fr); gap: 28px; align-items: center; }
+.ls-top .sc-chip { margin-top: 0; margin-bottom: 10px; display: inline-block; }
+.l-stat { box-shadow: inset 4px 0 0 var(--t1), 0 1px 2px rgba(22,15,53,.05), 0 12px 32px rgba(60,40,140,.08); border-radius: 4px 10px 10px 4px; }
+.l-stat .ls-cols code { background: var(--tc); color: var(--ti); }
+.l-stat .ls-settings span { background: var(--tc); color: var(--ti); }
+.l-stat .ls-settings b { color: var(--ti); }
+.l-stat .l-btn.primary { background: linear-gradient(135deg, var(--t1), var(--t2)); box-shadow: 0 8px 20px rgba(30,20,80,.18); }
+@media (max-width: 1100px) { .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ls-top { grid-template-columns: 1fr; } }
