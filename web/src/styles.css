@@ -1785,3 +1785,11 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .ev-yellow .mc-icon { display: inline-block; width: 11px; height: 15px; background: #f5c518; border-radius: 2px; color: transparent !important; font-size: 0 !important; }
 .mc-timeline { display: flex; flex-direction: column; }
 .mc-timeline ol { flex: 1; display: flex; flex-direction: column; justify-content: space-around; }
+
+/* player cards, roomier: four per row; bust beside the name block; form full width underneath */
+.l-grid.players { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; gap: 20px !important; }
+.l-player { grid-template-columns: 1fr 120px !important; grid-template-areas: "name shirt" "pos shirt" "club shirt" "form form" !important; padding: 22px 22px 20px !important; min-height: 0 !important; }
+.l-player .lpl-num { position: static !important; grid-area: shirt; width: 120px; height: auto; align-self: end; justify-self: end; margin: -22px -22px 0 0; background: none !important; }
+.l-player .lpl-num .avatar { width: 120px !important; height: 120px !important; }
+.l-player .lpl-form { margin-top: 0 !important; padding-top: 16px !important; box-shadow: inset 0 1px 0 #ebe8f5 !important; border-top: 0 !important; }
+.l-player::before { content: ""; position: absolute; right: 0; top: 0; width: 160px; height: calc(100% - 64px); background: radial-gradient(90% 90% at 70% 100%, color-mix(in srgb, var(--club, #c9c4dc) 16%, transparent), transparent 70%); pointer-events: none; }
