@@ -229,6 +229,7 @@ export function GoalBanner() {
 /** "How the goal was built": steps tick off as the replay passes them. */
 export function BuildUpPanel() {
   const b = useLive((s) => s.buildup);
+  const showSpace = useLive((s) => s.showSpace);
   const t = useLive((s) => s.t);
   const paused = useLive((s) => s.paused);
   const meta = useLive((s) => s.meta);
@@ -240,6 +241,7 @@ export function BuildUpPanel() {
   const aiStory = lang === "en" ? (b.storySource === "model" ? b.story : null) : b.localized;
   const story = aiStory ?? storyLine(lang, b.storyArgs, b.story);
   const who = meta?.players.find((p) => p.id === b.scorer)?.short ?? "";
+  const teamName = meta ? (meta.players.find((p) => p.id === b.scorer)?.team === meta.home.code ? meta.home.name : meta.away.name) : "";
   return (
     <div className="buildup" dir={isRtl(lang) ? "rtl" : undefined}>
       <div className="bu-head">
@@ -259,6 +261,12 @@ export function BuildUpPanel() {
                 {stepMeaning(lang, s).map((m, j) => (
                   <div key={j} className="bu-stat"><b>{m.label}</b>{m.meaning && <span>{m.meaning}</span>}</div>
                 ))}
+                {s.space && (
+                  <div className="bu-stat bu-space">
+                    <b>{tr(lang, "sp_ahead", { team: teamName, m: s.space.final_third_m2 })}</b>
+                    {s.space.gain_m2 !== null && <span>{tr(lang, "sp_gain", { sign: s.space.gain_m2 >= 0 ? "+" : "−", m: Math.abs(s.space.gain_m2) })}</span>}
+                  </div>
+                )}
               </div>
             )}
           </li>
@@ -268,6 +276,7 @@ export function BuildUpPanel() {
         <button onClick={() => live.stepPrev()} aria-label="Previous touch"><Icon name="back" /></button>
         <button className="bu-play" onClick={() => live.toggleBreakdown()} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={16} /></button>
         <button onClick={() => live.stepNext()} aria-label="Next touch"><span className="flip"><Icon name="back" /></span></button>
+        <button className={`bu-space-toggle ${showSpace ? "on" : ""}`} onClick={() => live.toggleSpace()}>{tr(lang, "sp_toggle")}</button>
         <span className="bu-count">{tr(lang, "bd_step", { i: Math.max(1, idx + 1), n: b.steps.length })}</span>
       </div>
     </div>

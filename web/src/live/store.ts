@@ -79,6 +79,7 @@ export interface LiveState {
   // replay on a touch so it can be studied; `playing` is false once it has run to the end.
   buildup: { goal: string; kind: "goal" | "chance"; scorer: string; steps: BuildStep[]; start: number; goalT: number; story: string; storyArgs?: Record<string, string | number>; localized?: string | null; storySource: string; playing: boolean; at: number; resumeSpeed: number; pauseAt: number | null } | null;
   plays: Play[];
+  showSpace: boolean; // shade space control during a breakdown
   liveEdge: number; // furthest match time watched
   revisit: KeyMoment | null;
   answers: { id: string; question: string; text?: string; source?: string; evidence?: string[]; tools?: string[]; ms?: number; problems?: string[]; minute?: number; pending: boolean }[];
@@ -127,7 +128,7 @@ function savedStatRing(): string | null {
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
   director: null, cards: {}, stats: {}, analyst: {}, custom: {}, yourModel: { status: "off", spec: null }, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
-  keyMoments: [], liveEdge: 0, revisit: null, buildup: null, plays: [],
+  keyMoments: [], liveEdge: 0, revisit: null, buildup: null, plays: [], showSpace: true,
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null, board: {}, statRing: null,
 };
@@ -212,6 +213,8 @@ class LiveStore {
     b.steps.forEach((s, j) => { if (s.t <= t + 0.05) i = j; });
     return i;
   }
+
+  toggleSpace() { this.set({ showSpace: !this.state.showSpace }); }
 
   stepNext() { this.stepTo(this.stepIndex(this.state.t) + 1); }
   stepPrev() { this.stepTo(this.stepIndex(this.state.t) - 1); }

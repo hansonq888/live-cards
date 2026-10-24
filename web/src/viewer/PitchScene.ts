@@ -82,6 +82,8 @@ export class PitchScene {
   private poses = new Map<string, PlayerPose>();
   ringTarget: string | null = null;
   clean = false; // capture mode: no ring or trail, just the "camera feed"
+  private spaceMesh: THREE.Mesh | null = null;
+  private spaceKey = "";
   private ringFor: string | null = null; // glide for 0.6 s after a switch, then lock on
   private ringSince = 0;
   // Speed trail behind the followed player: a ground ribbon, wider and hotter with speed.
@@ -270,6 +272,30 @@ export class PitchScene {
       b.stat.visible = !!c;
       if (c) (b.stat.material as THREE.MeshBasicMaterial).color.set(c);
     }
+  }
+
+  /** Space control: shade each cell toward the team that controls it (null hides it). */
+  setSpace(snap: { cols: number; rows: number; cell: number; grid: number[] } | null, mine: string, theirs: string) {
+    const key = snap ? `${snap.grid.length}:${snap.grid[0]}:${snap.grid[snap.grid.length >> 1]}:${mine}` : "";
+    if (key === this.spaceKey) return;
+    this.spaceKey = key;
+    if (this.spaceMesh) { this.scene.remove(this.spaceMesh); this.spaceMesh.geometry.dispose(); ((this.spaceMesh.material as THREE.MeshBasicMaterial).map as THREE.Texture | null)?.dispose(); this.spaceMesh = null; }
+    if (!snap) return;
+    const a = new THREE.Color(mine), b = new THREE.Color(theirs);
+    const data = new Uint8Array(snap.cols * snap.rows * 4);
+    snap.grid.forEach((v, i) => {
+      const p = v / 255, c = p >= 0.5 ? a : b, strength = Math.abs(p - 0.5) * 2;
+      data.set([c.r * 255, c.g * 255, c.b * 255, strength * 120], i * 4);
+    });
+    const tex = new THREE.DataTexture(data, snap.cols, snap.rows, THREE.RGBAFormat);
+    tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearFilter; tex.needsUpdate = true;
+    const w = snap.cols * snap.cell, h = snap.rows * snap.cell;
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }));
+    mesh.rotation.x = -Math.PI / 2;
+    // Grid cell centres start at -52.5 + cell/2 along both axes, so the grid's centre is offset.
+    mesh.position.set(-52.5 + w / 2, 0.02, -(-34 + h / 2));
+    this.scene.add(mesh);
+    this.spaceMesh = mesh;
   }
 
   resize(w: number, h: number) {

@@ -136,6 +136,21 @@ export function Viewer() {
 
   useEffect(() => { sceneRef.current?.setStatColors(scale?.colors ?? null); }, [scale]);
 
+  // Space control for the touch being studied in a breakdown.
+  const breakdown = useLive((s) => s.buildup);
+  const showSpace = useLive((s) => s.showSpace);
+  const t = useLive((s) => s.t);
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene || !meta) return;
+    if (!breakdown || !showSpace) { scene.setSpace(null, "", ""); return; }
+    let step = breakdown.steps.find((s) => s.space);
+    for (const s of breakdown.steps) if (s.space && s.t <= t + 0.05) step = s;
+    const mine = breakdown.steps.length && meta.players.find((p) => p.id === breakdown.scorer)?.team === meta.home.code ? meta.home : meta.away;
+    const theirs = mine === meta.home ? meta.away : meta.home;
+    scene.setSpace(step?.space ?? null, mine.color, theirs.color);
+  }, [breakdown, showSpace, t, meta]);
+
   // Keyboard: Tab / Shift+Tab cycles the followed player's team, A returns to auto, Space pauses.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
