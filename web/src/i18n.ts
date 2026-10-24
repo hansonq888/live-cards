@@ -1,6 +1,8 @@
 // Every fan-facing string in five languages. Lines built from engine facts (stats lines,
 // director reasons, build-up captions) are rendered here from those facts, so a translation
 // can never change a number. AI lines are localized server-side and re-verified there.
+import { band, meaning, stat } from "./live/stats";
+
 export type Lang = "en" | "es" | "fr" | "pt" | "ar";
 type Dict = Record<string, string>;
 type Args = Record<string, string | number | boolean | null | undefined>;
@@ -273,16 +275,21 @@ export function stepMeaning(lang: Lang, s: StepLike): { label: string; meaning?:
   const out: { label: string; meaning?: string }[] = [];
   if (s.kind === "pass") {
     const d = Number(a.difficulty);
-    if (!Number.isNaN(d)) out.push({ label: tpl(lang, "diff", { d: d.toFixed(1) }), meaning: tpl(lang, d >= 6.5 ? "diff_2" : d >= 4.5 ? "diff_1" : "diff_0") });
-    if (Number(a.gain) > 0) out.push({ label: tpl(lang, "gain", { m: a.gain }) });
+    if (!Number.isNaN(d)) {
+      const k = band("pass_difficulty", d, [4.5, 6.5]);
+      out.push({ label: tpl(lang, "diff", { d: d.toFixed(1) }), meaning: meaning("pass_difficulty", `band_${k}`, lang) ?? tpl(lang, `diff_${k}`) });
+    }
+    if (Number(a.gain) > 0) out.push({ label: tpl(lang, "gain", { m: a.gain as number }) });
     if (a.pressure) out.push({ label: tpl(lang, "press") });
   } else if (s.kind === "shot") {
     const q = Number(a.xg), n = Math.round(Number(q.toFixed(2)) * 10);  // agrees with the xG shown
-    out.push({ label: tpl(lang, "xg", { xg: q.toFixed(2) }), meaning: n >= 1 ? tpl(lang, "xg_n", { n }) : tpl(lang, "xg_0") });
-    if (a.kmh) out.push({ label: tpl(lang, "shot_kmh", { kmh: a.kmh }) });
+    const m = n >= 1 ? meaning("xg", "n_in_10", lang, { n }) ?? tpl(lang, "xg_n", { n }) : meaning("xg", "under_1", lang) ?? tpl(lang, "xg_0");
+    out.push({ label: tpl(lang, "xg", { xg: q.toFixed(2) }), meaning: m });
+    if (a.kmh) out.push({ label: tpl(lang, "shot_kmh", { kmh: a.kmh as number }) });
     if (a.pressure) out.push({ label: tpl(lang, "press") });
   } else if (s.kind === "sprint") {
-    out.push({ label: `${Number(a.kmh).toFixed(1)} km/h`, meaning: tpl(lang, "sprint_m") });
+    const kmh = stat("sprints")?.settings.sprint_kmh;
+    out.push({ label: `${Number(a.kmh).toFixed(1)} km/h`, meaning: kmh !== undefined ? meaning("sprints", "threshold", lang, { kmh }) : tpl(lang, "sprint_m") });
   }
   return out;
 }

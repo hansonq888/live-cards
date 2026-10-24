@@ -10,6 +10,7 @@ from __future__ import annotations
 from functools import cache
 
 from livecards.engine import metrics as mx
+from livecards.engine.registry import REGISTRY
 from livecards.replay import run_engine
 from livecards.server.session import load_match
 
@@ -46,12 +47,8 @@ def summary(seed: int = 7) -> dict:
     hero = next((g for g in goals if g["player"] == "RIV-09"), goals[0] if goals else None)
     return {
         "meta": meta.model_dump(), "score": engine.score, "plays": plays, "players": players,
-        # A real play from this match to show each stat on (Learn page).
-        "examples": {
-            "xg": max(plays, key=lambda x: x["xg"])["id"] if plays else None,
-            "pass_difficulty": hero["id"] if hero else None,
-            "space": hero["id"] if hero else None,
-            "sprint": hero["id"] if hero else None,
-            "rating": hero["id"] if hero else None,
-        },
+        # A real play from this match to show each stat on (Learn page), per the registry.
+        "examples": {st.id: (max(plays, key=lambda x: x["xg"])["id"] if st.example == "max_xg"
+                             else hero["id"] if hero else None) if plays else None
+                     for st in REGISTRY},
     }

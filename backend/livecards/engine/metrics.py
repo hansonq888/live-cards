@@ -16,6 +16,12 @@ ALERT_SPRINT_KMH = 32.0  # on-screen sprint alert
 FINAL_THIRD_X = HALF_LENGTH - 35.0  # attack-frame x where the final third starts (17.5)
 FORWARD_PASS_M = 5.0  # progress toward goal for a pass to count as forward
 BIG_CHANCE_XG = 0.30
+# xG: logistic(XG_INTERCEPT + XG_ANGLE * angle_rad + XG_DISTANCE * distance_m)
+XG_INTERCEPT, XG_ANGLE, XG_DISTANCE = -1.1, 1.6, -0.075
+# Pass difficulty (1-10): capped points for distance and ground gained, plus fixed extras.
+PD_DIST_PER_POINT, PD_DIST_CAP = 10.0, 4.0  # one point per 10 m, at most 4
+PD_GAIN_PER_POINT, PD_GAIN_CAP = 15.0, 2.0  # one point per 15 m gained, at most 2
+PD_PRESSURE, PD_FINAL_THIRD, PD_CROSS_OR_THROUGH = 1.5, 1.0, 0.5
 
 
 def kmh(mps: float) -> float:
@@ -38,7 +44,7 @@ def xg(x: float, y: float, attack_dir: int) -> float:
     angle = math.atan2(2 * GOAL_HALF_WIDTH * dx, dx * dx + dy * dy - GOAL_HALF_WIDTH**2)
     if angle < 0:
         angle += math.pi
-    return round(1 / (1 + math.exp(-(-1.1 + 1.6 * angle - 0.075 * dist))), 3)
+    return round(1 / (1 + math.exp(-(XG_INTERCEPT + XG_ANGLE * angle + XG_DISTANCE * dist))), 3)
 
 
 def shot_distance(x: float, y: float, attack_dir: int) -> float:
@@ -64,13 +70,14 @@ def pass_difficulty(x: float, y: float, end_x: float, end_y: float, attack_dir: 
     """
     d = pass_distance(x, y, end_x, end_y)
     prog = max(0.0, pass_progress(x, end_x, attack_dir))
-    score = 1.0 + min(4.0, d / 10) + min(2.0, prog / 15)
+    score = (1.0 + min(PD_DIST_CAP, d / PD_DIST_PER_POINT)
+             + min(PD_GAIN_CAP, prog / PD_GAIN_PER_POINT))
     if under_pressure:
-        score += 1.5
+        score += PD_PRESSURE
     if end_x * attack_dir >= FINAL_THIRD_X:
-        score += 1.0
+        score += PD_FINAL_THIRD
     if kind in ("cross", "through"):
-        score += 0.5
+        score += PD_CROSS_OR_THROUGH
     return round(min(10.0, score), 1)
 
 

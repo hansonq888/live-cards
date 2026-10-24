@@ -52,7 +52,7 @@ export function PlayStory() {
     <div className="story-page">
       <header className="sp-top">
         <a className="brand" href="/"><Bolt size={20} />Live Cards</a>
-        <a className="sp-link" href="/?page=analyse">Open in Analyse</a>
+        <a className="sp-link" href={`/?page=analyse&play=${encodeURIComponent(playId)}`}>Open this play in Analyse</a>
       </header>
       <div className="sp-body">
         <div className="sp-visual">

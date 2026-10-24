@@ -57,8 +57,8 @@ export function Home() {
         <div className="l-grid">
           {[
             ["xg", "Expected goals (xG)", "How likely a shot is to go in, from where it was taken."],
-            ["space", "Space control", "Which team would win the race to each part of the pitch."],
-            ["pass", "Pass difficulty", "How hard a pass was: distance, pressure, where it went."],
+            ["space_control", "Space control", "Which team would win the race to each part of the pitch."],
+            ["pass_difficulty", "Pass difficulty", "How hard a pass was: distance, pressure, where it went."],
           ].map(([id, title, text]) => (
             <a key={id} className="l-card l-learn" href={`/?page=learn#${id}`}>
               <h3>{title}</h3><p>{text}</p><span className="lp-go">Learn with a real play →</span>

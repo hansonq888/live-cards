@@ -172,6 +172,8 @@ matches. Pace can only rise during a match (tiredness shows in Engine).
 rise. **Alerts:** sprint over 32 km/h, fastest sprint of the match, three notable actions in a
 row, every 2 km covered.
 
+Every stat is defined once in a **stat registry** ([`engine/registry.py`](backend/livecards/engine/registry.py), served at `/api/stats`): meaning, formula, the settings the engine actually uses, and fan wording in five languages. Adding a stat there puts it on the Learn page and in breakdowns; see [docs/adding-a-stat.md](docs/adding-a-stat.md).
+
 Disagree with any of it? **Your model** (Studio → Model) lets you change the weights and see
 both ratings side by side.
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
+import { band } from "../live/stats";
 import { clock, live, useLang, useLive } from "../live/store";
 import { directorReason, isRtl, statsLine, stepCaption, stepMeaning, storyLine, t as tr, type Lang } from "../i18n";
 import { AnalystCard, TeamStrip } from "./Analyst";
@@ -61,7 +62,7 @@ export function ScoreBug() {
 /** Form in words, from the engine's rating (code, never the model): what a fan wants to know
  *  instead of a number. Levels 0-4: struggling, quiet, steady, playing well, on fire. */
 export function formLevel(rating: number): number {
-  return rating >= 8.0 ? 4 : rating >= 7.0 ? 3 : rating >= 6.3 ? 2 : rating >= 5.6 ? 1 : 0;
+  return band("rating", rating, [5.6, 6.3, 7.0, 8.0]);  // thresholds from the stat registry
 }
 
 function FormMeter({ level }: { level: number }) {

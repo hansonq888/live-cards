@@ -26,6 +26,7 @@ from fastapi.staticfiles import StaticFiles
 from livecards import telemetry
 from livecards.contracts import OverlayCue
 from livecards.engine.rating import WEIGHTS
+from livecards.engine.registry import as_json
 from livecards.server.control import plane
 from livecards.server.session import LiveSession, load_match, snapshots
 from livecards.server.summary import summary
@@ -90,6 +91,12 @@ async def meta() -> dict:
 async def match_summary() -> dict:
     """The finished match for the platform's pages: final cards, player stats, every play."""
     return await asyncio.to_thread(summary, 7)
+
+
+@app.get("/api/stats")
+async def stats_registry() -> dict:
+    """Every stat, defined once: meaning, formula, calibratable settings, fan wording."""
+    return as_json()
 
 
 @app.get("/api/cue-schema")
