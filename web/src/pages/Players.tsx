@@ -5,7 +5,7 @@ import { formLevel } from "../ui/Overlays";
 import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
 import { Flame } from "../ui/Flame";
-import { Shirt } from "../ui/Shirt";
+import { Avatar } from "../ui/Avatar";
 import { outcomeLabel, useSummary, type PlayerSummary, type Summary } from "./summary";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
@@ -74,7 +74,7 @@ function Directory({ s }: { s: Summary }) {
           const team = teamOf(p.team);
           return (
             <a key={p.id} className="l-card l-player" href={`/?page=players&id=${p.id}`}>
-              <span className="lpl-num"><Shirt number={p.number} color={team.color} size={64} /></span>
+              <span className="lpl-num"><Avatar player={p} color={team.color} size={64} /></span>
               <span className="lpl-pos">{p.position}</span>
               <span className="lpl-name"><small>{first}</small>{last}</span>
               <span className="lpl-club"><i style={{ background: team.color }} />{team.name}</span>
@@ -113,9 +113,12 @@ function PlayerPage({ p, s }: { p: PlayerSummary; s: Summary }) {
     <div className="pp-grid">
       <aside className="pp-side">
         <section className="l-phead pp-hero" style={{ ["--team" as string]: team.color }}>
-          <div>
-            <h1><small>{first}</small>{last}</h1>
-            <p className="pp-club"><i style={{ background: team.color }} />{team.name} · {p.number} {p.position}</p>
+          <div className="pp-id">
+            <Avatar player={p} color={team.color} size={96} />
+            <div>
+              <h1><small>{first}</small>{last}</h1>
+              <p className="pp-club"><i style={{ background: team.color }} />{team.name} · {p.number} {p.position}</p>
+            </div>
           </div>
         </section>
         <section className="l-card pp-facts">

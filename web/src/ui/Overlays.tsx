@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
 import { Flame } from "./Flame";
+import { Avatar } from "./Avatar";
 import { band } from "../live/stats";
 import { clock, live, useLang, useLive } from "../live/store";
 import { directorReason, isRtl, statsLine, stepCaption, stepMeaning, storyLine, t as tr, type Lang } from "../i18n";
@@ -117,9 +118,12 @@ export function PlayerCard() {
       : <span className="story-text dim" dir={rtl ? "rtl" : undefined}>{lang === "en" && card.reason ? card.reason : tr(lang, "card_intro")}</span>;
   return (
     <div className={`card ${fresh ? (isUp ? "card-up" : "card-down") : ""}`} style={{ ["--team" as string]: team.color }}>
-      <div className="card-name">
-        <span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span>
-        <span className="last">{p.name.split(" ").slice(-1)[0]}</span>
+      <div className="card-id">
+        <Avatar player={p} color={team.color} size={44} number={false} />
+        <div className="card-name">
+          <span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span>
+          <span className="last">{p.name.split(" ").slice(-1)[0]}</span>
+        </div>
       </div>
       <div className="card-meta"><i className="team-dot" />{p.position} · #{p.number}</div>
       <div className={`form ${fresh ? (isUp ? "form-up" : "form-down") : ""}`}>

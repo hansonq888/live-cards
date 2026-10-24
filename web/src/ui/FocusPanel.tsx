@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { live, useLive } from "../live/store";
 import { formLevel } from "./Overlays";
-import { Shirt } from "./Shirt";
+import { Avatar } from "./Avatar";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
 const TILES: [string, string, (s: Record<string, number>) => string][] = [
@@ -65,7 +65,7 @@ export function FocusPanel() {
   return (
     <section className="an-panel fp">
       <header className="fp-head">
-        <Shirt number={p.number} color={team.color} size={40} />
+        <Avatar player={p} color={team.color} size={48} />
         <div className="fp-id"><b>{p.name}</b><span>{p.position} · {team.name}</span></div>
         <span className={`fp-form f${level}`}>{FORM[level]}{card ? ` · ${card.rating.toFixed(1)}` : ""}</span>
         <button className="fp-close" title="Let the auto-director choose who to follow again" onClick={() => live.send({ type: "auto" })}>Stop following</button>

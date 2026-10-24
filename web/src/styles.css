@@ -1702,3 +1702,15 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .l-player .lpl-pos { margin-top: 8px !important; }
 .l-player .lpl-club { margin-top: 2px; overflow: visible; }
 .l-player .lpl-club::before { content: none; }
+
+/* ===== Player avatars (ui/Avatar.tsx): illustrated, code-drawn, fictional ===== */
+.avatar { flex: none; display: block; border-radius: 50%; }
+.avatar-num { font: 800 9px "Inter Tight", Inter, sans-serif; }
+.lpl-num .avatar { box-shadow: 0 4px 12px rgba(30,20,80,.14); }
+.pp-id { display: flex; align-items: flex-end; gap: 20px; }
+.pp-id .avatar { background: rgba(255,255,255,.92); box-shadow: 0 0 0 3px rgba(255,255,255,.35), 0 8px 22px rgba(10,5,40,.25); }
+.mc-player .avatar { box-shadow: 0 0 0 2px #fff; }
+.fp-head .avatar { box-shadow: 0 0 0 2px var(--line, rgba(0,0,0,.08)); }
+.card-id { display: flex; align-items: center; gap: 10px; }
+.card-id .avatar { background: rgba(255,255,255,.9); box-shadow: 0 0 0 2px var(--team); }
+/* ===== end player avatars ===== */

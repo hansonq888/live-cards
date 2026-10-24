@@ -3,6 +3,7 @@
 import { Shell } from "./Shell";
 import { formLevel } from "../ui/Overlays";
 import { PlayCard } from "./PlayCard";
+import { Avatar } from "../ui/Avatar";
 import { useState } from "react";
 import { useSummary, type Summary } from "./summary";
 
@@ -98,7 +99,7 @@ function MatchCentre({ s }: { s: Summary }) {
             <span className="mc-club"><i style={{ background: t.color }} />{t.name}</span>
             {top(t.code).map((p) => (
               <a key={p.id} className="mc-player" style={{ ["--club" as string]: t.color }} href={`/?page=players&id=${p.id}`}>
-                <span className="mc-num" style={{ background: t.color }}>{p.number}</span>
+                <Avatar player={p} color={t.color} size={40} />
                 <span className="mc-pname"><b>{p.short}</b><em>{p.position}</em></span>
                 <span className={`mc-form f${formLevel(p.rating)}`}>{FORM[formLevel(p.rating)]}</span>
               </a>
