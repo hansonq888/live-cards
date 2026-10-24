@@ -248,7 +248,7 @@ export function BuildUpPanel({ docked = false }: { docked?: boolean }) {
   const teamName = meta ? (meta.players.find((p) => p.id === b.scorer)?.team === meta.home.code ? meta.home.name : meta.away.name) : "";
   return (
     <div className={`buildup ${docked ? "docked" : ""}`} dir={isRtl(lang) ? "rtl" : undefined}>
-      {docked && <button className="bu-back" onClick={() => live.backToLive()}><Icon name="back" size={14} />All plays</button>}
+      {docked && <button className="bu-back" onClick={() => live.backToLive()}><Icon name="back" size={14} />Close</button>}
       <div className="bu-head">
         <span className={`bu-kind ${b.kind}`}>{tr(lang, b.kind === "goal" ? "bd_goal" : "bd_chance")}</span>
         <span className="bu-title">{tr(lang, "bd_title")} · {who} {Math.floor(b.goalT / 60)}′</span>

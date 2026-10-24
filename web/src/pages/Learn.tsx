@@ -1,7 +1,7 @@
-// Learn: every stat in the registry (backend/livecards/engine/registry.py), what it means, how
-// it's calculated with the settings the engine actually uses, and a real play to see it on.
-// A stat added to the registry appears here with no frontend change.
-import { useEffect } from "react";
+// Learn as a short course: the stats as chapters on the left, one lesson at a time on the
+// right (big title, the diagram, one sentence, a real play). Everything comes from the stat
+// registry (backend/livecards/engine/registry.py), so a new stat becomes a new chapter.
+import { useEffect, useState } from "react";
 import { useRegistry } from "../live/stats";
 import { Shell } from "./Shell";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
@@ -13,41 +13,51 @@ const label = (k: string) => k.replace(/_/g, " ");
 export function Learn() {
   const s = useSummary();
   const reg = useRegistry();
-  // Links like ?page=learn#xg: the sections render after the registry loads, so scroll then.
-  useEffect(() => {
-    if (reg && location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
-  }, [reg]);
+  const [id, setId] = useState(location.hash.slice(1) || "xg");
+  useEffect(() => { if (reg && !reg.stats.some((x) => x.id === id)) setId(reg.stats[0].id); }, [reg, id]);
+  const go = (next: string) => { setId(next); history.replaceState(null, "", `?page=learn#${next}`); };
+  const stats = reg?.stats ?? [];
+  const i = stats.findIndex((x) => x.id === id);
+  const st = stats[i];
+  const look = st ? STAT_LOOK[st.id] : undefined;
+  const play = st ? s?.examples[st.id] : undefined;
   return (
     <Shell page="learn">
-      <section className="l-hero small">
-        <p className="l-eyebrow">Learn</p>
-        <h1>The numbers, in plain words.</h1>
-      </section>
-      <div className="learn-grid">
-        {reg?.stats.map((st) => {
-          const play = s?.examples[st.id];
-          const look = STAT_LOOK[st.id];
-          return (
-            <section key={st.id} id={st.id} className={`learn-card t-${look?.tint ?? "xg"}`}>
-              <div className="lc-band">
-                <h2>{st.name}</h2>
-                <StatVisual id={st.id} />
+      <div className="lesson">
+        <nav className="ls-chapters" aria-label="Stats">
+          <span className="ls-kicker">Learn the numbers</span>
+          {stats.map((x, n) => (
+            <button key={x.id} className={`ls-ch t-${STAT_LOOK[x.id]?.tint ?? "xg"} ${x.id === id ? "on" : ""}`} onClick={() => go(x.id)}>
+              <span className="ls-n">{String(n + 1).padStart(2, "0")}</span>
+              <span className="ls-t">{x.name}</span>
+            </button>
+          ))}
+        </nav>
+        {st && look && (
+          <article key={st.id} className={`ls-lesson t-${look.tint}`}>
+            <div className="ls-hero">
+              <span className="ls-step">Lesson {i + 1} of {stats.length}</span>
+              <h1>{st.name}</h1>
+              <p>{look.line}</p>
+              <div className="ls-visual"><StatVisual id={st.id} big /></div>
+            </div>
+            <div className="ls-body">
+              {play && <a className="ls-play" href={playHref(play)}>See it in a real play →</a>}
+              <details>
+                <summary>How it's calculated</summary>
+                <p>{st.how}</p>
+                <code>{st.formula}</code>
+                <p className="ls-settings">{Object.entries(st.settings).map(([k, v]) => <span key={k}>{label(k)} <b>{fmt(v)}</b></span>)}</p>
+                {st.note && <p className="ls-note">{st.note}</p>}
+              </details>
+              <div className="ls-nav">
+                {i > 0 ? <button onClick={() => go(stats[i - 1].id)}>← {stats[i - 1].name}</button> : <span />}
+                {i < stats.length - 1 && <button className="next" onClick={() => go(stats[i + 1].id)}>Next: {stats[i + 1].name} →</button>}
               </div>
-              <div className="lc-foot">
-                {play && <a className="lc-play" href={playHref(play)}>See it in a real play →</a>}
-                <details>
-                  <summary>How it's calculated</summary>
-                  <p>{st.how}</p>
-                  <code>{st.formula}</code>
-                  <p className="ls-settings">{Object.entries(st.settings).map(([k, v]) => <span key={k}>{label(k)} <b>{fmt(v)}</b></span>)}</p>
-                  {st.note && <p className="lc-note">{st.note}</p>}
-                </details>
-              </div>
-            </section>
-          );
-        })}
+            </div>
+          </article>
+        )}
       </div>
-      {reg && <p className="l-muted ls-version">Stat definitions v{reg.version}. Every setting is the value the engine uses; a league can calibrate them, and each change is versioned.</p>}
     </Shell>
   );
 }

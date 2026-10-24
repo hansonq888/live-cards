@@ -5,7 +5,7 @@ import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
 import { Wordmark } from "./ui/Wordmark";
-import { Controls, Plays, SidePanel, ViewMenu } from "./ui/SidePanel";
+import { Controls, SidePanel, ViewMenu } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
@@ -81,15 +81,8 @@ function Analyse({ onFan }: { onFan: () => void }) {
           <a href="/?page=players">Players</a>
         </nav>
       </header>
-      <main className="main analyse">
-        <aside className="plays-col">
-          {breakdown ? <BuildUpPanel docked /> : (
-            <>
-              <div className="col-title">Plays <span>every attack that ended in a shot</span></div>
-              <Plays />
-            </>
-          )}
-        </aside>
+      <main className={`main analyse ${breakdown ? "with-play" : ""}`}>
+        {breakdown && <aside className="plays-col"><BuildUpPanel docked /></aside>}
         <section className="broadcast">
           <ScaledStage>
             <Viewer />
