@@ -97,11 +97,12 @@ function MatchCentre({ s }: { s: Summary }) {
         {[home, away].map((t) => (
           <div key={t.code} className="mc-col">
             <span className="mc-club"><i style={{ background: t.color }} />{t.name}</span>
-            {top(t.code).map((p) => (
+            {top(t.code).map((p, i) => (
               <a key={p.id} className="mc-player" style={{ ["--club" as string]: t.color }} href={`/?page=players&id=${p.id}`}>
-                <Avatar player={p} color={t.color} size={40} />
-                <span className="mc-pname"><b>{p.short}</b><em>{p.position}</em></span>
-                <span className={`mc-form f${formLevel(p.rating)}`}>{FORM[formLevel(p.rating)]}</span>
+                <span className="mc-rank">{i + 1}</span>
+                <span className="mc-bust"><Avatar player={p} color={t.color} size={84} bare /></span>
+                <span className="mc-pname"><b>{p.short}</b><em>{p.position} · #{p.number}</em></span>
+                <span className="mc-score"><b>{p.rating.toFixed(1)}</b><span className={`mc-form f${formLevel(p.rating)}`}>{FORM[formLevel(p.rating)]}</span></span>
               </a>
             ))}
           </div>

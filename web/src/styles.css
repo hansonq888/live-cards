@@ -1719,3 +1719,41 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .av-sheet figure { margin: 0; text-align: center; font: 600 14px Inter, sans-serif; color: #160f35; }
 .av-pair { display: flex; gap: 10px; justify-content: center; margin-bottom: 8px; }
 .av-checker { background: repeating-conic-gradient(#e6e6e6 0 25%, #fff 0 50%) 0 0 / 16px 16px; border-radius: 8px; }
+
+/* player cards: a big cut-out bust standing on the card's bottom edge, on a faint club tint */
+.l-player { position: relative; overflow: hidden; grid-template-columns: 1fr !important; grid-template-areas: "name" "pos" "club" "form" !important; padding-right: 140px !important; min-height: 190px !important; }
+.l-player .lpl-num { position: absolute !important; right: 0; bottom: 0; width: 140px; height: 100%; display: flex; align-items: flex-end; justify-content: center; background: linear-gradient(180deg, transparent 20%, color-mix(in srgb, var(--club, #c9c4dc) 14%, transparent)); }
+.l-player .lpl-num .avatar { width: 128px; height: 128px; display: block; }
+.l-player .lpl-form { border-top: 0; }
+
+/* top performers: big cut-outs on a club-coloured slab, rank and rating like a broadcast graphic */
+.mc-player { position: relative; overflow: hidden; display: grid !important; grid-template-columns: 40px 84px 1fr auto; align-items: end; gap: 0 14px; padding: 0 18px 0 0 !important; min-height: 86px; border-radius: 8px !important;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--club) 92%, #000) 0%, var(--club) 38%, color-mix(in srgb, var(--club) 70%, #fff) 100%) !important; color: #fff !important; box-shadow: none !important; }
+.mc-player::after { content: ""; position: absolute; right: -10px; top: 0; bottom: 0; width: 38%; background: rgba(255,255,255,.1); clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%); pointer-events: none; }
+.mc-player:hover { filter: brightness(1.06); }
+.mc-rank { align-self: stretch; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.28); font-family: var(--headline); font-weight: 700; font-size: 24px; }
+.mc-bust { align-self: end; height: 84px; display: flex; align-items: flex-end; }
+.mc-bust .avatar { display: block; }
+.mc-player .mc-pname { align-self: center; }
+.mc-player .mc-pname b { color: #fff; font-size: 22px !important; letter-spacing: -.3px; }
+.mc-player .mc-pname em { color: rgba(255,255,255,.8) !important; font-size: 13px; }
+.mc-score { align-self: center; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.mc-score b { font-family: var(--headline); font-weight: 700; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+.mc-player .mc-form { background: rgba(0,0,0,.28) !important; color: #fff !important; }
+.mc-player .mc-form.f4 { background: linear-gradient(90deg, #ff4d1a, #ffb21a) !important; }
+.mc-col { gap: 10px !important; }
+
+/* bare avatars: no circle, no ring */
+.avatar.bare, .mc-player .avatar.bare, .lpl-num .avatar.bare, .pp-id .avatar.bare { border-radius: 0 !important; box-shadow: none !important; background: none !important; }
+/* player hero like a league profile: cut-out standing on the bottom edge, name to its right */
+.pp-hero { padding: 0 28px 0 0 !important; min-height: 230px; align-items: stretch !important; }
+.pp-hero .pp-id { display: flex; align-items: stretch; gap: 20px; width: 100%; }
+.pp-bust { flex: none; display: flex; align-items: flex-end; margin-left: 4px; }
+.pp-bust .avatar { display: block; width: 200px; height: 200px; }
+.pp-hero .pp-id > div { align-self: center; padding: 24px 0; }
+.pp-hero h1 { font-size: 44px; }
+.l-player { padding-right: 118px !important; }
+.l-player .lpl-num { width: 118px; background: linear-gradient(180deg, transparent 10%, color-mix(in srgb, var(--club, #c9c4dc) 12%, transparent)) !important; }
+.l-player .lpl-num .avatar { width: 112px; height: 112px; }
+.l-player .lpl-form .l-meter { max-width: 100%; }
+.mc-bust .avatar, .pp-bust .avatar { filter: drop-shadow(0 0 0 rgba(0,0,0,0)) drop-shadow(-3px 0 0 rgba(0,0,0,.22)) drop-shadow(3px 0 0 rgba(0,0,0,.22)); }

@@ -73,8 +73,8 @@ function Directory({ s }: { s: Summary }) {
           const [first, last] = split(p.name);
           const team = teamOf(p.team);
           return (
-            <a key={p.id} className="l-card l-player" href={`/?page=players&id=${p.id}`}>
-              <span className="lpl-num"><Avatar player={p} color={team.color} size={64} /></span>
+            <a key={p.id} className="l-card l-player" style={{ ["--club" as string]: team.color }} href={`/?page=players&id=${p.id}`}>
+              <span className="lpl-num"><Avatar player={p} color={team.color} size={128} bare /></span>
               <span className="lpl-pos">{p.position}</span>
               <span className="lpl-name"><small>{first}</small>{last}</span>
               <span className="lpl-club"><i style={{ background: team.color }} />{team.name}</span>
@@ -114,7 +114,7 @@ function PlayerPage({ p, s }: { p: PlayerSummary; s: Summary }) {
       <aside className="pp-side">
         <section className="l-phead pp-hero" style={{ ["--team" as string]: team.color }}>
           <div className="pp-id">
-            <Avatar player={p} color={team.color} size={96} />
+            <span className="pp-bust"><Avatar player={p} color={team.color} size={200} bare /></span>
             <div>
               <h1><small>{first}</small>{last}</h1>
               <p className="pp-club"><i style={{ background: team.color }} />{team.name} · {p.number} {p.position}</p>

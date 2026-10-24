@@ -63,7 +63,7 @@ export function Avatar({ player, color, size = 40, number = true, bare = false }
     return [cx + Math.cos(a) * (rx + 0.6), cy - 3 + Math.sin(a) * (ry - 1.5)];
   });
   return (
-    <svg className="avatar" width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={player.name ? `Illustration of ${player.name}` : undefined}>
+    <svg className={`avatar ${bare ? "bare" : ""}`} width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={player.name ? `Illustration of ${player.name}` : undefined}>
       <defs>
         <clipPath id={`${uid}c`}>{bare ? <rect x="0" y="0" width="64" height="64" /> : <circle cx="32" cy="32" r="32" />}</clipPath>
         <clipPath id={`${uid}h`}><ellipse cx={cx} cy={cy} rx={rx + 0.7} ry={ry + 0.7} /></clipPath>
@@ -73,7 +73,8 @@ export function Avatar({ player, color, size = 40, number = true, bare = false }
         {f.hairStyle === "long" && <rect x={cx - rx - 3} y={top - 2} width={2 * rx + 6} height={2 * ry + 8} rx="10" fill={f.hair} />}
         {f.hairStyle === "afro" && <ellipse cx={cx} cy={cy - 5} rx={rx + 6.5} ry={ry + 3} fill={f.hair} />}
         <rect x={cx - 5} y={cy + ry - 6} width="10" height="14" fill={skinShade} />
-        <path d="M2 66 C4 54 14 49.5 25 48.5 Q32 53 39 48.5 C50 49.5 60 54 62 66 Z" fill={kit} />
+        {/* Bare: square shoulders cut straight across the bottom, so the bust sits on any edge. */}
+        <path d={bare ? "M4 64 V57 C6 52 14 49.5 25 48.5 Q32 53 39 48.5 C50 49.5 58 52 60 57 V64 Z" : "M2 66 C4 54 14 49.5 25 48.5 Q32 53 39 48.5 C50 49.5 60 54 62 66 Z"} fill={kit} />
         <path d="M25 48.5 Q32 54.5 39 48.5" fill="none" stroke={ink} strokeOpacity=".55" strokeWidth="1.6" />
         {number && <text x="32" y="62.5" textAnchor="middle" className="avatar-num" fill={ink}>{player.number}</text>}
         <circle cx={cx - rx + 0.3} cy={cy + 1.5} r="2.6" fill={skinShade} />
