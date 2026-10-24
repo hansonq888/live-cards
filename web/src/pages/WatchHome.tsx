@@ -3,6 +3,7 @@
 import { Shell } from "./Shell";
 import { formLevel } from "../ui/Overlays";
 import { PlayCard } from "./PlayCard";
+import { useState } from "react";
 import { useSummary, type Summary } from "./summary";
 
 const STATS: [string, string, (v: number) => string][] = [
@@ -105,6 +106,7 @@ function MatchCentre({ s }: { s: Summary }) {
           </div>
         ))}
       </section>
+      <BoxScore s={s} />
       <section className="mc-plays">
         <div className="l-head"><h2>Key plays</h2><a href="/?page=analyse">All {s.plays.length} plays</a></div>
         <div className="plays-grid four">
@@ -112,5 +114,61 @@ function MatchCentre({ s }: { s: Summary }) {
         </div>
       </section>
     </div>
+  );
+}
+
+const COLS: [string, string, (p: Summary["players"][number]) => number, (v: number) => string][] = [
+  ["min", "Min", (p) => p.stats.minutes ?? 0, (v) => String(Math.round(v))],
+  ["rating", "Rating", (p) => p.rating, (v) => v.toFixed(1)],
+  ["goals", "G", (p) => p.stats.goals ?? 0, String],
+  ["shots", "Sh", (p) => p.stats.shots ?? 0, String],
+  ["sot", "SoT", (p) => p.stats.shots_on_target ?? 0, String],
+  ["xg", "xG", (p) => p.stats.xg ?? 0, (v) => v.toFixed(2)],
+  ["cc", "Key passes", (p) => p.stats.chances_created ?? 0, String],
+  ["passes", "Passes", (p) => p.stats.passes_completed ?? 0, String],
+  ["pct", "Pass %", (p) => p.stats.pass_pct ?? 0, (v) => `${Math.round(v)}`],
+  ["tkl", "Tkl", (p) => p.stats.tackles_won ?? 0, String],
+  ["int", "Int", (p) => p.stats.interceptions ?? 0, String],
+  ["dist", "Dist (km)", (p) => p.stats.distance_km ?? 0, (v) => v.toFixed(1)],
+  ["top", "Top km/h", (p) => p.stats.top_speed_kmh ?? 0, (v) => v.toFixed(1)],
+];
+
+function BoxScore({ s }: { s: Summary }) {
+  const [team, setTeam] = useState(s.meta.home.code);
+  const [sort, setSort] = useState("rating");
+  const t = team === s.meta.home.code ? s.meta.home : s.meta.away;
+  const col = COLS.find((c) => c[0] === sort)!;
+  const rows = s.players.filter((p) => p.team === team).sort((a, b) => col[2](b) - col[2](a));
+  const best: Record<string, number> = Object.fromEntries(COLS.map((c) => [c[0], Math.max(...rows.map(c[2]))]));
+  return (
+    <section className="l-card bx">
+      <div className="bx-head">
+        <h2 className="mc-h">Player stats</h2>
+        <div className="bx-tabs">
+          {[s.meta.home, s.meta.away].map((x) => (
+            <button key={x.code} className={team === x.code ? "on" : ""} onClick={() => setTeam(x.code)}><i style={{ background: x.color }} />{x.name}</button>
+          ))}
+        </div>
+      </div>
+      <div className="bx-wrap">
+        <table className="bx-table">
+          <thead>
+            <tr>
+              <th className="bx-name">Player</th>
+              {COLS.map(([k, label]) => <th key={k} className={sort === k ? "on" : ""} onClick={() => setSort(k)}>{label}{sort === k ? " ↓" : ""}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((p) => (
+              <tr key={p.id}>
+                <td className="bx-name"><a href={`/?page=players&id=${p.id}`}><span className="bx-num" style={{ background: t.color }}>{p.number}</span><b>{p.short}</b><em>{p.position}</em></a></td>
+                {COLS.map(([k, , get, fmt]) => { const v = get(p); return <td key={k} className={v > 0 && v === best[k] ? "best" : ""}>{fmt(v)}</td>; })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="bx-note">Click a column to sort. Bold marks the team's best. G goals, Sh shots, SoT shots on target, Tkl tackles won, Int interceptions.</p>
+    </section>
   );
 }
