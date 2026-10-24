@@ -102,3 +102,17 @@ def test_reviewer_fails_closed():
     out = asyncio.run(pipeline.explain(make_job(), FakeModel("Varenne lifts to 8.7.", "Varenne, 8.7."),
                                        ROSTER, trace.append, FakeModel("not json", "still not json")))
     assert out.source == "template"  # the model line never aired
+
+
+def test_casual_prompt_keeps_card_scores_out_but_the_verifier_keeps_them():
+    m = Moment(id="m-1", t=1500.0, minute=25, type="rating_upgrade", player="NGT-09", team="NGT",
+               importance=0.6, evidence=["e-1"], template="Halden 6.5 → 7.0: chance created (+0.30)",
+               facts={"from": 6.5, "to": 7.0, "delta": 0.52, "breakdown": "chance created (+0.30)"})
+    facts = {"minute": 25, **m.facts, "rating_now": 7.0, "player": "Viktor Halden"}
+    casual = ExplainJob(moment=m, facts=facts, names={"Halden"}, template=m.template)
+    analyst = ExplainJob(moment=m, facts=facts, names={"Halden"}, template=m.template, audience="analyst")
+    prompt = casual.prompt()
+    assert "6.5" not in prompt and "7.0" not in prompt and "0.30" not in prompt
+    assert "chance created" in prompt
+    assert "6.5" in analyst.prompt()
+    assert 7.0 in casual.bundle().numbers  # still a legal number for the checker

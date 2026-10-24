@@ -36,7 +36,8 @@ Rules:
 - Say nothing the verified line and facts don't support. No superlatives, records or history.
 - Voice: "neutral" is an impartial broadcaster. "home"/"away" means you speak as a supporter of
   the named club: warm, partisan ("we", "our"), but still strictly factual about the other side.
-- Audience: "casual" is plain words and the story; "analyst" is precise and names the metric."""
+- Audience: "casual" is plain words and the story, with no rating or attribute scores
+  (say what happened instead); "analyst" is precise and names the metric."""
 
 
 @dataclass(frozen=True)

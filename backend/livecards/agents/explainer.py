@@ -7,6 +7,7 @@ and the verifier checks the result before anything airs.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 
 from livecards.agents.verifier import Bundle, build_bundle
@@ -26,8 +27,14 @@ Rules:
   seasons, careers or history.
 - No hashtags, emojis or quotation marks."""
 
+# Card scores (rating and attribute values) and the moments that are about them.
+CARD_SCORES = ("from", "to", "delta", "rating_now", "breakdown")
+CARD_MOMENTS = {"rating_upgrade", "rating_downgrade", "attr_upgrade", "attr_downgrade"}
+
 AUDIENCE = {
-    "casual": "Write for a casual fan: plain words, the story of the moment.",
+    "casual": ("Write for a casual fan: plain words, the story of the moment. Never quote the "
+               "player rating or attribute scores (like 7.2, 8.7 or +3): say what happened "
+               "instead. Numbers a fan feels (minute, km/h, metres, the score) are fine."),
     "analyst": "Write for an analyst: precise, cite the key metric.",
 }
 
@@ -45,11 +52,24 @@ class ExplainJob:
     def bundle(self) -> Bundle:
         return build_bundle(self.facts, self.names, self.moment.evidence)
 
+    def prompt_facts(self) -> dict:
+        """The facts the model sees. Casual fans get the story, not the card's scores, so
+        the rating and attribute values are left out (the reasons stay, without weights).
+        The verifier still checks against every fact."""
+        if self.audience != "casual":
+            return self.facts
+        shown = {k: v for k, v in self.facts.items() if k not in CARD_SCORES}
+        if isinstance(self.facts.get("breakdown"), str):
+            shown["reasons"] = re.sub(r"\s*\([+-][\d.]+\)", "", self.facts["breakdown"])
+        return shown
+
     def prompt(self) -> str:
         parts = [AUDIENCE[self.audience],
                  f"Moment type: {self.moment.type.replace('_', ' ')}",
-                 f"Facts: {json.dumps(self.facts, ensure_ascii=False)}",
-                 f"Reference wording (rewrite it, keep it accurate): {self.template}"]
+                 f"Facts: {json.dumps(self.prompt_facts(), ensure_ascii=False)}"]
+        # The engine's template quotes the scores; casual card-change lines go without it.
+        if not (self.audience == "casual" and self.moment.type in CARD_MOMENTS):
+            parts.append(f"Reference wording (rewrite it, keep it accurate): {self.template}")
         if self.feedback:
             parts.append(f"Your previous line was rejected by the fact checker: {self.feedback}. "
                          "Fix exactly that.")
