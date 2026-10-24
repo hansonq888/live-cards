@@ -19,7 +19,7 @@ function arrow(g: CanvasRenderingContext2D, x1: number, y1: number, x2: number, 
 }
 
 function label(g: CanvasRenderingContext2D, text: string, x: number, y: number, bg: string, fg: string, px: number) {
-  g.font = `600 ${px}px Outfit, Inter, sans-serif`;
+  g.font = `600 ${px}px "Inter Tight", Inter, sans-serif`;
   const w = g.measureText(text).width + px * 1.2, h = px * 1.8;
   g.fillStyle = bg;
   g.beginPath(); g.roundRect(x - w / 2, y - h / 2, w, h, h / 2); g.fill();
@@ -122,7 +122,7 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
           g.beginPath(); g.arc(X(p.x), Y(p.y), r, 0, Math.PI * 2); g.fill();
           g.strokeStyle = "rgba(255,255,255,0.85)"; g.lineWidth = Math.max(1, 0.15 * k); g.stroke();
           if (!mini) {
-            g.fillStyle = "#ffffff"; g.font = `700 ${1.25 * k}px Outfit, Inter, sans-serif`;
+            g.fillStyle = "#ffffff"; g.font = `700 ${1.25 * k}px "Inter Tight", Inter, sans-serif`;
             g.textAlign = "center"; g.textBaseline = "middle";
             g.fillText(String(team.get(p.id)?.number ?? ""), X(p.x), Y(p.y) + 0.5);
           }
