@@ -1820,3 +1820,34 @@ html:has(.al), body:has(.al) { background: #f4f3f9; }
 .cl-hist { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: #4a4466; }
 @media (max-width: 900px) { .cl-grid { grid-template-columns: 1fr; } .wm-team .crest { width: auto; height: 40px; } }
 /* ===== end club identity ===== */
+/* player cards: no divider crossing the bust; the form sits on its own tinted strip */
+.l-player .lpl-form { box-shadow: none !important; margin: 0 -22px -20px !important; padding: 14px 22px 16px !important; background: #f6f5fb; }
+.l-player .lpl-num { margin-bottom: 0 !important; }
+
+/* live card: no divider crossing the bust */
+.card .form { box-shadow: none !important; padding-top: 4px !important; }
+.card-bust { top: 10px; }
+/* live stats: crests */
+.lsl-score .lsl-club { display: inline-flex; align-items: center; gap: 6px; background: none !important; color: #160f35 !important; padding: 0 !important; font-weight: 700; }
+/* home VS graphic */
+.vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 18px; background: rgba(10,5,40,.35); border-radius: 12px; padding: 26px 24px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); backdrop-filter: blur(6px); min-width: 420px; }
+.vs-team { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.vs-team.home { grid-column: 1; } .vs-team.away { grid-column: 3; } .vs-score { grid-column: 2; grid-row: 1; }
+.vs-team .crest { filter: drop-shadow(0 8px 16px rgba(0,0,0,.35)); }
+.vs-team b { font-family: var(--headline); font-weight: 700; font-size: 17px; }
+.vs-team ul { list-style: none; margin: 0; padding: 0; font-size: 13px; color: rgba(255,255,255,.8); display: flex; flex-direction: column; gap: 2px; }
+.vs-score { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 14px; }
+.vs-score b { font-family: var(--headline); font-weight: 800; font-size: 64px; line-height: 1; font-variant-numeric: tabular-nums; display: flex; gap: 12px; }
+.vs-score i { font-style: normal; opacity: .45; font-weight: 500; }
+.vs-ft { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: #fff; color: #160f35; padding: 3px 10px; border-radius: 4px; }
+.vs-venue { font-size: 12.5px; color: rgba(255,255,255,.7); }
+/* learn: example play with the player's cut-out */
+.ls-example { position: relative; overflow: hidden; display: grid; grid-template-columns: 110px 1fr auto; align-items: center; gap: 18px; padding: 0 22px 0 8px; min-height: 110px; border-radius: 10px; text-decoration: none; color: #160f35;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--club) 14%, #fff), #fff 70%); box-shadow: 0 0 0 1px rgba(22,15,53,.06); }
+.ls-example:hover { box-shadow: 0 0 0 1px rgba(22,15,53,.1), 0 10px 24px rgba(22,15,53,.08); }
+.lse-bust { align-self: end; height: 110px; display: flex; align-items: flex-end; }
+.lse-text { display: flex; flex-direction: column; gap: 3px; }
+.lse-text em { font-style: normal; font-size: 12.5px; color: #6c668a; }
+.lse-text b { font-family: var(--headline); font-weight: 700; font-size: 20px; }
+.lse-text span { font-size: 13.5px; color: #4d4670; }
+.lse-go { font-weight: 600; color: var(--ti, #3a1fd0); white-space: nowrap; }

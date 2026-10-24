@@ -1,6 +1,7 @@
 // Beside the pitch in Analyse: the match as it stands, refreshed every second by the engine.
 import { clock, live, useLive } from "../live/store";
 import { formLevel } from "./Overlays";
+import { Crest } from "./Crest";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
 
@@ -24,9 +25,9 @@ export function LiveStats() {
   return (
     <aside className="ls-live">
       <div className="lsl-score">
-        <span style={{ background: home.color }}>{home.code}</span>
+        <span className="lsl-club"><Crest code={home.code} size={34} />{home.code}</span>
         <b>{team.score[home.code] ?? 0}–{team.score[away.code] ?? 0}</b>
-        <span style={{ background: away.color }}>{away.code}</span>
+        <span className="lsl-club">{away.code}<Crest code={away.code} size={34} /></span>
         <em>{clock(t)}</em>
       </div>
       <div className="lsl-rows">

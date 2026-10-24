@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRegistry } from "../live/stats";
 import { Shell } from "./Shell";
+import { Avatar } from "../ui/Avatar";
 import { Formula } from "./Formula";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { playHref, useSummary } from "./summary";
@@ -22,6 +23,9 @@ export function Learn() {
   const st = stats[i];
   const look = st ? STAT_LOOK[st.id] : undefined;
   const play = st ? s?.examples[st.id] : undefined;
+  const exPlay = s?.plays.find((x) => x.id === play);
+  const exPlayer = exPlay ? s?.players.find((x) => x.id === exPlay.player) : undefined;
+  const exClub = exPlayer && s ? (exPlayer.team === s.meta.home.code ? s.meta.home.color : s.meta.away.color) : "#888";
   return (
     <Shell page="learn">
       <div className="lesson">
@@ -45,7 +49,17 @@ export function Learn() {
               <div className="ls-visual"><StatVisual id={st.id} big /></div>
             </div>
             <div className="ls-body">
-              {play && <a className="ls-play" href={playHref(play)}>See it in a real play →</a>}
+              {exPlay && exPlayer && (
+                <a className="ls-example" href={playHref(exPlay.id)} style={{ ["--club" as string]: exClub }}>
+                  <span className="lse-bust"><Avatar player={exPlayer} color={exClub} size={110} bare /></span>
+                  <span className="lse-text">
+                    <em>Seen in this match</em>
+                    <b>{exPlayer.short}'s {exPlay.outcome === "goal" ? "goal" : "chance"}, {exPlay.minute}′</b>
+                    <span>xG {exPlay.xg.toFixed(2)} · walk through it touch by touch</span>
+                  </span>
+                  <span className="lse-go">See it →</span>
+                </a>
+              )}
               <details>
                 <summary>How it's calculated</summary>
                 <p>{st.how}</p>

@@ -31,15 +31,19 @@ export function Home() {
           </div>
         </div>
         {meta && s && (
-          <div className="hc-board">
-            <div className="hb-row">
-              <span className="hb-team" style={{ background: meta.home.color }}><Crest code={meta.home.code} size={36} />{meta.home.code}</span>
-              <span className="hb-score">{s.score[meta.home.code]}<i>–</i>{s.score[meta.away.code]}</span>
-              <span className="hb-team" style={{ background: meta.away.color }}><Crest code={meta.away.code} size={36} />{meta.away.code}</span>
-              <span className="hb-ft">FT</span>
+          <div className="vs">
+            {[meta.home, meta.away].map((t, side) => (
+              <div key={t.code} className={`vs-team ${side ? "away" : "home"}`}>
+                <Crest code={t.code} size={84} />
+                <b>{t.name}</b>
+                <ul>{goals.filter((g) => g.team === t.code).map((g) => <li key={g.id}>{name(g.player)} {g.minute}′</li>)}</ul>
+              </div>
+            ))}
+            <div className="vs-score">
+              <span className="vs-ft">Full time</span>
+              <b>{s.score[meta.home.code]}<i>–</i>{s.score[meta.away.code]}</b>
+              <span className="vs-venue">{meta.venue}</span>
             </div>
-            <div className="hb-names"><span>{meta.home.name}</span><span>{meta.away.name}</span></div>
-            <div className="hb-goals">{goals.map((g) => <span key={g.id}><b>{g.minute}′</b> {name(g.player)}</span>)}</div>
           </div>
         )}
       </section>
