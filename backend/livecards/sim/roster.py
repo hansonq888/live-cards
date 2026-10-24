@@ -48,11 +48,11 @@ _NGT = [
 ]
 
 HOME = TeamMeta(
-    code="RIV", name="Riverside FC", color="#c8102e", secondary="#ffffff",
+    code="RIV", name="Riverside FC", color="#d3302a", secondary="#ffffff",
     attack_dir=1, formation="4-3-3",
 )
 AWAY = TeamMeta(
-    code="NGT", name="Northgate Athletic", color="#1d4ed8", secondary="#0b1a3a",
+    code="NGT", name="Northgate Athletic", color="#2158a8", secondary="#0b1a3a",
     attack_dir=-1, formation="4-2-3-1",
 )
 VENUE = "Harbour Lane"

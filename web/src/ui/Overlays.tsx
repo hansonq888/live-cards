@@ -118,8 +118,8 @@ export function PlayerCard() {
       : <span className="story-text dim" dir={rtl ? "rtl" : undefined}>{lang === "en" && card.reason ? card.reason : tr(lang, "card_intro")}</span>;
   return (
     <div className={`card ${fresh ? (isUp ? "card-up" : "card-down") : ""}`} style={{ ["--team" as string]: team.color }}>
+      <span className="card-bust"><Avatar player={p} color={team.color} size={92} bare /></span>
       <div className="card-id">
-        <Avatar player={p} color={team.color} size={44} number={false} />
         <div className="card-name">
           <span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span>
           <span className="last">{p.name.split(" ").slice(-1)[0]}</span>
