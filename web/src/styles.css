@@ -1377,3 +1377,26 @@ a.l-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(22,15,5
 .ls-visual { max-width: 520px; }
 .ls-visual .stat-tile { padding: 22px 28px; }
 .ls-visual .sv { max-height: 200px; }
+
+/* Analyse: the light background covers the whole page; columns line up; one card per job */
+.app.al { height: auto; min-height: 100vh; }
+html:has(.al), body:has(.al) { background: #f4f3f9; }
+.al .main { align-items: start; padding: 20px 24px 32px; gap: 20px; }
+.al .broadcast { gap: 16px; }
+.al .an-panel { background: #fff; border-radius: var(--r-lg); padding: 16px 18px; box-shadow: 0 0 0 1px rgba(22,15,53,.06), 0 8px 24px rgba(22,15,53,.05); display: flex; flex-direction: column; gap: 14px; }
+.al .xg-race { background: #fff !important; box-shadow: 0 0 0 1px rgba(22,15,53,.06), 0 8px 24px rgba(22,15,53,.05) !important; padding: 18px 20px 12px; }
+.al .side, .al .plays-col { position: sticky; top: 20px; height: calc(100vh - 40px); max-height: none; background: #fff !important; box-shadow: 0 0 0 1px rgba(22,15,53,.06), 0 8px 24px rgba(22,15,53,.05) !important; }
+.al .stage-wrap { box-shadow: 0 0 0 1px rgba(22,15,53,.08), 0 12px 30px rgba(22,15,53,.12); }
+.al .studio-row .explain-goal { background: #efedf8; color: var(--text); }
+
+/* form diagram: bars share one baseline, labels on one line underneath */
+.sv-form { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: 1fr auto; align-items: end; gap: 8px 6px; height: 120px; padding: 6px 4px 0; }
+.svf { display: contents; }
+.svf i { grid-row: 1; align-self: end; border-radius: 3px 3px 0 0; }
+.svf span { grid-row: 2; font-size: 9.5px; font-weight: 600; white-space: nowrap; text-align: center; color: rgba(255,255,255,.9); }
+.ls-visual .sv-form { height: 170px; }
+.ls-visual .svf span { font-size: 12px; }
+/* every stat tile the same height, diagram centred */
+.stat-grid .stat-tile { height: 170px; display: flex; align-items: center; justify-content: center; }
+.stat-grid .stat-tile > * { width: 100%; }
+.stat-grid .sv-form { height: 130px; }

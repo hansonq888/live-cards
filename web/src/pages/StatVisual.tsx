@@ -62,9 +62,12 @@ function Pass() {
   const zones: [number, number, string][] = [[1, bands[0], "routine"], [bands[0], bands[1], "hard"], [bands[1], 10, "very hard"]];
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="sv">
-      <rect x="20" y="48" width={X(bands[0]) - 20} height="14" rx="3" className="sv-band0" />
-      <rect x={X(bands[0])} y="48" width={X(bands[1]) - X(bands[0])} height="14" className="sv-band1" />
-      <rect x={X(bands[1])} y="48" width={180 - X(bands[1])} height="14" rx="3" className="sv-band2" />
+      <defs><clipPath id="sv-track-p"><rect x="20" y="48" width="160" height="14" rx="4" /></clipPath></defs>
+      <g clipPath="url(#sv-track-p)">
+        <rect x="20" y="48" width={X(bands[0]) - 20} height="14" className="sv-band0" />
+        <rect x={X(bands[0])} y="48" width={X(bands[1]) - X(bands[0])} height="14" className="sv-band1" />
+        <rect x={X(bands[1])} y="48" width={180 - X(bands[1])} height="14" className="sv-band2" />
+      </g>
       {zones.map(([a, b, l]) => <text key={l} x={(X(a) + X(b)) / 2} y="38" textAnchor="middle" className="sv-lab">{l}</text>)}
       <text x="20" y="80" className="sv-cap">1</text>
       <text x="180" y="80" textAnchor="end" className="sv-cap">10</text>
@@ -78,9 +81,12 @@ function Sprint() {
   const X = (v: number) => 20 + (v / 36) * 160;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="sv">
-      <rect x="20" y="48" width={X(hi) - 20} height="14" rx="3" className="sv-band0" />
-      <rect x={X(hi)} y="48" width={X(sp) - X(hi)} height="14" className="sv-band1" />
-      <rect x={X(sp)} y="48" width={180 - X(sp)} height="14" rx="3" className="sv-band2" />
+      <defs><clipPath id="sv-track-s"><rect x="20" y="48" width="160" height="14" rx="4" /></clipPath></defs>
+      <g clipPath="url(#sv-track-s)">
+        <rect x="20" y="48" width={X(hi) - 20} height="14" className="sv-band0" />
+        <rect x={X(hi)} y="48" width={X(sp) - X(hi)} height="14" className="sv-band1" />
+        <rect x={X(sp)} y="48" width={180 - X(sp)} height="14" className="sv-band2" />
+      </g>
       <line x1={X(hi)} y1="40" x2={X(hi)} y2="70" className="sv-tick" />
       <line x1={X(sp)} y1="40" x2={X(sp)} y2="70" className="sv-tick" />
       <text x={X(hi)} y="32" textAnchor="end" className="sv-lab">{hi}</text>

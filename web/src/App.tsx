@@ -94,8 +94,10 @@ function Analyse({ onFan }: { onFan: () => void }) {
             <RedTeamPanel />
             <RevisitBadge />
           </ScaledStage>
-          <div className="studio-row"><Timeline /><ExplainGoalButton /></div>
-          <Controls />
+          <div className="an-panel an-transport">
+            <div className="studio-row"><Timeline /><ExplainGoalButton /></div>
+            <Controls />
+          </div>
           <XgRace />
         </section>
         <SidePanel />
