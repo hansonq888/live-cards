@@ -22,30 +22,27 @@ export function Learn() {
       <section className="l-hero small">
         <p className="l-eyebrow">Learn</p>
         <h1>The numbers, in plain words.</h1>
-        <p className="l-lede">Each stat on this site, what it means, exactly how we calculate it, and a real play from the match to see it on.</p>
       </section>
-      <div className="l-stack">
+      <div className="learn-grid">
         {reg?.stats.map((st) => {
           const play = s?.examples[st.id];
+          const look = STAT_LOOK[st.id];
           return (
-            <section key={st.id} id={st.id} className={`l-card l-stat t-${STAT_LOOK[st.id]?.tint ?? "xg"}`}>
-              <div className="ls-top">
-                <div>
-                  <span className={`sc-chip t-${STAT_LOOK[st.id]?.tint ?? "xg"}`}>{STAT_LOOK[st.id]?.short ?? st.id}</span>
-                  <h2>{st.name}</h2>
-                  <p className="ls-plain">{st.plain}</p>
-                </div>
-                <StatVisual id={st.id} big />
+            <section key={st.id} id={st.id} className={`learn-card t-${look?.tint ?? "xg"}`}>
+              <div className="lc-band">
+                <h2>{st.name}</h2>
+                <StatVisual id={st.id} />
               </div>
-              <div className="ls-cols">
-                <div><h4>How we calculate it</h4><p>{st.how}</p><code>{st.formula}</code></div>
-                <div>
-                  <h4>Settings</h4>
+              <div className="lc-foot">
+                {play && <a className="lc-play" href={playHref(play)}>See it in a real play →</a>}
+                <details>
+                  <summary>How it's calculated</summary>
+                  <p>{st.how}</p>
+                  <code>{st.formula}</code>
                   <p className="ls-settings">{Object.entries(st.settings).map(([k, v]) => <span key={k}>{label(k)} <b>{fmt(v)}</b></span>)}</p>
-                  {st.note && <><h4>Worth knowing</h4><p>{st.note}</p></>}
-                </div>
+                  {st.note && <p className="lc-note">{st.note}</p>}
+                </details>
               </div>
-              {play && <a className="l-btn primary" href={playHref(play)}>See it in a real play</a>}
             </section>
           );
         })}
