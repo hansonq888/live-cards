@@ -22,7 +22,7 @@ export function useSummary(): Summary | null {
   return s;
 }
 
-export const playHref = (id: string) => `/?page=analyse&play=${encodeURIComponent(id)}`;
+export const playHref = (id: string) => `/?page=play&play=${encodeURIComponent(id)}`;
 export const outcomeLabel = (o: string) => ({ goal: "Goal", saved: "Saved", off_target: "Off target", blocked: "Blocked" }[o] ?? o);
 /** xG as a fan reads it: "about n in 10". A fixed rule, so it can't drift from the number. */
 export const xgWords = (q: number) => {

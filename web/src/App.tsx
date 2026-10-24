@@ -9,6 +9,7 @@ import { Controls, Plays, SidePanel, ViewMenu } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
+import { PlayStory } from "./pages/PlayStory";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
 import { Console } from "./console/Console";
@@ -28,6 +29,7 @@ export default function App() {
   const page = q.get("page") ?? (view === "studio" ? "analyse" : view === "fan" || q.has("start") || q.has("play") ? "watch" : "home");
   if (page === "learn") return <Learn />;
   if (page === "players") return <Players />;
+  if (page === "play") return <PlayStory />;
   if (page === "watch" || page === "analyse") return <Live initial={page === "analyse" ? "studio" : "fan"} />;
   return <Home />;
 }
