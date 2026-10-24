@@ -57,6 +57,13 @@ def summary(seed: int = 7) -> dict:
                       "tackles_won": sum(x.tackles_won for x in ps),
                       "interceptions": sum(x.interceptions for x in ps),
                       "distance_km": round(sum(x.distance_m for x in ps) / 1000, 1)}
+    # Flow of the match: passes and shots per team in each 5-minute window.
+    flow = [{"minute": m, **{c: {"passes": 0, "shots": 0} for c in (meta.home.code, meta.away.code)}}
+            for m in range(0, 90, 5)]
+    for e in engine.events.values():
+        if e.team in (meta.home.code, meta.away.code) and e.type in ("pass", "shot"):
+            b = flow[min(len(flow) - 1, int(e.t // 300))][e.team]
+            b["passes" if e.type == "pass" else "shots"] += 1
     # The match's key events, for the timeline: goals, cards and substitutions.
     events = []
     for e in engine.events.values():
@@ -69,7 +76,7 @@ def summary(seed: int = 7) -> dict:
     hero = next((g for g in goals if g["player"] == "RIV-09"), goals[0] if goals else None)
     return {
         "meta": meta.model_dump(), "score": engine.score, "plays": plays, "players": players,
-        "team": team, "events": sorted(events, key=lambda x: x["t"]),
+        "team": team, "events": sorted(events, key=lambda x: x["t"]), "flow": flow,
         # A real play from this match to show each stat on (Learn page), per the registry.
         "examples": {st.id: (max(plays, key=lambda x: x["xg"])["id"] if st.example == "max_xg"
                              else hero["id"] if hero else None) if plays else None

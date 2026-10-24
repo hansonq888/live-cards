@@ -10,6 +10,7 @@ export interface Summary {
   meta: MatchMeta; score: Record<string, number>; plays: Play[]; players: PlayerSummary[];
   examples: Record<string, string | null>;
   team: Record<string, Record<string, number>>;
+  flow: ({ minute: number } & Record<string, { passes: number; shots: number } | number>)[];
   events: { minute: number; t: number; type: string; team: string; player: string; off?: string }[];
 }
 

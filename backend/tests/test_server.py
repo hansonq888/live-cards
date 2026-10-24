@@ -191,3 +191,10 @@ def test_summary_team_totals_and_events_agree_with_the_score():
     home, away = s["meta"]["home"]["code"], s["meta"]["away"]["code"]
     assert abs(s["team"][home]["possession"] + s["team"][away]["possession"] - 100) < 0.5
     assert all(s["team"][c]["shots"] >= s["team"][c]["shots_on_target"] for c in (home, away))
+
+
+def test_summary_flow_adds_up_to_team_shots():
+    from livecards.server.summary import summary
+    s = summary(7)
+    for code in s["team"]:
+        assert sum(b[code]["shots"] for b in s["flow"]) == s["team"][code]["shots"]

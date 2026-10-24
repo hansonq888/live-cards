@@ -9,7 +9,7 @@ import { Controls, SidePanel, ViewMenu } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
-import { XgRace } from "./ui/XgRace";
+import { AnalysisBoard } from "./ui/AnalysisBoard";
 import { PlayStory } from "./pages/PlayStory";
 import { WatchHome } from "./pages/WatchHome";
 import { ScaledStage } from "./ui/ScaledStage";
@@ -98,7 +98,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
             <Controls />
           </div>
           {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
-          <XgRace />
+          <AnalysisBoard />
         </section>
         <SidePanel />
       </main>
