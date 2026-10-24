@@ -12,27 +12,29 @@ export function Home() {
   const featured = [...goals, ...chances];
   return (
     <Shell page="home">
-      <section className="l-hero">
-        <p className="l-eyebrow">Match analysis, explained</p>
-        <h1>Understand every <span className="l-grad">moment.</span></h1>
-        <p className="l-lede">Every attack replayed from tracking data. Every stat explained in plain words. Every claim checked by AI agents before you see it.</p>
-        <div className="l-cta">
-          <a className="l-btn primary" href="/?page=analyse">Analyse the plays</a>
-          <a className="l-btn" href="/?page=watch">Watch the match</a>
-        </div>
-      </section>
-
-      {meta && s && (
-        <section className="l-card l-result">
-          <div className="lr-team"><i style={{ background: meta.home.color }} />{meta.home.name}</div>
-          <div className="lr-score">{s.score[meta.home.code]} – {s.score[meta.away.code]}</div>
-          <div className="lr-team right">{meta.away.name}<i style={{ background: meta.away.color }} /></div>
-          <div className="lr-meta">Full time · {meta.venue}</div>
-          <div className="lr-goals">
-            {goals.map((g) => <span key={g.id}>{name(g.player)} {g.minute}′</span>)}
+      <section className="hero-card">
+        <div className="hc-text">
+          <p className="hc-eyebrow">Match analysis, explained</p>
+          <h1>Understand every <span>moment.</span></h1>
+          <p className="hc-lede">Every attack replayed from tracking data. Every stat explained in plain words. Every claim checked by AI agents before you see it.</p>
+          <div className="hc-cta">
+            <a className="hc-btn" href="/?page=watch">Watch the match</a>
+            <a className="hc-btn primary" href="/?page=analyse">Analyse the plays</a>
           </div>
-        </section>
-      )}
+        </div>
+        {meta && s && (
+          <div className="hc-result">
+            <span className="hc-ft">Full time · {meta.venue}</span>
+            <div className="hc-teams">
+              <span><i style={{ background: meta.home.color }} />{meta.home.name}</span>
+              <b>{s.score[meta.home.code]}</b>
+              <span><i style={{ background: meta.away.color }} />{meta.away.name}</span>
+              <b>{s.score[meta.away.code]}</b>
+            </div>
+            <div className="hc-goals">{goals.map((g) => <span key={g.id}>⚽ {name(g.player)} {g.minute}′</span>)}</div>
+          </div>
+        )}
+      </section>
 
       <section className="l-section">
         <div className="l-head"><h2>Plays to break down</h2><a href="/?page=analyse">All {s?.plays.length ?? ""} plays</a></div>

@@ -16,7 +16,7 @@ export function PlayCard({ play, title }: { play: Play; title: string }) {
         </div>
         <div className="lp-num"><b>{play.xg.toFixed(2)}</b><span>xG</span></div>
       </div>
-      <ShotMap ax={play.ax} ay={play.ay} xg={play.xg} goal={goal} />
+      <div className={`lp-visual ${goal ? "goal" : ""}`}><ShotMap ax={play.ax} ay={play.ay} xg={play.xg} goal={goal} /></div>
       <div className="lp-foot">
         <span>{n >= 1 ? `Scores ${n} in 10` : "Scores under 1 in 10"}</span>
         <span className="lp-go">Break it down →</span>

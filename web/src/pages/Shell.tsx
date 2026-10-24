@@ -1,4 +1,4 @@
-// Light pages share this frame: a quiet top bar and generous space.
+// Light pages share this frame: a gradient brand band with tabs, then generous space.
 import type { ReactNode } from "react";
 import { Bolt } from "../ui/Bolt";
 
@@ -7,12 +7,14 @@ const LINKS = [["home", "Home"], ["watch", "Watch"], ["analyse", "Analyse"], ["l
 export function Shell({ page, children }: { page: string; children: ReactNode }) {
   return (
     <div className="light">
-      <header className="l-top">
-        <a className="l-brand" href="/"><Bolt size={20} />Live Cards</a>
-        <nav className="l-nav">
+      <header className="l-band">
+        <div className="lb-row">
+          <a className="lb-brand" href="/"><Bolt size={30} />Live Cards</a>
+          <span className="lb-note">Synthetic match · fictional clubs</span>
+        </div>
+        <nav className="lb-tabs">
           {LINKS.map(([k, label]) => <a key={k} href={k === "home" ? "/" : `/?page=${k}`} className={page === k ? "on" : ""}>{label}</a>)}
         </nav>
-        <span className="l-note">Synthetic match · fictional clubs</span>
       </header>
       <main className="l-main">{children}</main>
       <footer className="l-foot">
