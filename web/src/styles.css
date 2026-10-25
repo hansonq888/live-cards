@@ -2351,3 +2351,12 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .an-transport .explain-goal { grid-column: 4; grid-row: 1; justify-self: end; }
 .an-transport .ring-pick { min-width: 150px; }
 @media (max-width: 800px) { .an-transport { grid-template-columns: auto minmax(0, 1fr); row-gap: 10px; } .an-transport .c-side.right { grid-column: 1 / -1; grid-row: 2; justify-self: start; } .an-transport .explain-goal { grid-column: 1 / -1; grid-row: 3; justify-self: start; } }
+/* Tactical view: the broadcast keeps playing in the corner panel, mirroring the tactical mini */
+.stage-1280:has(.board-main) > .stage { inset: auto 18px 20px auto; width: 228px; height: 158px; z-index: 6; border-radius: var(--r); overflow: hidden; pointer-events: none;
+  box-shadow: var(--lift), 0 0 0 1px rgba(255,255,255,.12); }
+.stage-1280:has(.board-main) > .stage .name-tag, .stage-1280:has(.board-main) > .stage .stat-legend, .stage-1280:has(.board-main) > .stage .alert-badge { display: none !important; }
+.board-main { z-index: 5; }
+.board-mini-back { position: absolute; right: 18px; bottom: 20px; width: 228px; height: 158px; z-index: 7; padding: 0; border: 0; border-radius: var(--r); background: transparent; cursor: pointer; }
+.board-mini-back span { position: absolute; left: 8px; top: 7px; font-size: 11px; font-weight: 600; color: #fff; background: rgba(13,10,36,.75); padding: 2px 8px; border-radius: 999px; }
+.board-mini-back:hover { box-shadow: 0 0 0 2px var(--accent); }
+.an-stage .board-mini, .an-stage .board-mini-back, .an-stage .stage-1280:has(.board-main) > .stage { bottom: 64px !important; }
