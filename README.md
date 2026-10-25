@@ -2,6 +2,11 @@
 
 *Take a second look at every moment.*
 
+[![ci](https://github.com/hansonq888/live-cards/actions/workflows/ci.yml/badge.svg)](https://github.com/hansonq888/live-cards/actions/workflows/ci.yml)
+![tests](https://img.shields.io/badge/tests-197%20passing-2ea44f)
+![planted lies aired](https://img.shields.io/badge/planted%20lies%20aired-0%20of%20275-2ea44f)
+![Azure](https://img.shields.io/badge/runs%20on-Azure%20Container%20Apps-0078D4)
+
 **Football analytics that explains itself.** The league already publishes xG, pass maps and
 dozens of advanced stats, and most fans can't read them. Footnote turns a match into moments you
 can *understand*: ask why a goal happened and watch it replayed touch by touch on a tactics
@@ -16,9 +21,22 @@ words from AI agents, and nothing reaches the screen until two independent check
 **[Broadcast console](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?view=console)** ·
 [Evaluation](docs/evaluation.md) · [Load test](docs/load-test.md) · [Cost](docs/cost.md) · [Architecture and deployment](docs/deployment.md) · [Design decisions](docs/decisions.md)
 
-> Built solo for the Microsoft × Premier League *Inside the Game* hackathon, October 2026.
+> Built for the Microsoft × Premier League *Inside the Game* hackathon, October 2026.
 > **All data is synthetic:** the clubs (Riverside FC, Northgate Athletic), the players, the
 > venue and every event come from our own simulator.
+
+## Try it in 60 seconds
+
+1. **[Show me a goal](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?page=analyse&showme=e-1666).** The 65' equaliser replays on the tactics
+   board, touch by touch, with the space each pass opened and a checked one-line story.
+2. **Ask the match.** On the same page, open *Ask the match* (bottom right) and ask *"Who has been
+   the fastest player?"* or *"How was Halden's goal built?"* Answers come with evidence; play
+   answers have a ▶ Show me button.
+3. **Follow a player.** Click any player on the pitch: their card, heatmap and numbers update as
+   they play. Tap *◐ Colour by* to colour all 22 players by a stat.
+4. **Watch the agents work.** Open the *Agents* tab under the video, press play, then *Plant a lie*:
+   the row shows the lie rejected by the code verifier, rewritten, and aired clean.
+5. **[Learn xG](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?page=learn#xg).** Click anywhere on the pitch and the engine scores the shot.
 
 ---
 
@@ -75,7 +93,7 @@ flowchart LR
   WF --> APP[Container Apps<br/>FastAPI + WebSocket]
   DIR --> APP
   QA --> APP
-  APP -- frames, cards, cues --> FAN[Fan / Studio view<br/>React + three.js]
+  APP -- frames, cards, cues --> FAN[Web app: match, Analyse, Learn, players<br/>React + three.js]
   APP -- audit, approvals --> WPS[(Azure Web PubSub)] --> CON[Broadcast console]
   APP -- audit log --> COS[(Azure Cosmos DB)]
   APP -- traces --> AI[(Application Insights)]
@@ -109,6 +127,19 @@ pitch homography places them in metres. We measured it against the simulator's g
 | Low-bitrate stream + calibration error | 87.7% | 85.5% | 0.26 m |
 
 Synthetic frames are easier than real footage, and player identity isn't solved here.
+
+## Why the AI can be trusted
+
+1. **Models never produce numbers.** Every statistic, rating and xG value comes from deterministic,
+   unit-tested code. Agents only write the words around numbers they are handed.
+2. **Two independent checks before anything airs.** A code verifier matches every number, name and
+   superlative against the evidence (in five languages, in under a millisecond); a separate
+   reasoning model rejects invented events the code can't judge.
+3. **Failures recover, they don't leak.** A rejected line is rewritten once with the reason; if it
+   still fails, the engine's code-checked stats line airs instead. Measured over a full match:
+   25 of 135 lines were fixed by a rewrite, 13 fell back, **0 unverified lines aired**.
+4. **Everything is auditable.** Every line aired, blocked or held is logged with its evidence
+   (Cosmos DB), and a broadcaster console has kill switches and human approval.
 
 ## The agents
 
@@ -190,7 +221,7 @@ row, every 2 km covered.
 
 Every stat is defined once in a **stat registry** ([`engine/registry.py`](backend/livecards/engine/registry.py), served at `/api/stats`): meaning, formula, the settings the engine actually uses, and fan wording in five languages. Adding a stat there puts it on the Learn page and in breakdowns; see [docs/adding-a-stat.md](docs/adding-a-stat.md).
 
-Disagree with any of it? **Your model** (Studio → Model) lets you change the weights and see
+Disagree with any of it? **Your model** (Analyse → ⚙ Settings → Your model) lets you change the weights and see
 both ratings side by side.
 
 ## Measured

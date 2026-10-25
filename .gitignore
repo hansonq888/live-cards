@@ -22,3 +22,6 @@ web/public/prototype/three.min.js
 
 # Original 4K footage (a web-sized copy lives in web/public/vision)
 assets/
+
+# private build brief (kept locally)
+CLAUDE.md
