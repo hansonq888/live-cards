@@ -27,7 +27,7 @@ export function Timeline() {
         {keys.map((k) => (
           <button key={k.id} className={`tl-mark tl-${k.type} ${revisit?.id === k.id ? "on" : ""}`}
             style={{ left: pct(k.t) }} data-label={`${clock(k.t)} · ${k.label}`} aria-label={`${clock(k.t)} ${k.label}`}
-            onClick={() => live.revisitMoment(k)}>
+            onClick={(e) => { live.revisitMoment(k); e.currentTarget.blur(); }}>
             <span className="tl-ico" aria-hidden="true">{ICON[k.type] ?? "•"}</span>
           </button>
         ))}
