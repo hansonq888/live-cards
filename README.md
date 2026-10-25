@@ -9,7 +9,7 @@ board, with the space each pass opened; follow any player and see every number c
 reason; learn what each stat means from the match in front of you. **Numbers come from code,
 words from AI agents, and nothing reaches the screen until two independent checks pass.**
 
-![Footnote: the ring moves to the striker before the cross lands, the goal, and his card upgrades with its reasons](docs/media/hero.gif)
+![Footnote: Show me replays the 65' goal touch by touch on the tactics board, with each pass drawn, the space it opened and the checked story](docs/media/hero.gif)
 
 **[Live demo](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/)** ·
 **[Show me a goal](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?page=analyse&showme=e-1666)** ·
@@ -36,11 +36,15 @@ words from AI agents, and nothing reaches the screen until two independent check
 | **Watch the agents work** | An Agents tab shows every moment going through the pipeline live: Explainer → code Verifier → Reviewer → aired, with timings, any rejection and its reason, the rewrite, and what the AI cost so far. A *Plant a lie* button shows the checks catching one. |
 | **Built for a broadcaster** | A console with kill switches, an insight allowlist, human approval, and a permanent audit log of every line aired or blocked. Every on-screen element is also a timed, machine-readable overlay cue ([JSON Schema](docs/overlay-cue.schema.json)). |
 
-| Studio view: Analyst mode with "Your model" | Red team: a planted lie, blocked |
+| Show me: a goal replayed on the tactics board | Agents, live: a planted lie caught and rewritten |
 |---|---|
-| ![Analyst card with rating ledger, attribute metrics and the analyst's model compared](docs/media/studio-analyst.png) | ![A made-up number is injected, blocked by the code verifier, and the correct line airs](docs/media/redteam.png) |
-| **Spanish viewer, and the same moment for four fans** | **Broadcast console** |
-| ![Card, ticker and goal banner in Spanish; the Fans tab shows English analyst, Spanish home fan, Arabic and French versions](docs/media/fans-es.png) | ![Console with kill switches, approval mode, allowlist and the audit log](docs/media/console.png) |
+| ![The 65' goal replayed on the tactics board: the long ball drawn, pitch control shaded, +28 m² of the final third](docs/media/showme.png) | ![Each moment through Explainer, Verifier, Reviewer and the Personalizer, with a red-team lie rejected by the code verifier, rewritten and aired](docs/media/agents.png) |
+| **Following a player, every ring coloured by work rate** | **Every play as a story** |
+| ![The broadcast with stat rings coloured by Engine, hover values, and the following card with heatmap and key stats](docs/media/follow.png) | ![A scroll story step: the pass, its difficulty, the final-third space it created](docs/media/story.png) |
+| **Squads, with the starting XI** | **Learn: click the pitch, the engine scores the shot** |
+| ![The Riverside squad page with the 4-3-3 lineup and ratings](docs/media/players.png) | ![The xG lesson with the try-it pitch showing 0.28 xG from near the penalty spot](docs/media/learn.png) |
+| **Home** | **Broadcast console** |
+| ![Home page with the latest result and plays to break down](docs/media/home.png) | ![Console with kill switches, approval mode, the audit log and AI cost](docs/media/console.png) |
 
 ## The brief's pipeline, end to end
 

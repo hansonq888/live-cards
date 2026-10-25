@@ -67,7 +67,8 @@ def main() -> None:
         time.sleep(2)
         page.mouse.move(1300, 880)
         time.sleep(1)
-        shot(page, "follow", ".an-top")
+        page.screenshot(path=str(OUT / "follow.png"), clip={"x": 0, "y": 64, "width": 1440, "height": 640})
+        print("saved follow")
         page.locator(".stat-chips .sc-x").click()
 
         # Agents tab: play into the 65' goal, then plant a lie and let the checks catch it.
@@ -82,6 +83,9 @@ def main() -> None:
             time.sleep(1)
         time.sleep(1)
         page.locator(".board.all").scroll_into_view_if_needed()
+        if page.locator(".an-pip-close").count():
+            page.locator(".an-pip-close").click()  # keep the corner video out of the shot
+            time.sleep(0.5)
         shot(page, "agents", ".board.all")
 
         page.goto(f"{a.base}/?page=play&play=e-1666")
