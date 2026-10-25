@@ -47,6 +47,7 @@ const LINES: [string, (role: string) => boolean][] = [
 
 function Directory({ s }: { s: Summary }) {
   const [club, setClub] = useState(s.meta.home.code);
+  const [hover, setHover] = useState<string | null>(null);
   const team = club === s.meta.home.code ? s.meta.home : s.meta.away;
   const info = CLUBS[club];
   const squad = s.players.filter((p) => p.team === club);
@@ -68,41 +69,42 @@ function Directory({ s }: { s: Summary }) {
         </div>
         {best && <a className="sq-best" href={`/?page=players&id=${best.id}`}><span>Best in this match</span><b>{best.short}</b><em>{best.rating.toFixed(1)}</em></a>}
       </section>
-      <Lineup s={s} club={club} />
-      {LINES.map(([line, is]) => {
-        const rows = squad.filter((p) => is(p.role)).sort((a, b) => a.number - b.number);
-        if (!rows.length) return null;
-        return (
-          <section key={line} className="sq-line">
-            <h3>{line}<span>{rows.length}</span></h3>
-            <div className="l-grid players">
-              {rows.map((p) => {
-                const [first, last] = split(p.name);
-                return (
-                  <a key={p.id} className="l-card l-player" style={{ ["--club" as string]: team.color }} href={`/?page=players&id=${p.id}`}>
-                    <span className="lpl-num"><Avatar player={p} color={team.color} size={128} bare /></span>
-                    <span className="lpl-pos">{p.position}</span>
-                    <span className="lpl-name"><small>{first}</small>{last}</span>
-                    <span className="lpl-club">#{p.number} · {Math.round(p.stats.minutes ?? 0)} min</span>
-                    <span className="lpl-form"><Form rating={p.rating} /></span>
-                  </a>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+      <div className="sq-split">
+        <Lineup s={s} club={club} hover={hover} setHover={setHover} />
+        <div className="sq-list">
+          {LINES.map(([line, is]) => {
+            const rows = squad.filter((p) => is(p.role)).sort((a, b) => a.number - b.number);
+            if (!rows.length) return null;
+            return (
+              <section key={line} className="sq-line">
+                <h3>{line}<span>{rows.length}</span></h3>
+                {rows.map((p) => {
+                  const [first, last] = split(p.name);
+                  return (
+                    <a key={p.id} className={`sq-row ${hover === p.id ? "on" : ""}`} style={{ ["--club" as string]: team.color }} href={`/?page=players&id=${p.id}`}
+                      onMouseEnter={() => setHover(p.id)} onMouseLeave={() => setHover(null)}>
+                      <span className="sq-bust"><Avatar player={p} color={team.color} size={56} bare /></span>
+                      <span className="sq-name"><small>{first}</small><b>{last}</b><em>{p.position} · #{p.number}{p.starter ? "" : ` · came on, ${Math.round(p.stats.minutes ?? 0)} min`}</em></span>
+                      <span className="sq-form"><Form rating={p.rating} /></span>
+                      <span className={`sq-r f${formLevel(p.rating)}`}>{p.rating.toFixed(1)}</span>
+                    </a>
+                  );
+                })}
+              </section>
+            );
+          })}
+        </div>
+      </div>
     </>
   );
 }
 
 // The starting XI in their lines, attacking up the page, from each player's formation spot; the
-// substitutes who came on sit on the bench underneath.
-function Lineup({ s, club }: { s: Summary; club: string }) {
+// list beside it holds everyone, substitutes included. Hovering either highlights both.
+function Lineup({ s, club, hover, setHover }: { s: Summary; club: string; hover: string | null; setHover: (id: string | null) => void }) {
   const team = club === s.meta.home.code ? s.meta.home : s.meta.away;
   const squad = s.players.filter((p) => p.team === club);
   const xi = squad.filter((p) => p.starter && p.spot);
-  const bench = squad.filter((p) => !p.starter);
   const top = (x: number) => 14 + ((14 - x) / 64) * 76;  // keeper (-48) near the bottom, forwards near the top
   const left = (y: number) => 8 + ((30 - y) / 60) * 84;  // facing up, the right flank is on the right
   return (
@@ -114,18 +116,14 @@ function Lineup({ s, club }: { s: Summary; club: string }) {
         </svg>
         <span className="lu-form">{CLUBS[club]?.short ?? team.name} · {(team as { formation?: string }).formation ?? ""}</span>
         {xi.map((p) => (
-          <a key={p.id} className="lu-p" href={`/?page=players&id=${p.id}`} style={{ top: `${top(p.spot![0])}%`, left: `${left(p.spot![1])}%` }}>
+          <a key={p.id} className={`lu-p ${hover === p.id ? "on" : ""}`} href={`/?page=players&id=${p.id}`} style={{ top: `${top(p.spot![0])}%`, left: `${left(p.spot![1])}%` }}
+            onMouseEnter={() => setHover(p.id)} onMouseLeave={() => setHover(null)}>
             <span className="lu-bust"><Avatar player={p} color={team.color} size={70} bare /></span>
             <span className="lu-name">{p.short}</span>
             <span className={`lu-r f${formLevel(p.rating)}`}>{p.rating.toFixed(1)}</span>
           </a>
         ))}
       </div>
-      {bench.length > 0 && (
-        <div className="lu-bench"><span>Came on</span>{bench.map((p) => (
-          <a key={p.id} href={`/?page=players&id=${p.id}`}><Avatar player={p} color={team.color} size={40} bare /><b>{p.short}</b><em>{Math.round(p.stats.minutes ?? 0)} min</em></a>
-        ))}</div>
-      )}
     </section>
   );
 }

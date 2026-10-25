@@ -13,10 +13,39 @@ function Arrow({ d, dashed = false, head }: { d: string; dashed?: boolean; head:
   );
 }
 
-export function Doodle({ className = "" }: { className?: string }) {
+/** Looks, compared on ?page=mock: "clean" vector lines; "pencil" wobbly thin lines drawn twice;
+ * "chalk" rough, broken strokes; "marker" thick wobbly strokes with only the play, no pitch. */
+export type DoodleLook = "clean" | "pencil" | "chalk" | "marker";
+
+export function Doodle({ className = "", look = "pencil" }: { className?: string; look?: DoodleLook }) {
+  const id = `dd-${look}`;
+  const width = look === "marker" ? 7 : look === "chalk" ? 4.5 : look === "pencil" ? 2.2 : 3;
   return (
-    <svg className={`doodle ${className}`} viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <g fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={`doodle look-${look} ${className}`} viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        {/* wobble: displace every stroke by smooth noise, so lines look hand-drawn */}
+        <filter id={`${id}-w`} x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency={look === "chalk" ? 0.04 : 0.02} numOctaves="2" seed="3" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale={look === "pencil" ? 11 : look === "marker" ? 14 : 8} result="d" />
+          {look === "chalk" && (
+            <>
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="8" result="grain" />
+              <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.6" result="mask" />
+              <feComposite in="d" in2="mask" operator="in" />
+            </>
+          )}
+        </filter>
+      </defs>
+      {look === "pencil" && <g transform="translate(2.5 1.5) rotate(.25 600 380)" opacity=".55" filter={`url(#${id}-w)`}><Marks width={width} pitch /></g>}
+      <g filter={look === "clean" ? undefined : `url(#${id}-w)`}><Marks width={width} pitch={look !== "marker"} /></g>
+    </svg>
+  );
+}
+
+function Marks({ width, pitch }: { width: number; pitch: boolean }) {
+  return (
+      <g fill="none" stroke="currentColor" strokeWidth={width} strokeLinecap="round" strokeLinejoin="round">
+        {pitch && <>
         <rect x="40" y="40" width="1120" height="680" rx="6" />
         <line x1="600" y1="40" x2="600" y2="720" />
         <circle cx="600" cy="380" r="92" /><circle cx="600" cy="380" r="4" fill="currentColor" />
@@ -24,6 +53,7 @@ export function Doodle({ className = "" }: { className?: string }) {
         <path d="M210 318 A 90 90 0 0 1 210 442" />
         <rect x="990" y="200" width="170" height="360" /><rect x="1098" y="295" width="62" height="170" />
         <path d="M990 318 A 90 90 0 0 0 990 442" />
+        </>}
         <X x={150} y={380} /><X x={330} y={190} /><X x={420} y={250} /><X x={430} y={530} /><X x={700} y={160} />
         <X x={820} y={250} /><X x={760} y={420} /><X x={700} y={560} />
         <O x={480} y={120} /><O x={380} y={350} /><O x={660} y={380} /><O x={770} y={300} /><O x={890} y={110} />
@@ -36,6 +66,5 @@ export function Doodle({ className = "" }: { className?: string }) {
         <Arrow d="M715 555 C 800 520 860 420 860 270" dashed head={[860, 270, -90]} />
         <Arrow d="M720 565 C 820 590 920 560 1000 470" head={[1000, 470, -48]} />
       </g>
-    </svg>
   );
 }
