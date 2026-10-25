@@ -2542,3 +2542,38 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .al .top .fixture { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 600; font-size: 14px; white-space: nowrap; }
 .an-full { width: 40px; height: 40px; padding: 0 !important; display: grid; place-items: center; border-radius: 8px !important; }
 .director-pick .director-reason b { margin-left: .3em; }
+/* ===== Analyse: YouTube-style controls over the video ===== */
+.an-overlay { position: absolute; left: 0; right: 0; bottom: 0; z-index: 20; display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; grid-template-rows: auto auto; align-items: center; column-gap: 12px;
+  padding: 40px 14px 10px; background: linear-gradient(transparent, rgba(5,3,18,.55) 45%, rgba(5,3,18,.85)); color: #fff;
+  opacity: 0; transition: opacity .25s; pointer-events: none; }
+.an-stage:hover .an-overlay, .an-overlay.paused, .an-overlay:focus-within { opacity: 1; pointer-events: auto; }
+.an-stage.pip .an-overlay { display: none; }
+.an-overlay .an-controls, .an-overlay .controls { display: contents !important; }
+.an-overlay .c-side:first-child { display: none; }
+/* row 1: the scrubber across the full width */
+.an-overlay .timeline { grid-column: 1 / -1; grid-row: 1; margin: 0 0 6px; padding: 0 !important; }
+.an-overlay .tl-track { height: 5px !important; margin: 0 2px !important; background: rgba(255,255,255,.28) !important; border-radius: 3px; transition: height .15s; }
+.an-overlay .timeline:hover .tl-track { height: 8px !important; }
+.an-overlay .tl-watched { background: #8b6bff !important; border-radius: 3px; }
+.an-overlay .tl-half, .an-overlay .tl-ticks { display: none !important; }
+.an-overlay .tl-head { top: 50% !important; bottom: auto !important; width: 13px !important; height: 13px !important; border-radius: 50% !important; background: #fff !important; transform: translate(-50%, -50%) !important; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.an-overlay .tl-head > *, .an-overlay .tl-now { display: none !important; }
+.an-overlay .tl-mark { width: 9px !important; height: 9px !important; background: #d4ff3a !important; box-shadow: 0 0 0 2px rgba(5,3,18,.8) !important; border: 0 !important; }
+.an-overlay .tl-mark::after { bottom: calc(100% + 12px); }
+/* row 2: play, time, spacer, Jump to, Explain, full screen */
+.an-overlay .play-main { grid-column: 1; grid-row: 2; width: 36px !important; height: 36px !important; margin: 0; background: transparent !important; box-shadow: none !important; color: #fff; }
+.an-overlay .play-main:hover { background: rgba(255,255,255,.12) !important; }
+.an-overlay .c-side.right { grid-column: 3; grid-row: 2; display: flex; align-items: center; gap: 8px; padding: 0 !important; }
+.an-overlay .ring-pick { background: rgba(255,255,255,.12) !important; color: #fff !important; border: 0 !important; min-width: 0 !important; padding: 6px 28px 6px 10px; font-size: 13px; border-radius: 6px; }
+.an-overlay .ring-pick option { color: #160f35; }
+.an-overlay .conn { display: none; }
+.an-overlay .explain-goal { grid-column: 4; grid-row: 2; background: rgba(255,255,255,.12) !important; color: #fff !important; font-size: 13px; }
+.an-overlay .explain-goal .icon { color: #d4ff3a; }
+.an-overlay .an-full { position: static !important; grid-column: 5; grid-row: 2; width: 36px; height: 36px; background: transparent !important; backdrop-filter: none; }
+.an-overlay .an-full:hover { background: rgba(255,255,255,.12) !important; }
+/* keep the video's own overlays clear of the controls */
+.an-stage .board-mini, .an-stage .board-mini-back, .an-stage .stage-1280:has(.board-main) > .stage { top: 18px !important; bottom: auto !important; }
+.an-stage:hover .director, .an-stage:has(.an-overlay.paused) .director { opacity: 0; transition: opacity .25s; }
+.an-stage .goal-strip { bottom: 96px; }
+.an-stage .sm-hud.right { top: 192px; }
+.an-overlay .an-time { grid-column: 2; grid-row: 2; font-size: 13px; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.9); }

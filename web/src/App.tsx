@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { BoardSwitch } from "./viewer/BoardSwitch";
 import { Icon } from "./ui/Icon";
-import { live, useLive } from "./live/store";
+import { clock, live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug, ShowMeHUD } from "./ui/Overlays";
 import { Wordmark } from "./ui/Wordmark";
@@ -71,6 +71,12 @@ function Live({ initial }: { initial: View }) {
   return view === "fan" ? <FanView onStudio={() => go("studio")} /> : <Analyse onFan={() => go("fan")} />;
 }
 
+/** "28:24 / 90:00", like a video player; its own component so only it re-renders each tick. */
+function TimeReadout() {
+  const t = useLive((s) => s.t);
+  return <span className="an-time">{clock(t)} / 90:00</span>;
+}
+
 function Analyse({ onFan }: { onFan: () => void }) {
   const meta = useLive((s) => s.meta);
   const [hood, setHood] = useState(false);
@@ -101,6 +107,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
   const toggleFull = () => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen());
   const breakdown = useLive((s) => s.buildup);
   const following = useLive((s) => s.director?.mode === "manual" && !s.buildup);
+  const paused = useLive((s) => s.paused);
   return (
     <div className="app al">
       <header className="top">
@@ -127,19 +134,21 @@ function Analyse({ onFan }: { onFan: () => void }) {
                 <RevisitBadge />
                 <ShowMeHUD />
               </ScaledStage>
-              <button className="an-full" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} title={full ? "Exit full screen" : "Full screen"}>
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  {full
-                    ? <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
-                    : <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
-                </svg>
-              </button>
+              {/* YouTube-style controls over the bottom of the video: shown on hover and while paused. */}
+              <div className={`an-overlay ${paused ? "paused" : ""}`}>
+                <Timeline />
+                <div className="an-controls"><ExplainGoalButton /><Controls /></div>
+                <TimeReadout />
+                <button className="an-full" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} title={full ? "Exit full screen" : "Full screen"}>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {full
+                      ? <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+                      : <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
+                  </svg>
+                </button>
+              </div>
               {pip && <button className="an-pip-close" onClick={() => setClosed(true)} aria-label="Close the corner player">✕</button>}
             </div>
-            </div>
-            <div className="an-panel an-transport">
-              <Timeline />
-              <div className="an-controls"><ExplainGoalButton /><Controls /></div>
             </div>
             </div>
             <div className={`an-right ${following ? "following" : ""}`}>
