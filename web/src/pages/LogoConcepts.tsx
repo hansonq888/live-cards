@@ -242,6 +242,76 @@ function Lockup({ dark, twoTone }: { dark: boolean; twoTone: boolean }) {
     </svg>
   );
 }
+/** Mark + one-line name: the football-asterisk mark on the left, the wordmark on one line. */
+function MarkLine({ dark, twoTone }: { dark: boolean; twoTone: boolean }) {
+  const ink = dark ? "#fff" : P;
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <circle cx="40" cy="45" r="30" fill={dark ? L : V} />
+      {ast(40, 45, 16, dark ? P : L, 7.5)}
+      <text x="82" y="63" className="lg-word sm" fill={ink}>Foot<tspan fill={twoTone ? (dark ? L : V) : ink}>note</tspan></text>
+    </svg>
+  );
+}
+// ---- Round 5: football icons beside the two-tone name ----
+const pent = (cx: number, cy: number, r: number, rot = -90) =>
+  Array.from({ length: 5 }, (_, i) => {
+    const a = ((rot + i * 72) * Math.PI) / 180;
+    return `${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}`;
+  }).join(" ");
+
+/** A classic ball: a centre pentagon, five seams out to five edge patches (clipped to the ball). */
+function Ball({ cx, cy, r, fill, ink, id }: { cx: number; cy: number; r: number; fill: string; ink: string; id: string }) {
+  const spokes = Array.from({ length: 5 }, (_, i) => (-90 + i * 72) * Math.PI / 180);
+  return (
+    <g>
+      <defs><clipPath id={id}><circle cx={cx} cy={cy} r={r} /></clipPath></defs>
+      <circle cx={cx} cy={cy} r={r} fill={fill} />
+      <g clipPath={`url(#${id})`}>
+        <polygon points={pent(cx, cy, r * 0.36)} fill={ink} />
+        {spokes.map((a, i) => (
+          <g key={i}>
+            <line x1={cx + r * 0.36 * Math.cos(a)} y1={cy + r * 0.36 * Math.sin(a)} x2={cx + r * 0.78 * Math.cos(a)} y2={cy + r * 0.78 * Math.sin(a)} stroke={ink} strokeWidth={r * 0.08} />
+            <polygon points={pent(cx + r * 1.02 * Math.cos(a), cy + r * 1.02 * Math.sin(a), r * 0.3, (a * 180) / Math.PI + 90)} fill={ink} />
+          </g>
+        ))}
+      </g>
+      <circle cx={cx} cy={cy} r={r - r * 0.04} fill="none" stroke={ink} strokeWidth={r * 0.08} />
+    </g>
+  );
+}
+
+function Name({ dark, x = 82 }: { dark: boolean; x?: number }) {
+  return <text x={x} y="63" className="lg-word sm" fill={dark ? "#fff" : P}>Foot<tspan fill={dark ? L : V}>note</tspan></text>;
+}
+
+/** 24 · Classic ball: a white ball with dark patches, the plain football icon. */
+const BallClassic = ({ dark }: { dark: boolean }) => (
+  <svg viewBox="0 0 300 90" className="lg"><Ball cx={40} cy={45} r={30} fill="#fff" ink={P} id={`b24${dark}`} />
+    {!dark && <circle cx={40} cy={45} r={30} fill="none" stroke={P} strokeWidth="2.4" />}<Name dark={dark} /></svg>
+);
+
+/** 25 · Brand ball: the ball in our colours, lime with violet patches. */
+const BallBrand = ({ dark }: { dark: boolean }) => (
+  <svg viewBox="0 0 300 90" className="lg"><Ball cx={40} cy={45} r={30} fill={L} ink={dark ? P : V} id={`b25${dark}`} /><Name dark={dark} /></svg>
+);
+
+/** 26 · Ball as footnote: the ball sits up high like a superscript after the name. */
+const BallAfter = ({ dark }: { dark: boolean }) => (
+  <svg viewBox="0 0 300 90" className="lg"><Name dark={dark} x={10} /><Ball cx={262} cy={26} r={15} fill={dark ? "#fff" : L} ink={P} id={`b26${dark}`} /></svg>
+);
+
+/** 27 · Ball in a tile: the ball on 11's rounded tile, for app icons. */
+const BallTile = ({ dark }: { dark: boolean }) => (
+  <svg viewBox="0 0 300 90" className="lg">
+    <rect x="8" y="12" width="66" height="66" rx="16" fill={dark ? L : V} />
+    <Ball cx={41} cy={45} r={23} fill="#fff" ink={P} id={`b27${dark}`} />
+    <Name dark={dark} x={86} />
+  </svg>
+);
+
+const LineMono = ({ dark }: { dark: boolean }) => <MarkLine dark={dark} twoTone={false} />;
+const LineTwo = ({ dark }: { dark: boolean }) => <MarkLine dark={dark} twoTone />;
 const StackedMono = ({ dark }: { dark: boolean }) => <Lockup dark={dark} twoTone={false} />;
 const StackedTwo = ({ dark }: { dark: boolean }) => <Lockup dark={dark} twoTone />;
 
@@ -267,6 +337,12 @@ const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["19 · Two-tone ball", "17's Foot / note colours with 18's football as the footnote mark.", TwoToneBall],
   ["20 · Lockup, one colour", "A big football mark on the left, Foot / note stacked beside it.", StackedMono],
   ["21 · Lockup, two-tone", "The same lockup with note in the accent colour.", StackedTwo],
+  ["22 · Mark + name, one colour", "The football mark on the left, the name on one line.", LineMono],
+  ["23 · Mark + name, two-tone", "The same, with note in the accent colour.", LineTwo],
+  ["24 · Classic ball", "A plain football icon, white with dark patches.", BallClassic],
+  ["25 · Brand ball", "The football in our colours: lime with violet patches.", BallBrand],
+  ["26 · Ball as footnote", "The football as a superscript after the name.", BallAfter],
+  ["27 · Ball tile", "The football on a rounded tile, ready for app icons.", BallTile],
 ];
 
 export function LogoConcepts() {
