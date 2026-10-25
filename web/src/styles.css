@@ -2331,3 +2331,13 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .xr-bar { height: 6px; border-radius: 3px; background: #e4e1f1; overflow: hidden; } .xr-bar i { display: block; height: 100%; background: var(--team); }
 .xr-val { font-family: var(--headline); font-weight: 700; font-size: 13.5px; text-align: right; }
 @media (max-width: 1000px) { .xr-body { grid-template-columns: 1fr; } }
+/* Analysis board: every view on one page, each in its own card */
+.board.all { background: none !important; box-shadow: none !important; padding: 0 !important; display: flex; flex-direction: column; gap: 16px; }
+.bd-block { background: #fff; border-radius: var(--r-lg); box-shadow: 0 0 0 1px rgba(22,15,53,.06), 0 8px 24px rgba(22,15,53,.05); padding: 18px 20px 20px; min-width: 0; }
+.bd-h { display: inline-block; margin: 0 0 12px; font-family: var(--headline); font-weight: 800; font-size: 22px; letter-spacing: -.02em; color: #160f35; padding: 0 8px; margin-left: -8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 60' preserveAspectRatio='none'%3E%3Cpath d='M6 14 C60 6 150 9 220 5 C250 4 280 7 296 10 L292 22 L297 30 L291 41 L295 52 C230 57 150 53 90 56 C55 58 25 55 4 52 L8 41 L3 31 L7 22 Z' fill='%23d4ff3a'/%3E%3C/svg%3E") no-repeat 0 85% / 100% 62%; }
+.bd-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+.bd-feedblock .bd-feed { max-height: 420px; overflow-y: auto; }
+@media (max-width: 1000px) { .bd-row { grid-template-columns: 1fr; } }
+.fp-tile, .xr-row { box-shadow: none !important; }
+.board.all .mo { height: 200px; }

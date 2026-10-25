@@ -1,24 +1,32 @@
-// The analysis board under the pitch: four views of the whole match, one at a time.
-// xG race (live), momentum by 5-minute window, a shot map, and stat leaders.
-import { useState } from "react";
+// The analysis board under the pitch: the whole match on one page. The xG race (live) across
+// the top, momentum by 5-minute window, a shot map beside stat leaders, and the live feed once
+// it has lines.
+import { useState, type ReactNode } from "react";
 import { live, useLive } from "../live/store";
 import { useSummary, type Summary } from "../pages/summary";
 import { XgRace } from "./XgRace";
 import { Feed } from "./SidePanel";
 
-type View = "xg" | "momentum" | "shots" | "leaders" | "feed";
-const VIEWS: [View, string][] = [["xg", "xG race"], ["momentum", "Momentum"], ["shots", "Shot map"], ["leaders", "Leaders"], ["feed", "Live feed"]];
+function Block({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
+  return <section className={`bd-block ${className}`}><h3 className="bd-h">{title}</h3>{children}</section>;
+}
 
 export function AnalysisBoard() {
-  const [view, setView] = useState<View>("xg");
   const s = useSummary();
+  const feed = useLive((x) => x.feed.length);  // the feed only fills while the match plays
   return (
-    <div className="board">
-      <nav className="board-tabs">
-        {VIEWS.map(([k, label]) => <button key={k} className={view === k ? "on" : ""} onClick={() => setView(k)}>{label}</button>)}
-      </nav>
-      {view === "xg" ? <XgRace /> : view === "feed" ? <div className="bd-feed"><Feed /></div> : !s ? <div className="board-empty">Loading the match…</div>
-        : view === "momentum" ? <Momentum s={s} /> : view === "shots" ? <ShotMapAll s={s} /> : <Leaders s={s} />}
+    <div className="board all">
+      <Block title="xG race"><XgRace /></Block>
+      {!s ? <div className="board-empty">Loading the match…</div> : (
+        <>
+          <Block title="Momentum"><Momentum s={s} /></Block>
+          <div className="bd-row">
+            <Block title="Shot map"><ShotMapAll s={s} /></Block>
+            <Block title="Leaders"><Leaders s={s} /></Block>
+          </div>
+          {feed > 0 && <Block title="Live feed" className="bd-feedblock"><div className="bd-feed"><Feed /></div></Block>}
+        </>
+      )}
     </div>
   );
 }
