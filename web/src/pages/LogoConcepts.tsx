@@ -148,6 +148,76 @@ function SplitShard({ dark }: { dark: boolean }) {
   );
 }
 
+// ---- Round 3: mixes of 1, 2, 11 and 12, all in 1's heavy wordmark ----
+const ast = (cx: number, cy: number, r: number, color: string, w: number) => (
+  <g stroke={color} strokeWidth={w} strokeLinecap="round">{[0, 60, 120].map((a) => <line key={a} x1={cx} y1={cy - r} x2={cx} y2={cy + r} transform={`rotate(${a} ${cx} ${cy})`} />)}</g>
+);
+
+/** 13 · Footnote*: 1's wordmark, with 2's asterisk as the footnote mark instead of a 1. */
+function WordAsterisk({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <text x="10" y="64" className="lg-word" fill={dark ? "#fff" : P}>Footnote</text>
+      {ast(252, 24, 10, dark ? L : V, 6)}
+    </svg>
+  );
+}
+
+/** 14 · Shard ¹: 12's lightning slash, with 1's superscript as the footnote mark. */
+function SplitSup({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <text x="8" y="64" className="lg-word" fill={dark ? "#fff" : P}>Foot</text>
+      <path d="M140 10 L156 10 L146 40 L156 40 L136 82 L141 52 L131 52 Z" fill={L} />
+      <text x="158" y="64" className="lg-word" fill={dark ? L : V}>note<tspan className="lg-sup" dx="3" dy="-30" fill={dark ? "#fff" : P}>1</tspan></text>
+    </svg>
+  );
+}
+
+/** 15 · Asterisk tile + wordmark: 11's rounded tile carrying 2's asterisk, 1's wordmark beside it. */
+function TileAsterisk({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <rect x="8" y="10" width="70" height="70" rx="18" fill={dark ? "#fff" : V} />
+      {ast(43, 45, 18, dark ? V : L, 8)}
+      <text x="92" y="62" className="lg-word sm" fill={dark ? "#fff" : P}>Footnote</text>
+    </svg>
+  );
+}
+
+/** 16 · F tile with asterisk: 11's F monogram, with 2's asterisk in the corner instead of a 1. */
+function MonoAsterisk({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <rect x="8" y="8" width="74" height="74" rx="18" fill={dark ? "#fff" : V} />
+      <path d="M24 24 H56 V36 H38 V44 H52 V55 H38 V68 H24 Z" fill={dark ? V : "#fff"} />
+      <circle cx="64" cy="27" r="12" fill={L} />
+      {ast(64, 27, 6.5, P, 3.2)}
+      <text x="96" y="60" className="lg-word sm" fill={dark ? "#fff" : P}>Footnote</text>
+    </svg>
+  );
+}
+
+/** 17 · Two-tone ¹: 1's wordmark split by colour like 12 (Foot / note), no slash. */
+function TwoTone({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <text x="10" y="64" className="lg-word" fill={dark ? "#fff" : P}>Foot<tspan fill={dark ? L : V}>note</tspan><tspan className="lg-sup" dx="3" dy="-30" fill={dark ? "#fff" : P}>1</tspan></text>
+    </svg>
+  );
+}
+
+/** 18 · Ball superscript: 1's wordmark whose footnote mark is a tiny football with asterisk seams. */
+function BallSup({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <text x="10" y="64" className="lg-word" fill={dark ? "#fff" : P}>Footnote</text>
+      <circle cx="254" cy="25" r="13" fill={L} />
+      {ast(254, 25, 7, P, 3.4)}
+    </svg>
+  );
+}
+
 const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["1 · Superscript", "The name as a footnote reference: Footnote¹. Simple, clever, works at any size.", Superscript],
   ["2 · Asterisk ball", "The footnote asterisk drawn as football seams.", AsteriskBall],
@@ -161,6 +231,12 @@ const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["10 · Italic star", "Heavy italic caps for movement, ending in a lime asterisk.", ItalicStar],
   ["11 · F¹ monogram", "A compact icon: F with the footnote 1 in its corner.", Monogram],
   ["12 · Split shard", "A lightning slash between Foot and note.", SplitShard],
+  ["13 · Footnote*", "1's wordmark with 2's asterisk as the footnote mark.", WordAsterisk],
+  ["14 · Split shard ¹", "12's lightning slash plus 1's superscript.", SplitSup],
+  ["15 · Asterisk tile", "11's rounded tile carrying 2's asterisk, with the wordmark.", TileAsterisk],
+  ["16 · F + asterisk", "11's F monogram with 2's asterisk in the corner.", MonoAsterisk],
+  ["17 · Two-tone ¹", "1's wordmark, coloured Foot / note like 12, no slash.", TwoTone],
+  ["18 · Ball superscript", "1's wordmark whose footnote mark is a tiny football.", BallSup],
 ];
 
 export function LogoConcepts() {
