@@ -2394,3 +2394,62 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .lp-show:hover, .lp-show:focus-visible { background: #d4ff3a; transform: scale(1.05); outline: none; }
 .l-play.feature .lp-show { font-size: 15px; padding: 10px 16px; right: 18px; top: 18px; }
 .sm-hud.right { left: auto; right: 22px; animation-name: sm-in-r; } @keyframes sm-in-r { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+/* Goal: a broadcast lower-third instead of a giant word */
+.goal-banner { display: none !important; }
+.goal-strip { position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); z-index: 9; display: flex; align-items: stretch; height: 52px; border-radius: 8px; overflow: hidden; pointer-events: none;
+  background: #160f35; color: #fff; box-shadow: 0 14px 30px rgba(0,0,0,.4); animation: gs-in .45s cubic-bezier(.2,.9,.3,1); }
+.goal-strip.out { animation: gs-out .5s ease-in forwards; }
+@keyframes gs-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes gs-out { to { opacity: 0; transform: translate(-50%, 10px); } }
+.gs-tag { display: flex; align-items: center; padding: 0 16px; background: var(--team); font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 26px; letter-spacing: .5px; text-transform: uppercase; }
+.gs-crest { display: flex; align-items: center; padding: 0 10px 0 14px; }
+.gs-who { display: flex; align-items: center; gap: 10px; padding-right: 18px; font-family: var(--headline); }
+.gs-who b { font-size: 19px; font-weight: 700; } .gs-who em { font-style: normal; font-size: 15px; color: rgba(255,255,255,.7); }
+.gs-score { display: flex; align-items: center; gap: 8px; padding: 0 16px; background: rgba(255,255,255,.08); font-size: 13px; font-weight: 700; letter-spacing: .5px; color: rgba(255,255,255,.75); }
+.gs-score b { font-family: var(--headline); font-size: 20px; color: #fff; }
+/* Follow panel: room at the bottom when there are no recent actions */
+.fp { padding-bottom: 20px !important; }
+/* xG race and momentum side by side */
+.bd-row.xm { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); }
+.bd-row.xm .xr-body { grid-template-columns: minmax(0, 1fr) 260px; }
+.bd-row.xm .xr-verdict { font-size: 16px; min-width: 100%; padding-left: 0; }
+.bd-row.xm .xr-total { min-width: 150px; padding: 10px 14px; } .bd-row.xm .xr-total b { font-size: 34px; }
+.bd-row.xm .mo { height: 100%; min-height: 300px; }
+.bd-row.xm > .bd-block:last-child { display: flex; flex-direction: column; } .bd-row.xm > .bd-block:last-child .bd { flex: 1; display: flex; flex-direction: column; }
+@media (max-width: 1200px) { .bd-row.xm { grid-template-columns: 1fr; } }
+/* Analyse: the video drops into a corner player when scrolled past */
+.an-slot { aspect-ratio: 16 / 9; position: relative; }
+.an-slot > .an-stage:not(.pip) { position: absolute; inset: 0; }
+.an-stage.pip { position: fixed !important; right: 22px; bottom: 92px; width: 400px; height: 225px; z-index: 60; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 20px 50px rgba(20,10,60,.4), 0 0 0 1px rgba(255,255,255,.15); animation: pip-in .3s ease-out; }
+@keyframes pip-in { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: none; } }
+.an-stage.pip .an-full, .an-stage.pip .sm-hud, .an-stage.pip .board-mini, .an-stage.pip .board-mini-back { display: none !important; }
+.an-pip-close { position: absolute; top: 8px; right: 8px; z-index: 70; width: 30px; height: 30px; border: 0; border-radius: 50%; background: rgba(13,10,36,.8); color: #fff; font-size: 14px; cursor: pointer; }
+.an-pip-close:hover { background: #3a1fd0; }
+/* Mixed corners: big poster panels are square-cut; cards, tiles, buttons and chips stay rounded */
+.hero-card, .vs2, .lp-visual.media, .pp-hero, .sq-head, .xr-total, .goal-strip, .card-hero, .fp-head, .l-band { border-radius: 2px !important; }
+.lp-visual.media .lp-map { border-radius: 2px; }
+/* Follow panel in the right column: compact, two-up */
+.an-right .fp { margin: 0; }
+.an-right .fp-head { min-height: 96px; padding: 0 14px 0 104px; flex-wrap: wrap; gap: 6px 12px !important; align-content: center; }
+.an-right .fp-bust { left: 4px; } .an-right .fp-bust .avatar { width: 96px; height: 96px; }
+.an-right .fp-num { left: 60px; font-size: 120px; }
+.an-right .fp-id { flex: 1 1 100%; } .an-right .fp-id b { font-size: 28px !important; }
+.an-right .fp-form { flex-direction: row; align-items: baseline; gap: 6px; font-size: 18px !important; padding: 4px 10px !important; }
+.an-right .fp-close { padding: 5px 10px; font-size: 12px; }
+.an-right .fp > :not(.fp-head) { margin: 0 14px; }
+.an-right .fp-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; margin-top: 14px !important; }
+.an-right .fp-speed { padding: 12px; } .an-right .fp-speed b { font-size: 40px !important; }
+.an-right .fp-heat { padding: 10px; }
+.an-right .fp-tiles { grid-column: 1 / -1; grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
+.an-right .fp-tile { padding: 8px 10px !important; } .an-right .fp-tile b { font-size: 19px !important; }
+.an-right .fp-recent { margin: 12px 14px 0 !important; }
+/* Side Follow panel: the live card above already shows who it is, so the header is one slim bar */
+.an-right .fp-head { min-height: 0 !important; padding: 10px 12px 10px 14px !important; flex-wrap: nowrap; align-items: center; }
+.an-right .fp-bust, .an-right .fp-num, .an-right .fp-form, .an-right .fp-id span { display: none !important; }
+.an-right .fp-id { flex: 1 1 auto; flex-direction: row; align-items: baseline; gap: 8px; min-width: 0; }
+.an-right .fp-id em { font-size: 10.5px; } .an-right .fp-id b { font-size: 20px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.an-right .fp-grid { grid-template-areas: "speed heat" "tiles tiles"; }
+.an-right .fp-speed { grid-area: speed; } .an-right .fp-heat { grid-area: heat; } .an-right .fp-tiles { grid-area: tiles; }
+.an-right .fp-heat > span { font-size: 12px; }
+.an-right .fp-close { white-space: nowrap; flex: none; } .an-right .fp-id em { display: none; }

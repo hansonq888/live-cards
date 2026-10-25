@@ -91,7 +91,7 @@ export interface LiveState {
   pending: Record<string, Pending>;
   upgrades: Record<string, { from: number; to: number; type: string; at: number; label: string }>;
   alerts: { id: string; player: string; text: string; type: string; at: number; kmh?: number; count?: number }[];
-  banner: { text: string; sub: string; at: number } | null;
+  banner: { text: string; sub: string; at: number; player?: string; minute?: number; home?: number; away?: number } | null;
   feed: FeedItem[];
   traces: TraceItem[];
   team: {
@@ -343,7 +343,8 @@ class LiveStore {
           patch.alerts = [...s.alerts.filter((a) => now - a.at < 6000), { id: mo.id, player: mo.player, text, type: mo.type, at: now, kmh: Number(mo.facts.speed_kmh), count: Number(mo.facts.count) }];
         }
         if (mo.type === "goal") {
-          patch.banner = { text: "GOAL", sub: `${this.name(mo.player)} · ${mo.facts.score_home}–${mo.facts.score_away}`, at: now };
+          patch.banner = { text: "GOAL", sub: `${this.name(mo.player)} · ${mo.facts.score_home}–${mo.facts.score_away}`, at: now,
+            player: mo.player ?? undefined, minute: Math.floor(mo.t / 60) + 1, home: Number(mo.facts.score_home), away: Number(mo.facts.score_away) };
         }
         if ((KEY_TYPES.has(mo.type) && mo.importance >= 0.55) || mo.type === "goal") {
           if (!s.keyMoments.some((k) => k.id === mo.id)) {

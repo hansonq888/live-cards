@@ -82,8 +82,19 @@ function Analyse({ onFan }: { onFan: () => void }) {
     document.addEventListener("fullscreenchange", on);
     return () => document.removeEventListener("fullscreenchange", on);
   }, []);
+  // Scroll past the video and it keeps playing in a corner; ✕ (or scrolling back) returns it.
+  const slotRef = useRef<HTMLDivElement>(null);
+  const [pip, setPip] = useState(false);
+  useEffect(() => {
+    if (!slotRef.current) return;
+    const io = new IntersectionObserver(([e]) => setPip(!e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0.25 });
+    io.observe(slotRef.current);
+    return () => io.disconnect();
+  }, []);
+  const backUp = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
   const toggleFull = () => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen());
   const breakdown = useLive((s) => s.buildup);
+  const following = useLive((s) => s.director?.mode === "manual" && !s.buildup);
   return (
     <div className="app al">
       <header className="top">
@@ -97,7 +108,8 @@ function Analyse({ onFan }: { onFan: () => void }) {
         <section className="broadcast">
           <div className="an-top">
             <div className="an-left">
-            <div className="an-stage" ref={stageRef}>
+            <div className="an-slot" ref={slotRef}>
+            <div className={`an-stage ${pip ? "pip" : ""}`} ref={stageRef}>
               <ScaledStage fit={full ? "contain" : "width"}>
                 <Viewer />
                 <BoardSwitch />
@@ -110,6 +122,8 @@ function Analyse({ onFan }: { onFan: () => void }) {
                 <ShowMeHUD />
               </ScaledStage>
               <button className="an-full" onClick={toggleFull}>{full ? "Exit full screen" : "⛶ Full screen"}</button>
+              {pip && <button className="an-pip-close" onClick={backUp} aria-label="Put the video back at the top">✕</button>}
+            </div>
             </div>
             <div className="an-panel an-transport">
               <Timeline />
@@ -118,11 +132,11 @@ function Analyse({ onFan }: { onFan: () => void }) {
             </div>
             <div className="an-right">
               <div className="card-dock"><PlayerCard /></div>
-              <LiveStats />
+              {/* Following someone swaps the match stats for theirs, in the same column. */}
+              {following ? <FocusPanel /> : <LiveStats />}
             </div>
           </div>
           {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
-          {!breakdown && <FocusPanel />}
           <AnalysisBoard />
         </section>
       </main>

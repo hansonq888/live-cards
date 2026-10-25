@@ -227,15 +227,23 @@ export function RevisitBadge() {
   );
 }
 
+/** A goal, the way a broadcast graphic shows it: a lower-third strip in the scorer's colours,
+ *  with the crest, the scorer and minute, and the new score. */
 export function GoalBanner() {
   const banner = useLive((s) => s.banner);
+  const meta = useLive((s) => s.meta);
   const lang = useLang();
   const now = useTicker(200);
-  if (!banner || now - banner.at > 4500) return null;
+  if (!banner || !meta || now - banner.at > 5000) return null;
+  const p = meta.players.find((x) => x.id === banner.player);
+  const team = p?.team === meta.away.code ? meta.away : meta.home;
+  const leaving = now - banner.at > 4400;
   return (
-    <div className="goal-banner">
-      <div className="goal-word">{tr(lang, "goal")}</div>
-      <div className="goal-sub">{banner.sub}</div>
+    <div className={`goal-strip ${leaving ? "out" : ""}`} style={{ ["--team" as string]: team.color }}>
+      <span className="gs-tag">{tr(lang, "goal")}</span>
+      <span className="gs-crest"><Crest code={team.code} size={34} /></span>
+      <span className="gs-who"><b>{p?.name ?? banner.sub}</b>{banner.minute ? <em>{banner.minute}′</em> : null}</span>
+      {banner.home !== undefined && <span className="gs-score">{meta.home.code} <b>{banner.home}–{banner.away}</b> {meta.away.code}</span>}
     </div>
   );
 }

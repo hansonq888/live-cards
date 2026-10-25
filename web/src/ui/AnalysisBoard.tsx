@@ -1,5 +1,5 @@
-// The analysis board under the pitch: the whole match on one page. The xG race (live) across
-// the top, momentum by 5-minute window, a shot map beside stat leaders, and the live feed once
+// The analysis board under the pitch: the whole match on one page. The xG race (live) beside
+// momentum by 5-minute window, a shot map beside stat leaders, and the live feed once
 // it has lines.
 import { useState, type ReactNode } from "react";
 import { live, useLive } from "../live/store";
@@ -16,10 +16,12 @@ export function AnalysisBoard() {
   const feed = useLive((x) => x.feed.length);  // the feed only fills while the match plays
   return (
     <div className="board all">
-      <Block title="xG race"><XgRace /></Block>
-      {!s ? <div className="board-empty">Loading the match…</div> : (
+      {!s ? <><Block title="xG race"><XgRace /></Block><div className="board-empty">Loading the match…</div></> : (
         <>
-          <Block title="Momentum"><Momentum s={s} /></Block>
+          <div className="bd-row xm">
+            <Block title="xG race"><XgRace /></Block>
+            <Block title="Momentum"><Momentum s={s} /></Block>
+          </div>
           <div className="bd-row">
             <Block title="Shot map"><ShotMapAll s={s} /></Block>
             <Block title="Leaders"><Leaders s={s} /></Block>
