@@ -218,6 +218,17 @@ function BallSup({ dark }: { dark: boolean }) {
   );
 }
 
+/** 19 · Two-tone ball: 17's Foot / note colours with 18's football as the footnote mark. */
+function TwoToneBall({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <text x="10" y="64" className="lg-word" fill={dark ? "#fff" : P}>Foot<tspan fill={dark ? L : V}>note</tspan></text>
+      <circle cx="254" cy="25" r="13" fill={dark ? "#fff" : L} />
+      {ast(254, 25, 7, P, 3.4)}
+    </svg>
+  );
+}
+
 const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["1 · Superscript", "The name as a footnote reference: Footnote¹. Simple, clever, works at any size.", Superscript],
   ["2 · Asterisk ball", "The footnote asterisk drawn as football seams.", AsteriskBall],
@@ -237,6 +248,7 @@ const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["16 · F + asterisk", "11's F monogram with 2's asterisk in the corner.", MonoAsterisk],
   ["17 · Two-tone ¹", "1's wordmark, coloured Foot / note like 12, no slash.", TwoTone],
   ["18 · Ball superscript", "1's wordmark whose footnote mark is a tiny football.", BallSup],
+  ["19 · Two-tone ball", "17's Foot / note colours with 18's football as the footnote mark.", TwoToneBall],
 ];
 
 export function LogoConcepts() {
