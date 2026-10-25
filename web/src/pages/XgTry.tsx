@@ -1,6 +1,20 @@
 // "Try it": click anywhere in the attacking half and the engine's own xG model (/api/xg) scores
-// a shot from there. The browser never computes xG itself, so the number is the one matches use.
+// a shot from there. If that endpoint isn't available (an older server), the same formula runs
+// here with the weights the engine publishes in the stat registry, so the number still matches.
 import { useState } from "react";
+import { stat } from "../live/stats";
+
+const GOAL_HALF = 3.66;
+
+function localXg(x: number, y: number): Shot {
+  const st = stat("xg")?.settings ?? {};
+  const b0 = st.intercept ?? -1.1, ba = st.angle_weight ?? 1.6, bd = st.distance_weight ?? -0.075;
+  const dx = 52.5 - x, dy = y, dist = Math.hypot(dx, dy);
+  let angle = Math.atan2(2 * GOAL_HALF * dx, dx * dx + dy * dy - GOAL_HALF ** 2);
+  if (angle < 0) angle += Math.PI;
+  const xg = Math.round(1000 / (1 + Math.exp(-(b0 + ba * angle + bd * dist)))) / 1000;
+  return { x, y, xg, distance_m: Math.round(dist * 10) / 10 };
+}
 
 type Shot = { x: number; y: number; xg: number; distance_m: number };
 const W = 68, H = 52.5;  // the attacking half, goal at the top; metres
@@ -12,9 +26,14 @@ export function XgTry() {
     const r = e.currentTarget.getBoundingClientRect();
     const sx = ((e.clientX - r.left) / r.width) * W, sy = ((e.clientY - r.top) / r.height) * H;
     // screen: goal line at the top, left touchline at the left; pitch: x toward the goal, y left
-    const res = await fetch(`/api/xg?x=${(52.5 - sy).toFixed(2)}&y=${(34 - sx).toFixed(2)}`);
-    if (!res.ok) return;
-    const shot: Shot = await res.json();
+    const x = Math.round((52.5 - sy) * 100) / 100, y = Math.round((34 - sx) * 100) / 100;
+    let shot: Shot;
+    try {
+      const res = await fetch(`/api/xg?x=${x}&y=${y}`);
+      shot = res.ok ? await res.json() : localXg(x, y);
+    } catch {
+      shot = localXg(x, y);
+    }
     setShots((s) => [...s.slice(-5), shot]);
   };
   const n = last ? Math.round(last.xg * 10) : 0;
