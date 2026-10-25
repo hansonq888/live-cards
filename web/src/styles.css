@@ -2541,3 +2541,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .al .top { position: relative; }
 .al .top .fixture { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 600; font-size: 14px; white-space: nowrap; }
 .an-full { width: 40px; height: 40px; padding: 0 !important; display: grid; place-items: center; border-radius: 8px !important; }
+.director-pick .director-reason b { margin-left: .3em; }
