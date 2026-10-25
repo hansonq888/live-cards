@@ -110,9 +110,13 @@ function Lineup({ s, club, hover, setHover }: { s: Summary; club: string; hover:
   return (
     <section className="lu" style={{ ["--club" as string]: team.color }}>
       <div className="lu-pitch">
-        <svg className="lu-lines" viewBox="0 0 68 76" preserveAspectRatio="none" aria-hidden="true">
-          <rect x=".4" y="-1" width="67.2" height="76.6" /><line x1="0" y1="20" x2="68" y2="20" />
-          <circle cx="34" cy="20" r="9.15" /><rect x="13.85" y="58" width="40.3" height="16.6" /><rect x="24.85" y="69.1" width="18.3" height="5.5" />
+        {/* Pitch markings in the same frame as the players: halfway line, centre circle, own box */}
+        <svg className="lu-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="0" y1={top(0)} x2="100" y2={top(0)} />
+          <ellipse cx="50" cy={top(0)} rx="13.5" ry={top(-9.15) - top(0)} />
+          <rect x={left(20.15)} y={top(-36)} width={left(-20.15) - left(20.15)} height={top(-52.5) - top(-36)} />
+          <rect x={left(9.15)} y={top(-47)} width={left(-9.15) - left(9.15)} height={top(-52.5) - top(-47)} />
+          <line x1="0" y1={top(-52.5)} x2="100" y2={top(-52.5)} />
         </svg>
         <span className="lu-form">{CLUBS[club]?.short ?? team.name} · {(team as { formation?: string }).formation ?? ""}</span>
         {xi.map((p) => (
