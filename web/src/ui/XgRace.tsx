@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { live, useLive } from "../live/store";
 
-const H = 340, PAD = { l: 34, r: 14, t: 30, b: 24 };
+const H = 340, PAD = { l: 34, r: 58, t: 30, b: 24 };
 
 export function XgRace() {
   const plays = useLive((s) => s.plays);
@@ -18,7 +18,7 @@ export function XgRace() {
     const ro = new ResizeObserver(([e]) => setW(Math.max(300, Math.round(e.contentRect.width))));
     ro.observe(box.current);
     return () => ro.disconnect();
-  }, []);
+  }, [!!meta]);  // the chart only mounts once the match has loaded
   if (!meta) return null;
   const teams = [meta.home, meta.away];
   const lines = teams.map((tm) => {
@@ -40,16 +40,19 @@ export function XgRace() {
       + (goals(other.team.code) > goals(lead.team.code) ? `, but ${other.team.name} have taken theirs.` : ".");
   const ranked = [...plays].sort((x, y) => y.xg - x.xg);
   return (
-    <div className="xg-race v2" ref={box}>
-      <div className="xr-top">
+    <div className="xg-race v2">
+      {/* One split bar: each club's share of the width is its share of the xG. */}
+      <div className="xr-split">
         {lines.map((l) => (
-          <div key={l.team.code} className="xr-total" style={{ ["--team" as string]: l.team.color }}>
-            <span>{l.team.name}</span><b>{l.total.toFixed(2)}<small> xG</small></b><em>{goals(l.team.code)} goal{goals(l.team.code) === 1 ? "" : "s"} · {plays.filter((p) => p.team === l.team.code).length} shots</em>
+          <div key={l.team.code} className="xr-side" style={{ ["--team" as string]: l.team.color, flexGrow: Math.max(0.15, l.total) }}>
+            <b>{l.total.toFixed(2)}<small> xG</small></b>
+            <span>{l.team.name}<em>{goals(l.team.code)} goal{goals(l.team.code) === 1 ? "" : "s"} · {plays.filter((p) => p.team === l.team.code).length} shots</em></span>
           </div>
         ))}
-        <p className="xr-verdict">{verdict}</p>
       </div>
+      <p className="xr-verdict">{verdict}</p>
       <div className="xr-body">
+      <div className="xr-chart" ref={box}>
       <svg viewBox={`0 0 ${W} ${H}`} className="xr-svg" role="img" aria-label="Cumulative expected goals for each team over the match">
         <defs>{lines.map((l) => (
           <linearGradient key={l.team.code} id={`xr-fill-${l.team.code}`} x1="0" y1="0" x2="0" y2="1">
@@ -73,6 +76,7 @@ export function XgRace() {
             <g key={l.team.code}>
               <path d={`${d} V ${Y(0)} H ${X(0)} Z`} fill={`url(#xr-fill-${l.team.code})`} />
               <path d={d} fill="none" stroke={l.team.color} strokeWidth={3.5} strokeLinejoin="round" />
+              <text x={end + 6} y={Y(l.total) + 4} className="xr-end" fill={l.team.color}>{l.total.toFixed(2)}</text>
             </g>
           );
         })}
@@ -88,6 +92,7 @@ export function XgRace() {
           );
         }))}
       </svg>
+      </div>
       <div className="xr-list">
         <span className="xr-list-h">Every shot, best chance first · click to show me</span>
         {ranked.map((p) => {
