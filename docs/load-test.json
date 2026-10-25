@@ -1,0 +1,50 @@
+[
+  {
+    "viewers": 50,
+    "connected": 50,
+    "failed": 0,
+    "realtime_ratio_median": 0.999,
+    "realtime_ratio_min": 0.993,
+    "frame_gap_ms_p50": 54.1,
+    "frame_gap_ms_p95": 56.3,
+    "frame_gap_ms_p99": 57.1,
+    "frames_per_viewer_per_s": 18.6,
+    "server_cpu_pct": 13.1
+  },
+  {
+    "viewers": 100,
+    "connected": 100,
+    "failed": 0,
+    "realtime_ratio_median": 0.997,
+    "realtime_ratio_min": 0.991,
+    "frame_gap_ms_p50": 53.0,
+    "frame_gap_ms_p95": 55.6,
+    "frame_gap_ms_p99": 58.9,
+    "frames_per_viewer_per_s": 18.9,
+    "server_cpu_pct": 22.7
+  },
+  {
+    "viewers": 200,
+    "connected": 200,
+    "failed": 0,
+    "realtime_ratio_median": 0.993,
+    "realtime_ratio_min": 0.98,
+    "frame_gap_ms_p50": 55.3,
+    "frame_gap_ms_p95": 102.7,
+    "frame_gap_ms_p99": 144.9,
+    "frames_per_viewer_per_s": 16.4,
+    "server_cpu_pct": 66.0
+  },
+  {
+    "viewers": 400,
+    "connected": 339,
+    "failed": 61,
+    "realtime_ratio_median": 0.993,
+    "realtime_ratio_min": 0.977,
+    "frame_gap_ms_p50": 57.7,
+    "frame_gap_ms_p95": 151.0,
+    "frame_gap_ms_p99": 246.4,
+    "frames_per_viewer_per_s": 12.9,
+    "server_cpu_pct": 97.4
+  }
+]
