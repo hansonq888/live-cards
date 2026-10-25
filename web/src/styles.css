@@ -2528,3 +2528,15 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 /* Stop following: a plain button */
 .flc-stop { background: rgba(255,255,255,.12); color: #fff; font-weight: 600; padding: 6px 12px; }
 .flc-stop:hover { background: rgba(255,255,255,.22); }
+/* Your pick on the video: who you follow, and ✕ to stop */
+.director-pick { pointer-events: auto; align-items: center; }
+.director-pick .director-reason b { font-weight: 700; color: #fff; }
+.director-x { border: 0; background: rgba(255,255,255,.1); color: #fff; width: 30px; align-self: stretch; font-size: 13px; cursor: pointer; }
+.director-x:hover { background: #fb7185; }
+/* Leaders with headshots */
+.ld-name { display: flex; align-items: center; gap: 10px; }
+.ld-bust { line-height: 0; width: 40px; height: 40px; overflow: hidden; border-radius: 50%; background: #efedf8; flex: none; }
+.ld-row { padding-top: 2px; padding-bottom: 2px; }
+/* Analyse header: the match title centred */
+.al .top { position: relative; }
+.al .top .fixture { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 600; font-size: 14px; white-space: nowrap; }

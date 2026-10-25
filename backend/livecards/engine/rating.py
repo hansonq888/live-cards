@@ -40,6 +40,21 @@ LABELS: dict[str, str] = {
 }
 
 
+# The same reasons as a fan would say them, for the one-line explanation on the card.
+PLAIN: dict[str, str] = {
+    "goal": "scored",
+    "assist": "set up a goal",
+    "chance_created": "created a chance",
+    "shot_on_target": "hit the target",
+    "tackle_won": "won a tackle",
+    "interception": "made an interception",
+    "pass_under_pressure": "passed under pressure",
+    "turnover_own_half": "lost the ball deep",
+    "foul": "gave away a foul",
+    "yellow_card": "was booked",
+}
+
+
 @dataclass(frozen=True)
 class LedgerEntry:
     t: float

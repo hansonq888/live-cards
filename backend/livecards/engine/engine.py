@@ -21,7 +21,7 @@ from livecards.engine.attributes import (
     raw_value,
     z_scores,
 )
-from livecards.engine.rating import LABELS, WEIGHTS, Rating
+from livecards.engine.rating import LABELS, PLAIN, WEIGHTS, Rating
 from livecards.engine.stats import PlayerStats
 
 DT = 1.0 / FPS
@@ -421,7 +421,8 @@ class MatchEngine:
                                 "breakdown": why},
                          evidence=sorted({en.event_id for en in entries}),
                          importance=min(0.9, IMPORTANCE[type_] + 0.1 * (abs(change) - RATING_STEP)),
-                         template=f"{ps.short} {ref_v:.1f} -> {now:.1f}: {why}")
+                         template=f"Rating {'up' if direction > 0 else 'down'} to {now:.1f}: "
+                                  + " and ".join(PLAIN[k] for k, _ in parts[:2]))
 
     # ---- tracking -------------------------------------------------------------------
     def on_frame(self, f: Frame) -> list[Moment]:

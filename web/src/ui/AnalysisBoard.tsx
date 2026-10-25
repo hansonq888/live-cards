@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import { live, useLive } from "../live/store";
 import { useSummary, type Summary } from "../pages/summary";
 import { XgRace } from "./XgRace";
+import { Avatar } from "./Avatar";
 import { Feed } from "./SidePanel";
 
 function Block({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
@@ -109,7 +110,7 @@ function Leaders({ s }: { s: Summary }) {
         {rows.map((p, i) => (
           <a key={p.id} className="ld-row" href={`/?page=players&id=${p.id}`}>
             <span className="ld-rank">{i + 1}</span>
-            <span className="ld-name"><i style={{ background: colour(p.team) }} />{p.short}</span>
+            <span className="ld-name"><span className="ld-bust"><Avatar player={p} color={colour(p.team)} size={40} bare /></span>{p.short}</span>
             <span className="ld-bar"><i style={{ width: `${(100 * val(p)) / top}%`, background: colour(p.team) }} /></span>
             <b>{def[2](val(p))}</b>
           </a>

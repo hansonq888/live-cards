@@ -175,12 +175,23 @@ export function PlayerCard() {
 
 export function DirectorTicker() {
   const director = useLive((s) => s.director);
+  const meta = useLive((s) => s.meta);
   const breakdown = useLive((s) => s.buildup);
   const lang = useLang();
   const now = useTicker();
   if (!director || breakdown) return null;  // during a breakdown the panel says what's happening
   const fresh = now - director.at < 1500;
   const label = director.mode === "replay" ? "replay" : director.mode === "manual" ? "your_pick" : director.predicted ? "predicted" : "auto";
+  if (director.mode === "manual") {
+    // Your own pick: just who, and a way to hand the ring back to the auto-director.
+    const name = meta?.players.find((p) => p.id === director.target)?.short ?? "";
+    return (
+      <div className="director director-pick">
+        <span className="director-reason">Following{" "}<b>{name}</b></span>
+        <button className="director-x" onClick={() => live.send({ type: "auto" })} aria-label="Stop following" title="Stop following">✕</button>
+      </div>
+    );
+  }
   return (
     <div className={`director ${fresh ? "director-fresh" : ""} ${director.predicted ? "director-predict" : ""}`}>
       <span className="director-label">{tr(lang, label)}</span>

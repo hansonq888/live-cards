@@ -132,7 +132,7 @@ def test_rating_downgrade_mirrors_upgrade(engine, ev):
                                       under_pressure=False))
     down = [m for m in moments if m.type == "rating_downgrade"]
     assert len(down) == 1 and down[0].facts["to"] == pytest.approx(5.4)
-    assert "lost the ball in own half" in down[0].template
+    assert "lost the ball deep" in down[0].template
 
 
 def test_streak_after_three_successes_and_reset_on_failure(engine, ev):

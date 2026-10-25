@@ -40,7 +40,7 @@ def test_hero_moment(played):
     assert up.facts["delta"] >= 1.0 and up.facts["from"] < 7.5
     assert up.facts["top_reason"] == "goal"
     assist = next(m for m in by_type[("rating_upgrade", "RIV-07")] if m.t == goal.t)
-    assert "assist" in assist.template
+    assert "set up a goal" in assist.template
 
 
 def test_fading_player_gets_downgraded(played):
