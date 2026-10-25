@@ -1,10 +1,12 @@
-# Live Cards
+# Footnote
+
+*Take a second look at every moment.*
 
 **Every number explains itself.** A ring follows any player and their live card updates as the
 match unfolds. Every change comes with a reason, every reason is checked against the match data
 before it airs, and each fan gets it in their own language and depth.
 
-![Live Cards: the ring moves to the striker before the cross lands, the goal, and his card upgrades with its reasons](docs/media/hero.gif)
+![Footnote: the ring moves to the striker before the cross lands, the goal, and his card upgrades with its reasons](docs/media/hero.gif)
 
 **[Live demo](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?start=3935)** ·
 **[Broadcast console](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?view=console)** ·
@@ -37,7 +39,7 @@ before it airs, and each fan gets it in their own language and depth.
 
 ## The brief's pipeline, end to end
 
-| Stage | How Live Cards does it | Where |
+| Stage | How Footnote does it | Where |
 |---|---|---|
 | **Ingest** | A 90-minute simulation: positions at 10 fps (54,000 frames), plus passes, shots, tackles, interceptions, pressures, fouls, cards, substitutions. It's published to **Azure Event Hubs** and ingested back by the engine. | [`sim/`](backend/livecards/sim), [`feed.py`](backend/livecards/feed.py) |
 | **Interpret** | Deterministic code turns events and tracking into stats, a 0–10 rating, five attributes, sprints and alerts, momentum, control vs. chaos, and *moments* scored for importance. **No model ever computes a number.** | [`engine/`](backend/livecards/engine) |
@@ -87,7 +89,7 @@ Identity is keyless in code: a service principal with narrowly scoped roles. See
 
 ## Vision layer: no tracking system needed
 
-Live Cards runs on position data. To show it could also run from a broadcast picture, a
+Footnote runs on position data. To show it could also run from a broadcast picture, a
 pretrained YOLO model (no training) finds players and splits teams by shirt colour, and a
 pitch homography places them in metres. We measured it against the simulator's ground truth on
 54 rendered frames ([docs/vision.md](docs/vision.md)):

@@ -14,9 +14,9 @@ without permission.
 
 ## Elevator pitch (~90 words)
 
-**Live Cards: every number explains itself.**
+**Footnote: every number explains itself.**
 
-Football fans get stats with no story, and AI commentary they can't trust. Live Cards puts a
+Football fans get stats with no story, and AI commentary they can't trust. Footnote puts a
 ring under any player and gives them a live card that updates and explains every change, in
 the fan's language, depth and club voice. Nothing airs until it's checked against the match data.
 
@@ -31,7 +31,7 @@ AI line follows in about 3.3 s in the cloud.*
 
 ## Submission description (paste into the project page)
 
-**What we built.** Live Cards is a live match-insights layer for football broadcasts and
+**What we built.** Footnote is a live match-insights layer for football broadcasts and
 streams. A ring follows any player; their card (a 0–10 rating and five attributes) updates as
 events happen, and every change carries its reason and the events behind it. Fans can ask
 questions, replay key moments, and choose casual or analyst depth in English, Spanish, French,
@@ -40,7 +40,7 @@ weights and compare. Broadcasters get a console with kill switches, a human-appr
 audit log, and every on-screen element is also a timed JSON overlay cue for a graphics partner.
 
 **The problem.** Live stats are numbers without reasons, and generative commentary can state
-things that never happened. A broadcaster can't air either at scale. Live Cards separates the
+things that never happened. A broadcaster can't air either at scale. Footnote separates the
 two jobs: deterministic code computes every number, agents only write the words around them,
 and two independent checks (a code verifier and a reasoning reviewer) must pass before
 anything airs. In our 330-line evaluation, 0 of 275 planted lies got through.
@@ -64,10 +64,10 @@ simulator with planted storylines.
 ## Why it beats today's player-tracking overlays
 
 Basketball streams added a ring under the ball handler, streak icons and a player stat card,
-and it was shortlisted for a sports-media award. That's the bar. Live Cards goes further on
+and it was shortlisted for a sports-media award. That's the bar. Footnote goes further on
 every axis:
 
-| Today's overlays | Live Cards |
+| Today's overlays | Footnote |
 |---|---|
 | Ring on the ball handler | **Predictive** ring: moves to the striker *before* the cross lands, and says why |
 | Stat card shows numbers | Card **explains every change** ("7.2 → 8.7: goal +1.0, interception +0.2") with evidence |
@@ -97,7 +97,7 @@ machinery under the one before. Record at 1600×900; voiceover in your own words
 | 1:04–1:18 | **Red-team** button: false claim injected, Verifier blocks it, Reviewer passes the rewrite, correct line airs | "We built a button that makes it lie. Out of 275 planted lies, none aired." | Trust |
 | 1:18–1:32 | **Console**: approval mode holds a line, operator approves; kill switch turns the AI off and the stats line keeps airing; audit log | "Broadcasters stay in control: approve, switch off, audit every line." | Enterprise |
 | 1:32–1:46 | Architecture diagram (README mermaid), App Insights trace of one moment, Foundry evaluation page | "Agents on Microsoft Foundry, orchestrated with Agent Framework, streaming through Event Hubs and Web PubSub on Container Apps." | |
-| 1:46–1:50 | End card: name, live URL, repo URL. Optional 3-second real-footage clip before it. | "Live Cards. Every number explains itself." | |
+| 1:46–1:50 | End card: name, live URL, repo URL. Optional 3-second real-footage clip before it. | "Footnote. Every number explains itself." | |
 
 Check before recording: start the live site with `?start=3890` so the sprint and goal arrive
 in the first seconds; set Studio speed to 1×; close other tabs (Foundry rate limits).
@@ -119,11 +119,11 @@ Collected Oct 24 as the product became an analysis platform. Pick and rewrite wh
 - "Understand any moment of the match, live or after the whistle."
 - "Walk through any play: every touch replayed from tracking data, the space it created, every
   stat explained and checked by AI agents."
-- "The broadcast follows the ball. Live Cards follows the moment that mattered, and explains it."
+- "The broadcast follows the ball. Footnote follows the moment that mattered, and explains it."
 
 **The problem**
 - The league already publishes xG, xA and dozens of advanced stats; most fans can't read them.
-- Stats without meaning are noise to a casual fan and a number dump to an analyst. Live Cards
+- Stats without meaning are noise to a casual fan and a number dump to an analyst. Footnote
   gives the first a story and the second a toolbox.
 
 **Why teaching stats matters, including to the league as a business**
@@ -132,10 +132,10 @@ Collected Oct 24 as the product became an analysis platform. Pick and rewrite wh
   every week; helping them understand those numbers makes the league's own game better and stickier.
 - **The league already pays to collect the data.** Optical tracking runs in every ground (Second
   Spectrum / Genius Sports). Today most of that richness reaches fans as a few on-screen numbers.
-  Live Cards turns an existing asset into more fan value, with no new hardware.
+  Footnote turns an existing asset into more fan value, with no new hardware.
 - **The league already makes this kind of content, by hand.** TV listings show a weekly xG analysis
   programme on the league's own channel ("Generation xG"; weak source: listings only, verify
-  before citing). Live Cards automates that format for every attack of every match, in five
+  before citing). Footnote automates that format for every attack of every match, in five
   languages.
 - **Understanding is how casual viewers become regular fans.** Knowing *why* a moment mattered
   makes the next match more interesting, especially for new international audiences who didn't
@@ -147,11 +147,11 @@ Collected Oct 24 as the product became an analysis platform. Pick and rewrite wh
 - **Trust protects the brand.** Advanced stats explained wrongly, or AI that invents facts, is a
   reputational risk. Every line here is checked against the data first.
 - Possible line: "The league already tracks every player 25 times a second, and 11 million
-  people play its fantasy game by the numbers. Live Cards makes those numbers make sense."
+  people play its fantasy game by the numbers. Footnote makes those numbers make sense."
 
 **Comparison (familiar reference point)**
 - "Baseball has Statcast's public stats site, where fans can explore the tracking data. Football
-  has nothing like it for fans, and the stats are only getting harder to read. Live Cards is that,
+  has nothing like it for fans, and the stats are only getting harder to read. Footnote is that,
   but it teaches: every stat explained inside the moment it happened."
   Sources: MLB's Statcast glossary and Baseball Savant (mlb.com/glossary/statcast). Football
   analytics education today is aimed at professionals (Soccermatics/Twelve courses, accredited xG
@@ -160,7 +160,7 @@ Collected Oct 24 as the product became an analysis platform. Pick and rewrite wh
 
 **Real-world grounding**
 - Premier League grounds already have optical tracking (Second Spectrum, Genius Sports) at 25
-  frames a second, and the league uses it for semi-automated offside. Live Cards runs on that kind
+  frames a second, and the league uses it for semi-automated offside. Footnote runs on that kind
   of feed; our simulator stands in for it. (Sources in the conversation of Oct 24; cite carefully.)
 - Replays are rendered from data, not video, which sidesteps broadcast-rights limits: data-drawn
   match trackers are an existing pattern in apps without video rights.
@@ -169,10 +169,10 @@ Collected Oct 24 as the product became an analysis platform. Pick and rewrite wh
   (who passed to whom) from video are a further step.
 
 **Immersive, not a table**
-- Stats sites give you tables and charts. Live Cards puts you inside the moment: the match
+- Stats sites give you tables and charts. Footnote puts you inside the moment: the match
   replays in 3D, the ring follows each touch, the pitch shades with space as it opens up, and
   the explanation arrives at the touch it's about. You learn by watching, not by reading.
-- Line to try: "Other stats sites show you the numbers. Live Cards puts you inside the play."
+- Line to try: "Other stats sites show you the numbers. Footnote puts you inside the play."
 
 **Trust (keep, it's measured)**
 - 0 of 275 planted lies aired in the safety evaluation; two independent checks (code verifier and

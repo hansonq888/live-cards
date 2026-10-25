@@ -57,7 +57,7 @@ function boardTexture(home: string): THREE.CanvasTexture {
   x.font = "bold 40px Arial";
   for (let i = 0; i < 6; i++) {
     x.fillStyle = i % 2 ? ringColour() : "#ffffff";
-    x.fillText(i % 2 ? "LIVE CARDS" : home.toUpperCase(), 40 + i * 340, 46);
+    x.fillText(i % 2 ? "FOOTNOTE" : home.toUpperCase(), 40 + i * 340, 46);
   }
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;

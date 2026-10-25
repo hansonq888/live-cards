@@ -41,7 +41,7 @@ export function AnalystCard({ pid }: { pid: string }) {
       </div>
       {mine && (
         <div className="ac-compare">
-          <div><span>Live Cards</span><b>{a.rating.toFixed(2)}</b></div>
+          <div><span>Footnote</span><b>{a.rating.toFixed(2)}</b></div>
           <div className="yours"><span>{mine.name}</span><b>{mine.rating.toFixed(2)}</b></div>
           <div className={mine.rating >= a.rating ? "up" : "down"}><span>difference</span><b>{sign(mine.rating - a.rating)}</b></div>
         </div>

@@ -62,7 +62,7 @@ export function YourModelPanel() {
         {ym.status === "building" && "Replaying the match so far with your model…"}
         {ym.status === "ready" && `“${ym.name}” is live. Switch to Analyst to compare.`}
         {ym.status === "error" && `Rejected: ${ym.error}`}
-        {ym.status === "off" && "Using the Live Cards formula only."}
+        {ym.status === "off" && "Using the Footnote formula only."}
       </div>
     </div>
   );
