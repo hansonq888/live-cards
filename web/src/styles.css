@@ -2341,3 +2341,13 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 @media (max-width: 1000px) { .bd-row { grid-template-columns: 1fr; } }
 .fp-tile, .xr-row { box-shadow: none !important; }
 .board.all .mo { height: 200px; }
+/* Analyse transport on one row: play, the timeline, then Jump to (and Explain the goal) */
+.an-transport { display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; column-gap: 18px; padding: 14px 18px !important; }
+.an-transport .an-controls, .an-transport .controls { display: contents !important; }
+.an-transport .c-side:first-child { display: none; }
+.an-transport .play-main { grid-column: 1; grid-row: 1; width: 52px; height: 52px; margin: 0; }
+.an-transport .timeline { grid-column: 2; grid-row: 1; margin: 0; padding-top: 22px; }
+.an-transport .c-side.right { grid-column: 3; grid-row: 1; padding: 0 !important; display: flex; align-items: center; gap: 8px; justify-self: end; }
+.an-transport .explain-goal { grid-column: 4; grid-row: 1; justify-self: end; }
+.an-transport .ring-pick { min-width: 150px; }
+@media (max-width: 800px) { .an-transport { grid-template-columns: auto minmax(0, 1fr); row-gap: 10px; } .an-transport .c-side.right { grid-column: 1 / -1; grid-row: 2; justify-self: start; } .an-transport .explain-goal { grid-column: 1 / -1; grid-row: 3; justify-self: start; } }
