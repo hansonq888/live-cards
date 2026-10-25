@@ -127,7 +127,13 @@ function Analyse({ onFan }: { onFan: () => void }) {
                 <RevisitBadge />
                 <ShowMeHUD />
               </ScaledStage>
-              <button className="an-full" onClick={toggleFull}>{full ? "Exit full screen" : "⛶ Full screen"}</button>
+              <button className="an-full" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} title={full ? "Exit full screen" : "Full screen"}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  {full
+                    ? <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+                    : <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
+                </svg>
+              </button>
               {pip && <button className="an-pip-close" onClick={() => setClosed(true)} aria-label="Close the corner player">✕</button>}
             </div>
             </div>
