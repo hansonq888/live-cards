@@ -1,7 +1,8 @@
 """Record a GIF of the live app for the README (headless Chromium + ffmpeg).
 
     uv run --with playwright==1.48.0 python scripts/record_gif.py \
-        --url "http://localhost:5180/?start=3938" --seconds 14 --out ../docs/media/hero.gif
+        --url "$BASE/?page=analyse&showme=e-1666" --wait .sm-hud --clip .an-stage \
+        --seconds 16 --out ../docs/media/hero.gif
 """
 
 from __future__ import annotations
@@ -27,6 +28,8 @@ def main() -> None:
     ap.add_argument("--width", type=int, default=960)
     ap.add_argument("--warmup", type=float, default=4)
     ap.add_argument("--js", default="", help="script to run after warm-up (e.g. set a language)")
+    ap.add_argument("--wait", default=".card, .acard", help="selector to wait for before warm-up")
+    ap.add_argument("--clip", default="", help="only record this element (CSS selector)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     tmp = Path(tempfile.mkdtemp())
@@ -34,7 +37,7 @@ def main() -> None:
         browser = p.chromium.launch(args=ARGS)
         page = browser.new_page(viewport={"width": 1280, "height": 720})
         page.goto(a.url)
-        page.wait_for_selector(".card, .acard", timeout=60_000)
+        page.wait_for_selector(a.wait, timeout=90_000)
         if a.js:
             page.evaluate(a.js)
         time.sleep(a.warmup)
@@ -43,7 +46,8 @@ def main() -> None:
             due = t0 + n / a.fps
             if (wait := due - time.monotonic()) > 0:
                 time.sleep(wait)
-            page.screenshot(path=str(tmp / f"{n:04d}.png"))
+            target = page.locator(a.clip) if a.clip else page
+            target.screenshot(path=str(tmp / f"{n:04d}.png"))
             n += 1
         browser.close()
     out = Path(a.out)

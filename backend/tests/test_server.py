@@ -261,3 +261,10 @@ def test_breakdown_of_a_later_play_after_jumping_back(monkeypatch):
         return [m for m in got if m["type"] == "buildup"]
     b = asyncio.run(main())
     assert b and "error" not in b[-1] and b[-1]["scorer"] == "RIV-09"
+
+
+def test_summary_has_formation_spots_for_every_starter():
+    """Regression: the players page lineup needs spots even when the match is loaded from disk."""
+    from livecards.server.summary import summary
+    starters = [p for p in summary()["players"] if p["starter"]]
+    assert len(starters) == 22 and all(p["spot"] for p in starters)

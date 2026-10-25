@@ -57,7 +57,12 @@ AWAY = TeamMeta(
 )
 VENUE = "Harbour Lane"
 
-FORMATION_SPOTS: dict[str, tuple[float, float]] = {}
+# Every starter's formation spot, by player id. Built from the rosters at import, so it is there
+# even when a match is loaded from disk instead of generated.
+FORMATION_SPOTS: dict[str, tuple[float, float]] = {
+    f"{code}-{row[0]:02d}": row[5]
+    for code, rows in (("RIV", _RIV), ("NGT", _NGT)) for row in rows if row[5] is not None
+}
 
 
 def _players(team: TeamMeta, rows: list) -> list[PlayerMeta]:
