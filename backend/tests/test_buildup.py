@@ -15,6 +15,7 @@ def test_hero_goal_build_up(match, played):
     assert passers == ["RIV-05", "RIV-08", "RIV-07"]
     assert "cross" in b["steps"][-3]["text"] or "cross" in " ".join(s["text"] for s in b["steps"])
     assert b["facts"]["passes"] == 3 and b["start_t"] < goal.t
+    assert b["facts"]["won_ball_by"] == "Callum Ferreday"  # not the scorer
     assert all(s["evidence"] for s in b["steps"])
 
 

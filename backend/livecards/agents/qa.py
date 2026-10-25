@@ -421,5 +421,8 @@ async def ask(question: str, engine: MatchEngine, roster: set[str],
                           list(dict.fromkeys(c for c, _ in tools.calls)),
                           round((time.perf_counter() - t0) * 1000), actions=actions, table=table)
         feedback, problems = verdict.reason(), verdict.problems
+    # Even when no answer passed the checks, the plays the tools found are real: offer them
+    # (links to data, not claims, so nothing unverified reaches the screen).
+    plays = [a for a in tools.actions()[0] if a["type"] == "play"]
     return Answer(question, REFUSAL, True, "refusal", [], [c for c, _ in tools.calls],
-                  round((time.perf_counter() - t0) * 1000), problems)
+                  round((time.perf_counter() - t0) * 1000), problems, actions=plays)

@@ -82,6 +82,7 @@ export interface LiveState {
   plays: Play[];
   showSpace: boolean; // shade space control during a breakdown
   tactical: boolean; // coach's tablet (top-down) instead of the broadcast camera
+  showMe: boolean; // a play replaying on the tactical board with space shading and callouts
   liveEdge: number; // furthest match time watched
   revisit: KeyMoment | null;
   answers: { id: string; question: string; text?: string; source?: string; evidence?: string[]; tools?: string[]; ms?: number; problems?: string[]; minute?: number; actions?: AnswerAction[]; table?: AnswerTable | null; pending: boolean }[];
@@ -130,7 +131,7 @@ function savedStatRing(): string | null {
 const initial: LiveState = {
   connected: false, meta: null, t: 0, speed: 1, paused: false, modelEnabled: false,
   director: null, cards: {}, stats: {}, heat: {}, analyst: {}, custom: {}, yourModel: { status: "off", spec: null }, lines: {}, profile: "casual.en.neutral", showcase: null, redteam: null, answers: [],
-  keyMoments: [], liveEdge: 0, revisit: null, buildup: null, plays: [], showSpace: true, tactical: false,
+  keyMoments: [], liveEdge: 0, revisit: null, buildup: null, plays: [], showSpace: true, tactical: false, showMe: false,
   pending: {}, upgrades: {}, alerts: [],
   banner: null, feed: [], traces: [], team: null, metrics: null, board: {}, statRing: null,
 };
@@ -190,6 +191,12 @@ class LiveStore {
     this.send({ type: "explain_goal", goal });
   }
 
+  /** "Show me": replay a play on the tactical board, space shaded, with big callouts. */
+  showMe(play: string) {
+    this.set({ showMe: true, tactical: true, showSpace: true });
+    this.breakdown(play);
+  }
+
   /** Break down any play (a shot's event id). */
   breakdown(play: string) {
     this.send({ type: "breakdown", play });
@@ -240,6 +247,9 @@ class LiveStore {
   stepBuildup(t: number) {
     const b = this.state.buildup;
     if (!b || !b.playing) return;
+    // Until the jump back to the play has landed the clock still reads where we were (often
+    // full time); don't mistake that for the play having finished.
+    if (!this.buildArrived) { if (t <= b.goalT) this.buildArrived = true; else return; }
     if (b.pauseAt !== null && t >= b.pauseAt) {
       this.set({ buildup: { ...b, pauseAt: null } });
       this.send({ type: "pause" });
@@ -256,6 +266,7 @@ class LiveStore {
     }
   }
   private lastBuildPlayer: string | null = null;
+  private buildArrived = false;
 
   backToLive() {
     const b = this.state.buildup;
@@ -264,7 +275,7 @@ class LiveStore {
       this.send({ type: "auto" });
       this.send({ type: "play" });
     }
-    this.set({ buildup: null });
+    this.set({ buildup: null, ...(this.state.showMe ? { showMe: false, tactical: false } : {}) });
     this.lastBuildPlayer = null;
     const edge = this.state.liveEdge;
     this.set({ revisit: null });
@@ -391,8 +402,9 @@ class LiveStore {
           revisit: { id: m.goal, t: m.goal_t, type: m.kind === "chance" ? "big_chance" : "goal", player: m.scorer, label: `${m.kind === "chance" ? "Chance" : "Goal"} · ${this.name(m.scorer)}` },
           liveEdge: Math.max(s.liveEdge, s.t),
         });
+        this.buildArrived = false;
         this.send({ type: "seek", t: Math.max(0, m.start_t - 2) });
-        this.send({ type: "speed", value: 0.5 });
+        this.send({ type: "speed", value: s.showMe ? 0.8 : 0.5 });  // Show me keeps it moving
         this.send({ type: "play" });
         break;
       }

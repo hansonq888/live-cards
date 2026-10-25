@@ -308,3 +308,35 @@ export function ExplainGoalButton({ className = "" }: { className?: string }) {
   if (!goals.length) return null;
   return <button className={`explain-goal ${className}`} onClick={() => live.explainGoal()}><Icon name="replay" size={15} />{tr(lang, "explain_goal")}</button>;
 }
+
+/** "Show me" callouts over the tactical board: which touch, what it did, and the final-third
+ * space the attack controls (from the engine's space model), then the verified story. */
+export function ShowMeHUD() {
+  const on = useLive((s) => s.showMe);
+  const b = useLive((s) => s.buildup);
+  const meta = useLive((s) => s.meta);
+  const t = useLive((s) => s.t);
+  const lang = useLang();
+  if (!on || !b || !meta) return null;
+  const i = Math.max(0, live.stepIndex(t));
+  const step = b.steps[i];
+  const sp = b.steps.slice(0, i + 1).reverse().find((s) => s.space)?.space;
+  const scorer = meta.players.find((p) => p.id === b.scorer);
+  const team = scorer?.team === meta.home.code ? meta.home : meta.away;
+  const done = t > b.goalT + 0.3;
+  const gain = sp?.gain_m2 ?? 0;
+  return (
+    <div className="sm-hud" style={{ ["--team" as string]: team.color }}>
+      <span className="sm-kicker">Show me · how the {b.kind === "goal" ? "goal" : "chance"} was built</span>
+      <h3>{scorer?.short ?? ""}</h3>
+      <div className="sm-steps" aria-label={`Touch ${i + 1} of ${b.steps.length}`}>{b.steps.map((_, j) => <i key={j} className={j < i ? "done" : j === i ? "on" : ""} />)}</div>
+      <p className="sm-cap" key={done ? "story" : i}>{done ? (b.localized ?? b.story) : stepCaption(lang, step)}</p>
+      {sp && !done && sp.final_third_m2 >= 20 && (
+        <div className="sm-space">
+          <b>{sp.final_third_m2}<small> m²</small></b><span>of the final third controlled</span>
+          {gain !== 0 && <em className={gain > 0 ? "up" : "down"} key={i}>{gain > 0 ? "+" : "−"}{Math.abs(gain)} m²</em>}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -134,6 +134,9 @@ def build_up(events: list[Event], goal: Event, meta: MatchMeta,
     facts = {"passes": passes, "seconds": duration, "players_involved": len(involved),
              "xg": q, "shot_speed_kmh": shot.speed_kmh or 0, "won_ball": zone,
              "scorer": next(p.name for p in meta.players if p.id == scorer)}
+    if chain:
+        # who started the move, so a story never hands that to the scorer by default
+        facts["won_ball_by"] = next(p.name for p in meta.players if p.id == chain[0].player)
     if not scored:
         facts["outcome"] = OUTCOME.get(shot.outcome or "", shot.outcome or "")
     return {

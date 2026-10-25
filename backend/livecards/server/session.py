@@ -308,7 +308,18 @@ class LiveSession:
         last_frame = last_card = last_team = 0.0
         wall0, game0 = time.monotonic(), self.t
         speed0 = self.speed
-        while self.i < len(self.match):
+        ended = False
+        # Never exit at full time: a viewer can still jump back (a breakdown, a seek), so wait
+        # at the final whistle until they do.
+        while True:
+            if self.i >= len(self.match):
+                if not ended:
+                    ended = True
+                    await self.send({"type": "end", "score": self.engine.score})
+                await asyncio.sleep(0.05)
+                wall0, game0 = time.monotonic(), self.t
+                continue
+            ended = False
             if self.paused:
                 await asyncio.sleep(0.05)
                 wall0, game0 = time.monotonic(), self.t
@@ -333,7 +344,6 @@ class LiveSession:
                 last_team = now
                 await self.send(self.team_msg())
             await asyncio.sleep(0.01)
-        await self.send({"type": "end", "score": self.engine.score})
 
     def _advance_to(self, target_t: float, live: bool):
         """Feed every tick up to target_t. Returns an awaitable when live."""

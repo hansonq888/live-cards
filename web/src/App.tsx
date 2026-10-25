@@ -3,7 +3,7 @@ import { BoardSwitch } from "./viewer/BoardSwitch";
 import { Icon } from "./ui/Icon";
 import { live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
-import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./ui/Overlays";
+import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug, ShowMeHUD } from "./ui/Overlays";
 import { Wordmark } from "./ui/Wordmark";
 import { AskFloat, Controls, UnderTheHood } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
@@ -105,6 +105,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
                 <GoalBanner />
                 <RedTeamPanel />
                 <RevisitBadge />
+                <ShowMeHUD />
               </ScaledStage>
               <button className="an-full" onClick={toggleFull}>{full ? "Exit full screen" : "⛶ Full screen"}</button>
             </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "./Icon";
 import { clock, live, STAT_RINGS, useLang, useLive } from "../live/store";
 import { isRtl, t as tr } from "../i18n";
@@ -130,7 +130,7 @@ function Fans() {
 /** What an answer lets you do next: open the play it talks about, jump to the moment, follow
  *  the player. Actions come from the tools the agent used, never from its wording. */
 function runAction(act: AnswerAction) {
-  if (act.type === "play" && act.id) live.breakdown(act.id);
+  if (act.type === "play" && act.id) live.showMe(act.id);
   else if (act.type === "moment" && act.minute !== undefined) live.send({ type: "seek", t: Math.max(0, act.minute * 60 - 5) });
   else if (act.type === "player" && act.id) live.send({ type: "select", player: act.id });
 }
@@ -166,7 +166,9 @@ export function Ask() {
                 {a.actions && a.actions.length > 0 && (
                   <div className="a-actions">
                     {a.actions.map((act, i) => (
-                      <button key={i} onClick={() => runAction(act)}>{act.type === "play" ? "▶ " : act.type === "moment" ? "↺ " : ""}{act.label}</button>
+                      act.type === "play" && a.actions!.findIndex((x) => x.type === "play") === i
+                        ? <button key={i} className="a-show" onClick={() => runAction(act)}>▶ Show me<small>{act.label}</small></button>
+                        : <button key={i} onClick={() => runAction(act)}>{act.type === "moment" ? "↺ " : act.type === "play" ? "▶ " : ""}{act.label}</button>
                     ))}
                   </div>
                 )}
@@ -326,6 +328,8 @@ function HoodSettings() {
 /** Ask, as a floating chat: a button bottom-right that opens the conversation. */
 export function AskFloat() {
   const [open, setOpen] = useState(false);
+  const showMe = useLive((s) => s.showMe);
+  useEffect(() => { if (showMe) setOpen(false); }, [showMe]);  // get out of the way of the replay
   return (
     <>
       {open && <div className="askf-drawer"><Ask /></div>}

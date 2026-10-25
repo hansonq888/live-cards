@@ -18,6 +18,29 @@ function arrow(g: CanvasRenderingContext2D, x1: number, y1: number, x2: number, 
   g.closePath(); g.fill();
 }
 
+type Label = { text: string; x: number; y: number; bg: string; fg: string; px: number; spots: [number, number][] };
+
+/** Put each label at whichever of its candidate spots covers the fewest players and labels. */
+function placeLabels(g: CanvasRenderingContext2D, labels: Label[], dots: [number, number][], r: number) {
+  const taken: [number, number, number, number][] = [];
+  for (const l of labels) {
+    g.font = `600 ${l.px}px "Inter Tight", Inter, sans-serif`;
+    const w = g.measureText(l.text).width + l.px * 1.2, h = l.px * 1.8;
+    let best = l.spots[0], bestScore = Infinity;
+    for (const [x, y] of l.spots) {
+      const x0 = x - w / 2, y0 = y - h / 2;
+      let score = 0;
+      for (const [dx, dy] of dots) if (dx > x0 - r && dx < x0 + w + r && dy > y0 - r && dy < y0 + h + r) score += 1;
+      for (const [tx, ty, tw, th] of taken) if (x0 < tx + tw && x0 + w > tx && y0 < ty + th && y0 + h > ty) score += 3;
+      if (score < bestScore) { best = [x, y]; bestScore = score; }
+    }
+    taken.push([best[0] - w / 2, best[1] - h / 2, w, h]);
+    g.shadowColor = "rgba(0,0,0,.35)"; g.shadowBlur = l.px * 0.6;
+    label(g, l.text, best[0], best[1], l.bg, l.fg, l.px);
+    g.shadowBlur = 0;
+  }
+}
+
 function label(g: CanvasRenderingContext2D, text: string, x: number, y: number, bg: string, fg: string, px: number) {
   g.font = `600 ${px}px "Inter Tight", Inter, sans-serif`;
   const w = g.measureText(text).width + px * 1.2, h = px * 1.8;
@@ -36,8 +59,9 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
     const c = canvas.current, g = c.getContext("2d")!;
     const team = new Map(meta.players.map((p) => [p.id, p]));
     const colour = (id: string) => (team.get(id)?.team === meta.home.code ? meta.home.color : meta.away.color);
-    const off = document.createElement("canvas");
-    let spaceKey = -1;
+    const off = document.createElement("canvas"), prev = document.createElement("canvas");
+    let spaceKey = -1, spaceAt = 0;   // crossfade from the previous touch's map to this one
+    let stepKey = -1, stepAt = 0;     // draw each touch's arrow in over a moment
     const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
     let raf = 0;
     const draw = (now: number) => {
@@ -61,6 +85,8 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
         // One pixel per cell on a small canvas, scaled up with smoothing: soft gradients, not tiles.
         const sp = spaceStep.space;
         if (spaceKey !== spaceStep.t) {
+          if (spaceKey !== -1) { prev.width = off.width; prev.height = off.height; prev.getContext("2d")!.drawImage(off, 0, 0); }
+          spaceAt = spaceKey === -1 ? now - 1000 : now;
           spaceKey = spaceStep.t;
           const mine = hex(colour(b.scorer)), theirs = hex(team.get(b.scorer)?.team === meta.home.code ? meta.away.color : meta.home.color);
           off.width = sp.cols; off.height = sp.rows;
@@ -73,7 +99,9 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
           off.getContext("2d")!.putImageData(img, 0, 0);
         }
         g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
-        g.drawImage(off, X(-L / 2), Y(-W / 2 + sp.rows * sp.cell), sp.cols * sp.cell * k, sp.rows * sp.cell * k);
+        const f = Math.min(1, (now - spaceAt) / 600), dx = X(-L / 2), dy = Y(-W / 2 + sp.rows * sp.cell), dw = sp.cols * sp.cell * k, dh = sp.rows * sp.cell * k;
+        if (f < 1 && prev.width) { g.globalAlpha = 1 - f; g.drawImage(prev, dx, dy, dw, dh); }
+        g.globalAlpha = f; g.drawImage(off, dx, dy, dw, dh); g.globalAlpha = 1;
       }
       // Markings.
       g.strokeStyle = "rgba(255,255,255,0.55)"; g.lineWidth = Math.max(1, 0.18 * k);
@@ -86,26 +114,36 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
         g.strokeRect(Math.min(X(gx), X(gx - 5.5 * sd)), Y(9.16), 5.5 * k, 18.32 * k);
         g.strokeRect(Math.min(X(gx), X(gx + 1.5 * sd)), Y(3.66), 1.5 * k, 7.32 * k);
       }
-      // The touch being studied: the pass or shot drawn on the board.
+      // The touch being studied: the pass or shot drawn on the board, the arrow drawing itself in.
+      const labels: Label[] = [];
       if (!mini && step?.args) {
+        if (stepKey !== step.t) { stepKey = step.t; stepAt = now; }
+        const grow = Math.min(1, (now - stepAt) / 450), ease = 1 - (1 - grow) ** 3;
         const a = step.args as Record<string, number | string | boolean | null>;
+        const x1 = X(Number(a.x)), y1 = Y(Number(a.y));
         g.strokeStyle = "#ffffff"; g.fillStyle = "#ffffff"; g.lineWidth = 0.35 * k; g.setLineDash([1.2 * k, 0.9 * k]);
         if (step.kind === "pass" && a.end_x != null) {
-          arrow(g, X(Number(a.x)), Y(Number(a.y)), X(Number(a.end_x)), Y(Number(a.end_y)), 1.6 * k);
-          g.setLineDash([]);
-          label(g, `${a.m} m ${a.kind === "ground" ? "pass" : a.kind}`, (X(Number(a.x)) + X(Number(a.end_x))) / 2, (Y(Number(a.y)) + Y(Number(a.end_y))) / 2 - 1.6 * k, "#0d0a24", "#ffffff", 1.25 * k);
+          const x2 = X(Number(a.end_x)), y2 = Y(Number(a.end_y));
+          arrow(g, x1, y1, x1 + (x2 - x1) * ease, y1 + (y2 - y1) * ease, 1.6 * k);
+          // the length label sits off the middle of the arrow, on whichever side is clearer
+          const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, len = Math.hypot(x2 - x1, y2 - y1) || 1;
+          const nx = -(y2 - y1) / len * 2.4 * k, ny = (x2 - x1) / len * 2.4 * k;
+          if (grow >= 1) labels.push({ text: `${a.m} m ${a.kind === "ground" ? "pass" : a.kind}`, x: mx, y: my, bg: "#0d0a24", fg: "#ffffff", px: 1.2 * k,
+            spots: [[mx + nx, my + ny], [mx - nx, my - ny], [mx + nx * 1.8, my + ny * 1.8], [mx - nx * 1.8, my - ny * 1.8]] });
         } else if (step.kind === "shot" && a.goal_x != null) {
           g.strokeStyle = "#d4ff3a"; g.fillStyle = "#d4ff3a";
-          arrow(g, X(Number(a.x)), Y(Number(a.y)), X(Number(a.goal_x)), Y(0), 1.6 * k);
-          g.setLineDash([]);
-          label(g, `xG ${Number(a.xg).toFixed(2)}`, X(Number(a.x)), Y(Number(a.y)) - 2.4 * k, "#d4ff3a", "#0d0a24", 1.25 * k);
+          const x2 = X(Number(a.goal_x)), y2 = Y(0);
+          arrow(g, x1, y1, x1 + (x2 - x1) * ease, y1 + (y2 - y1) * ease, 1.6 * k);
+          if (grow >= 1) labels.push({ text: `xG ${Number(a.xg).toFixed(2)}`, x: x1, y: y1, bg: "#d4ff3a", fg: "#0d0a24", px: 1.2 * k,
+            spots: [[x1, y1 - 2.6 * k], [x1, y1 + 2.6 * k], [x1 - 4.5 * k, y1], [x1 + 4.5 * k, y1]] });
         }
         g.setLineDash([]);
-        if (spaceStep?.space && s.showSpace && spaceStep === step && spaceStep.space.gain_m2) {
-          // Next to the touch it belongs to: the pass's receiving end, the run's player, the shot.
+        // Show me puts the space gain in its big callout; otherwise label it next to the touch.
+        if (!s.showMe && grow >= 1 && spaceStep?.space && s.showSpace && spaceStep === step && spaceStep.space.gain_m2) {
           const gain = spaceStep.space.gain_m2;
-          const ax = Number(a.end_x ?? a.x ?? 0), ay = Number(a.end_y ?? a.y ?? 0);
-          label(g, `${gain > 0 ? "+" : "−"}${Math.abs(gain)} m² of final-third space`, X(ax), Y(ay) + 3.2 * k, gain > 0 ? "#d4ff3a" : "#fb7185", "#0d0a24", 1.15 * k);
+          const ax = X(Number(a.end_x ?? a.x ?? 0)), ay = Y(Number(a.end_y ?? a.y ?? 0));
+          labels.push({ text: `${gain > 0 ? "+" : "−"}${Math.abs(gain)} m² of final-third space`, x: ax, y: ay, bg: gain > 0 ? "#d4ff3a" : "#fb7185", fg: "#0d0a24", px: 1.1 * k,
+            spots: [[ax, ay + 3.2 * k], [ax, ay - 3.2 * k], [ax + 9 * k, ay], [ax - 9 * k, ay], [ax, ay + 5.6 * k]] });
         }
       }
       // Players and ball.
@@ -130,6 +168,8 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
         g.fillStyle = "#ffffff"; g.strokeStyle = "#0d0a24"; g.lineWidth = Math.max(1, 0.12 * k);
         g.beginPath(); g.arc(X(st.ball[0]), Y(st.ball[1]), (mini ? 0.9 : 0.75) * k, 0, Math.PI * 2); g.fill(); g.stroke();
       }
+      // Labels last, on top of the players, each where it covers the fewest of them.
+      if (labels.length) placeLabels(g, labels, st ? st.poses.map((p) => [X(p.x), Y(p.y)] as [number, number]) : [], 1.3 * k);
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
