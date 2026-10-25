@@ -38,6 +38,55 @@ export function useSpeed(pid: string) {
   return v;
 }
 
+type HeatMap = { cols: number; rows: number; grid: number[] };
+
+function Heat({ heat }: { heat?: HeatMap }) {
+  return heat ? (
+    <svg viewBox={`0 0 ${heat.cols} ${heat.rows}`} preserveAspectRatio="none">
+      <defs><filter id="fp-blur"><feGaussianBlur stdDeviation=".45" /></filter></defs>
+      <rect width={heat.cols} height={heat.rows} fill="#1f6b33" />
+      <g filter="url(#fp-blur)">{heat.grid.map((v, i) => v > 4 && <rect key={i} x={i % heat.cols} y={Math.floor(i / heat.cols)} width="1" height="1" fill={heatColour(v)} opacity={0.35 + (v / 100) * 0.6} />)}</g>
+      <line x1={heat.cols / 2} y1="0" x2={heat.cols / 2} y2={heat.rows} stroke="rgba(255,255,255,.6)" strokeWidth=".06" />
+      <rect x=".03" y=".03" width={heat.cols - .06} height={heat.rows - .06} fill="none" stroke="rgba(255,255,255,.6)" strokeWidth=".06" />
+    </svg>
+  ) : <div className="fp-wait">Building…</div>;
+}
+
+// The four numbers that matter most for the role; the rest are one tap away.
+const KEY: Record<string, string[]> = {
+  attack: ["distance", "top", "shots", "xg"],
+  other: ["distance", "passes", "tackles", "int"],
+};
+
+/** Following, in one card: sits directly under the live player card (which already shows the
+ *  name, speed and form) with the heatmap, the key numbers for the role, and a way out. */
+export function FollowCard() {
+  const director = useLive((s) => s.director);
+  const meta = useLive((s) => s.meta);
+  const pid = director?.mode === "manual" ? director.target : null;
+  const stats = useLive((s) => (pid ? s.stats[pid] : undefined));
+  const heat = useLive((s) => (pid ? s.heat[pid] : undefined));
+  const [all, setAll] = useState(false);
+  if (!pid || !meta) return null;
+  const p = meta.players.find((x) => x.id === pid);
+  if (!p) return null;
+  const team = p.team === meta.home.code ? meta.home : meta.away;
+  const keys = ["ST", "W", "AM"].includes(p.role) ? KEY.attack : KEY.other;
+  const tiles = all ? TILES : TILES.filter(([k]) => keys.includes(k));
+  return (
+    <section className="follow-card" style={{ ["--team" as string]: team.color }}>
+      <div className="flc-row">
+        <div className="flc-heat"><span>Where they've played</span><Heat heat={heat} /><em>{team.code === meta.home.code ? "Attacking →" : "← Attacking"}</em></div>
+        <div className={`flc-tiles ${all ? "all" : ""}`}>{stats && tiles.map(([k, label, f, kind]) => <Tile key={k} label={label} value={f(stats)} kind={kind} />)}</div>
+      </div>
+      <div className="flc-foot">
+        <button className="flc-more" onClick={() => setAll((a) => !a)}>{all ? "Key stats" : "All stats"}</button>
+        <button className="flc-stop" onClick={() => live.send({ type: "auto" })} title="Let the auto-director choose who to follow again">Stop following</button>
+      </div>
+    </section>
+  );
+}
+
 function Tile({ label, value, kind }: { label: string; value: string; kind: string }) {
   const prev = useRef(value);
   const [flash, setFlash] = useState(false);
@@ -82,15 +131,7 @@ export function FocusPanel() {
         <div className="fp-tiles">{stats && TILES.map(([k, label, f, kind]) => <Tile key={k} label={label} value={f(stats)} kind={kind} />)}</div>
         <div className="fp-heat">
           <span>Where they've played</span>
-          {heat ? (
-            <svg viewBox={`0 0 ${heat.cols} ${heat.rows}`} preserveAspectRatio="none">
-              <defs><filter id="fp-blur"><feGaussianBlur stdDeviation=".45" /></filter></defs>
-              <rect width={heat.cols} height={heat.rows} fill="#1f6b33" />
-              <g filter="url(#fp-blur)">{heat.grid.map((v, i) => v > 4 && <rect key={i} x={i % heat.cols} y={Math.floor(i / heat.cols)} width="1" height="1" fill={heatColour(v)} opacity={0.35 + (v / 100) * 0.6} />)}</g>
-              <line x1={heat.cols / 2} y1="0" x2={heat.cols / 2} y2={heat.rows} stroke="rgba(255,255,255,.6)" strokeWidth=".06" />
-              <rect x=".03" y=".03" width={heat.cols - .06} height={heat.rows - .06} fill="none" stroke="rgba(255,255,255,.6)" strokeWidth=".06" />
-            </svg>
-          ) : <div className="fp-wait">Building…</div>}
+          <Heat heat={heat} />
           <em>{team.code === meta.home.code ? "Attacking →" : "← Attacking"}</em>
         </div>
       </div>

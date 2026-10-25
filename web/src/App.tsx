@@ -10,7 +10,7 @@ import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
 import { AnalysisBoard } from "./ui/AnalysisBoard";
-import { FocusPanel } from "./ui/FocusPanel";
+import { FollowCard } from "./ui/FocusPanel";
 import { LiveStats } from "./ui/LiveStats";
 import { PlayStory } from "./pages/PlayStory";
 import { AvatarSheet } from "./pages/AvatarSheet";
@@ -136,10 +136,10 @@ function Analyse({ onFan }: { onFan: () => void }) {
               <div className="an-controls"><ExplainGoalButton /><Controls /></div>
             </div>
             </div>
-            <div className="an-right">
-              <div className="card-dock"><PlayerCard /></div>
-              {/* Following someone swaps the match stats for theirs, in the same column. */}
-              {following ? <FocusPanel /> : <LiveStats />}
+            <div className={`an-right ${following ? "following" : ""}`}>
+              {/* Following someone turns the live card into one taller card with their numbers. */}
+              <div className="card-dock"><PlayerCard />{following && <FollowCard />}</div>
+              {!following && <LiveStats />}
             </div>
           </div>
           {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
