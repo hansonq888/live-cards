@@ -194,7 +194,7 @@ export function DirectorTicker() {
   }
   return (
     <div className={`director ${fresh ? "director-fresh" : ""} ${director.predicted ? "director-predict" : ""}`}>
-      <span className="director-label">{tr(lang, label)}</span>
+      {label !== "auto" && <span className="director-label">{tr(lang, label)}</span>}
       <span className="director-reason" dir={isRtl(lang) ? "rtl" : undefined}>{directorReason(lang, director.key, director.args, director.reason)}</span>
     </div>
   );
