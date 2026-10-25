@@ -82,16 +82,22 @@ function Analyse({ onFan }: { onFan: () => void }) {
     document.addEventListener("fullscreenchange", on);
     return () => document.removeEventListener("fullscreenchange", on);
   }, []);
-  // Scroll past the video and it keeps playing in a corner; ✕ (or scrolling back) returns it.
+  // Scroll past the video and it keeps playing in a corner. ✕ closes the corner player; it
+  // comes back the next time you scroll past after returning to the video.
   const slotRef = useRef<HTMLDivElement>(null);
-  const [pip, setPip] = useState(false);
+  const [away, setAway] = useState(false);
+  const [closed, setClosed] = useState(false);
   useEffect(() => {
     if (!slotRef.current) return;
-    const io = new IntersectionObserver(([e]) => setPip(!e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0.25 });
+    const io = new IntersectionObserver(([e]) => {
+      const gone = !e.isIntersecting && e.boundingClientRect.top < 0;
+      setAway(gone);
+      if (!gone) setClosed(false);
+    }, { threshold: 0.25 });
     io.observe(slotRef.current);
     return () => io.disconnect();
   }, []);
-  const backUp = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const pip = away && !closed;
   const toggleFull = () => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen());
   const breakdown = useLive((s) => s.buildup);
   const following = useLive((s) => s.director?.mode === "manual" && !s.buildup);
@@ -122,7 +128,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
                 <ShowMeHUD />
               </ScaledStage>
               <button className="an-full" onClick={toggleFull}>{full ? "Exit full screen" : "⛶ Full screen"}</button>
-              {pip && <button className="an-pip-close" onClick={backUp} aria-label="Put the video back at the top">✕</button>}
+              {pip && <button className="an-pip-close" onClick={() => setClosed(true)} aria-label="Close the corner player">✕</button>}
             </div>
             </div>
             <div className="an-panel an-transport">
