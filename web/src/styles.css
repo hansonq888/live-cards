@@ -2478,3 +2478,8 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .xt-read em { font-style: normal; font-size: 14.5px; color: #3a3358; }
 @media (max-width: 900px) { .xt { grid-template-columns: 1fr; } }
 .xt { grid-template-columns: minmax(0, 420px) minmax(0, 1fr); }
+/* Side Follow bar: the card above names the player, so the bar just says what's happening */
+.an-right .fp-id b { display: none !important; }
+.an-right .fp-id em { display: inline-flex !important; align-items: center; gap: 8px; font-size: 12px !important; color: #fff !important; }
+.an-right .fp-id em::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #d4ff3a; box-shadow: 0 0 0 4px rgba(212,255,58,.25); animation: fp-live 1.6s ease-in-out infinite; }
+@keyframes fp-live { 50% { box-shadow: 0 0 0 7px rgba(212,255,58,0); } }
