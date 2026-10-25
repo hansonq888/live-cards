@@ -1,6 +1,7 @@
 // Analyst mode: the same moment, shown with its working. Every number here comes from the engine.
 import { useState } from "react";
 import { useLive } from "../live/store";
+import { Avatar } from "./Avatar";
 
 const ATTR_LABEL: Record<string, string> = { pace: "Pace", passing: "Passing", threat: "Threat", defending: "Defending", engine: "Engine" };
 const ADV: [string, string, (v: number) => string][] = [
@@ -31,7 +32,8 @@ export function AnalystCard({ pid }: { pid: string }) {
   return (
     <div className="acard" style={{ ["--team" as string]: team.color }}>
       <div className="ac-head">
-        <div>
+        <Avatar player={p} color={team.color} size={52} number={false} />
+        <div className="ac-id">
           <div className="card-name"><span className="first">{p.name.split(" ").slice(0, -1).join(" ")}</span><span className="last">{p.name.split(" ").slice(-1)[0]}</span></div>
           <div className="card-meta"><i className="team-dot" />{p.position} · {a.minutes.toFixed(0)}′ played</div>
         </div>
