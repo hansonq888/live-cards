@@ -1,0 +1,70 @@
+{
+  "window": "60'-75' at 6x",
+  "viewers": [
+    {
+      "lines_aired": 16,
+      "calls": 81,
+      "tokens": 37178,
+      "usd": 0.0236,
+      "cache_hits": 0,
+      "cache_pct": 0,
+      "prices": "October 2026 list prices",
+      "by_agent": {
+        "Reviewer": {
+          "calls": 40,
+          "tokens": 20182,
+          "usd": 0.0155,
+          "model": "gpt-5-mini"
+        },
+        "Personalizer": {
+          "calls": 21,
+          "tokens": 9197,
+          "usd": 0.0044,
+          "model": "gpt-4.1-mini"
+        },
+        "Explainer": {
+          "calls": 20,
+          "tokens": 7799,
+          "usd": 0.0036,
+          "model": "gpt-4.1-mini"
+        }
+      }
+    },
+    {
+      "lines_aired": 17,
+      "calls": 4,
+      "tokens": 1884,
+      "usd": 0.0014,
+      "cache_hits": 36,
+      "cache_pct": 90,
+      "prices": "October 2026 list prices",
+      "by_agent": {
+        "Reviewer": {
+          "calls": 2,
+          "tokens": 1095,
+          "usd": 0.001,
+          "model": "gpt-5-mini"
+        },
+        "Explainer": {
+          "calls": 2,
+          "tokens": 789,
+          "usd": 0.0004,
+          "model": "gpt-4.1-mini"
+        }
+      }
+    },
+    {
+      "lines_aired": 17,
+      "calls": 0,
+      "tokens": 0,
+      "usd": 0,
+      "cache_hits": 37,
+      "cache_pct": 100,
+      "prices": "October 2026 list prices",
+      "by_agent": {}
+    }
+  ],
+  "first_viewer_calls": 81,
+  "later_viewer_calls_avg": 2.0,
+  "calls_saved_pct": 98
+}

@@ -209,6 +209,7 @@ Only numbers we measured (details in [docs/decisions.md](docs/decisions.md)):
 | Ring on the player with the ball | **99.9%** of frames once they've had it 1.3 s (43% before the auto-director was retuned) |
 | Ask: answerable questions answered / right tool / out-of-scope refused | 91% / 97% / 100% ([evaluation](docs/qa-evaluation.md)) |
 | AI cost of a full match | **~$0.15** for 135 explained moments: 496 model calls, 228k tokens; 122 AI lines aired, 25 fixed by a rewrite, 13 fell back to the stats line ([cost](docs/cost.md)) |
+| Model calls saved for every further viewer | **98%**: viewers 2 and 3 of the same 15 minutes made 4 and 0 model calls vs 81 for the first, reusing verified lines and translations ([cache](docs/cache.md)) |
 
 ## Run it
 
