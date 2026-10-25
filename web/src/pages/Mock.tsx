@@ -44,9 +44,9 @@ const LOOKS: [AvatarLook, string, string][] = [
 ];
 
 const DOODLES: [DoodleLook, string, string][] = [
-  ["clean", "1 · Clean (current)", "Straight vector lines."],
+  ["clean", "1 · Clean", "Straight vector lines."],
   ["pencil", "2 · Pencil", "Wobbly lines drawn twice, slightly off, like a quick sketch."],
-  ["chalk", "3 · Chalk", "Rough, broken strokes, like a tactics board."],
+  ["chalk", "3 · Chalk (current)", "Rough, broken strokes, like a tactics board."],
   ["marker", "4 · Marker", "Thick wobbly strokes; only the play, no pitch lines."],
 ];
 

@@ -2381,3 +2381,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 /* the Show me answer button */
 .a-actions .a-show { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; background: #3a1fd0 !important; color: #fff !important; font-weight: 800; padding: 9px 14px !important; }
 .a-actions .a-show small { font-size: 11.5px; font-weight: 500; opacity: .8; }
+.home-doodle.look-chalk { opacity: .12 !important; }

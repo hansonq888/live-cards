@@ -31,7 +31,7 @@ export function Home() {
   const rest = [...goals.filter((g) => g !== lead), ...chances].slice(0, 4);
   return (
     <Shell page="home">
-      <Doodle className="home-doodle" />
+      <Doodle className="home-doodle" look="chalk" />
       <section className="hero-card">
         <div className="hc-text">
           <p className="hc-eyebrow">Match analysis, explained</p>
