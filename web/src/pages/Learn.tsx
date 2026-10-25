@@ -6,7 +6,6 @@ import { useRegistry } from "../live/stats";
 import { Shell } from "./Shell";
 import { Avatar } from "../ui/Avatar";
 import { Formula } from "./Formula";
-import { Doodle } from "../ui/Doodle";
 import { XgTry } from "./XgTry";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { playHref, useSummary } from "./summary";
@@ -43,8 +42,6 @@ export function Learn() {
         {st && look && (
           <article key={st.id} className={`ls-lesson t-${look.tint}`}>
             <div className="ls-hero">
-              <Doodle look="chalk" className="ls-doodle" />
-              <span className="ls-big" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
               <div className="ls-text">
                 <span className="ls-step">Lesson {i + 1} of {stats.length}</span>
                 <h1>{st.name}</h1>
