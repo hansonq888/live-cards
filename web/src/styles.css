@@ -2614,3 +2614,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .wm-ball circle { fill: #fff; } .wm-ball line { stroke: #2a0a4a; stroke-width: 3.4; stroke-linecap: round; }
 /* on light backgrounds */
 .light .l-foot .wordmark, .lg-light .wordmark { color: #2a0a4a; }
+.lg-stack2 { font-family: var(--headline); font-weight: 900; font-size: 46px; letter-spacing: -2px; }

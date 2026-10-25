@@ -229,6 +229,22 @@ function TwoToneBall({ dark }: { dark: boolean }) {
   );
 }
 
+/** Lockup: a large mark on the left, the name stacked in two lines beside it (a classic
+ *  sports-brand arrangement). The mark is our own football with footnote-asterisk seams. */
+function Lockup({ dark, twoTone }: { dark: boolean; twoTone: boolean }) {
+  const ink = dark ? "#fff" : P;
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <circle cx="46" cy="45" r="36" fill={dark ? L : V} />
+      {ast(46, 45, 20, dark ? P : L, 9)}
+      <text x="96" y="42" className="lg-stack2" fill={ink}>Foot</text>
+      <text x="96" y="82" className="lg-stack2" fill={twoTone ? (dark ? L : V) : ink}>note</text>
+    </svg>
+  );
+}
+const StackedMono = ({ dark }: { dark: boolean }) => <Lockup dark={dark} twoTone={false} />;
+const StackedTwo = ({ dark }: { dark: boolean }) => <Lockup dark={dark} twoTone />;
+
 const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["1 · Superscript", "The name as a footnote reference: Footnote¹. Simple, clever, works at any size.", Superscript],
   ["2 · Asterisk ball", "The footnote asterisk drawn as football seams.", AsteriskBall],
@@ -249,6 +265,8 @@ const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["17 · Two-tone ¹", "1's wordmark, coloured Foot / note like 12, no slash.", TwoTone],
   ["18 · Ball superscript", "1's wordmark whose footnote mark is a tiny football.", BallSup],
   ["19 · Two-tone ball", "17's Foot / note colours with 18's football as the footnote mark.", TwoToneBall],
+  ["20 · Lockup, one colour", "A big football mark on the left, Foot / note stacked beside it.", StackedMono],
+  ["21 · Lockup, two-tone", "The same lockup with note in the accent colour.", StackedTwo],
 ];
 
 export function LogoConcepts() {
