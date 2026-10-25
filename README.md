@@ -2,17 +2,21 @@
 
 *Take a second look at every moment.*
 
-**Every number explains itself.** A ring follows any player and their live card updates as the
-match unfolds. Every change comes with a reason, every reason is checked against the match data
-before it airs, and each fan gets it in their own language and depth.
+**Football analytics that explains itself.** The league already publishes xG, pass maps and
+dozens of advanced stats, and most fans can't read them. Footnote turns a match into moments you
+can *understand*: ask why a goal happened and watch it replayed touch by touch on a tactics
+board, with the space each pass opened; follow any player and see every number change, with its
+reason; learn what each stat means from the match in front of you. **Numbers come from code,
+words from AI agents, and nothing reaches the screen until two independent checks pass.**
 
 ![Footnote: the ring moves to the striker before the cross lands, the goal, and his card upgrades with its reasons](docs/media/hero.gif)
 
-**[Live demo](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?start=3935)** ·
+**[Live demo](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/)** ·
+**[Show me a goal](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?page=analyse&showme=e-1666)** ·
 **[Broadcast console](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?view=console)** ·
-[Evaluation](docs/evaluation.md) · [Architecture and deployment](docs/deployment.md) · [Design decisions](docs/decisions.md)
+[Evaluation](docs/evaluation.md) · [Load test](docs/load-test.md) · [Architecture and deployment](docs/deployment.md) · [Design decisions](docs/decisions.md)
 
-> Built for the Microsoft × Premier League *Inside the Game* hackathon, Oct 22–26, 2026.
+> Built solo for the Microsoft × Premier League *Inside the Game* hackathon, October 2026.
 > **All data is synthetic:** the clubs (Riverside FC, Northgate Athletic), the players, the
 > venue and every event come from our own simulator.
 
@@ -22,14 +26,14 @@ before it airs, and each fan gets it in their own language and depth.
 
 | | |
 |---|---|
-| **A ring that thinks ahead** | An auto-director follows the story. When a cross is played it moves the ring to the striker *before the ball lands*, and says why: *"Cross incoming: Varenne arriving, xG 0.28 from there."* |
-| **Cards that explain themselves** | Ratings and attributes come from published formulas. Each change shows its reason the moment it happens (*"Varenne 7.2 → 8.7: goal +1.00, interception +0.20…"*), then an AI-written line replaces it once it passes two checks. |
-| **Nothing unverified airs** | A code verifier checks every number, name and superlative; a reasoning model checks every claimed event. Planted lies: **0 of 275 aired** ([evaluation](docs/evaluation.md)). A red-team button plants one live. |
-| **Two genuinely different experiences** | *Casual:* the story, in English, Spanish, French, Portuguese or Arabic, in a neutral or home/away fan voice. *Analyst:* the rating ledger, each attribute's metrics against the role baseline, xG, and a team strip. |
-| **Stat rings** | Colour every player's ring by rating or any attribute, cool to hot across the pitch, and hover for the number. See who's running the game at a glance without cluttering the picture. |
-| **Ask, Revisit, Explain this goal** | Fans ask questions and get answers built only from match data, with evidence. A timeline replays any key moment as it was. "Explain the goal" replays the move at half speed while the ring follows each touch. |
-| **Your model** | Analysts set their own rating and attribute weights. A second engine runs their formula next to ours and the card compares them line by line. |
-| **Built for a broadcaster** | A console with kill switches, an insight allowlist, a human-approval mode, and a permanent audit log of every line aired or blocked. Every on-screen element is also a timed, machine-readable overlay cue ([JSON Schema](docs/overlay-cue.schema.json)) for a graphics partner. |
+| **Show me** | Ask *"How was Varenne's goal built?"* (or tap ▶ Show me on any play) and the move replays on a tactics board: each touch drawn and held, the space each team controls shaded, *"+28 m² of the final third"* popping up as a pass opens the pitch, then a verified one-line story. |
+| **Ask the match** | Plain-language questions answered by a tool-calling agent over the match data, with evidence. Questions about the future, other seasons, money or opinions are refused in code before any model runs. |
+| **Follow anyone, live** | Click a player: their card, heatmap and key numbers update as they play, and every rating change says why (*"Rating up to 6.4: passed under pressure and won a tackle"*). Otherwise an auto-director keeps the ring on the ball, and jumps to the striker *before* a cross lands. |
+| **Colour by any stat** | One tap colours all 22 players by rating, pace, passing, threat, defending or work rate, cool to hot, live. Hover for the number. |
+| **Learn the numbers** | Each stat as a short lesson built from this match: what it means, a diagram, a real example to replay, and the formula. The xG lesson lets you click anywhere on a pitch and the engine scores the shot. |
+| **Every play as a story** | A scroll-driven breakdown per play: a lesson card per touch, the space it created, and a *"your call"* guess at the shot's xG before it's revealed. |
+| **Two different experiences** | Casual or analyst wording, five languages (English, Spanish, French, Portuguese, Arabic), and a neutral or home/away fan voice. Every variant is re-verified in its language. |
+| **Built for a broadcaster** | A console with kill switches, an insight allowlist, human approval, and a permanent audit log of every line aired or blocked. Every on-screen element is also a timed, machine-readable overlay cue ([JSON Schema](docs/overlay-cue.schema.json)). |
 
 | Studio view: Analyst mode with "Your model" | Red team: a planted lie, blocked |
 |---|---|
@@ -43,8 +47,8 @@ before it airs, and each fan gets it in their own language and depth.
 |---|---|---|
 | **Ingest** | A 90-minute simulation: positions at 10 fps (54,000 frames), plus passes, shots, tackles, interceptions, pressures, fouls, cards, substitutions. It's published to **Azure Event Hubs** and ingested back by the engine. | [`sim/`](backend/livecards/sim), [`feed.py`](backend/livecards/feed.py) |
 | **Interpret** | Deterministic code turns events and tracking into stats, a 0–10 rating, five attributes, sprints and alerts, momentum, control vs. chaos, and *moments* scored for importance. **No model ever computes a number.** | [`engine/`](backend/livecards/engine) |
-| **Explain** | Agents write *why* a moment matters: the Explainer, a code Verifier, a gpt-5-mini Reviewer, Q&A with tools, and goal build-ups reconstructed from events. | [`agents/`](backend/livecards/agents) |
-| **Render** | A three.js broadcast: ring, speed trail, card, ticker, goal banner, build-up replay. The same content is emitted as timed overlay cues. | [`web/`](web/src), [`cues.py`](backend/livecards/server/cues.py) |
+| **Explain** | Agents write *why* a moment matters: the Explainer, a code Verifier, a gpt-5-mini Reviewer, Q&A with tools, and play breakdowns reconstructed from events with the space each touch created. | [`agents/`](backend/livecards/agents) |
+| **Render** | A three.js broadcast and a tactics board: ring, cards, stat rings, goal graphics, Show me replays. The same content is emitted as timed overlay cues. | [`web/`](web/src), [`cues.py`](backend/livecards/server/cues.py) |
 | **Personalize** | Casual or analyst, five languages, home/away/neutral voice, and your own rating model. Every variant is re-verified in its language. | [`personalizer.py`](backend/livecards/agents/personalizer.py), [`i18n.ts`](web/src/i18n.ts) |
 
 ## Architecture
@@ -105,12 +109,12 @@ Synthetic frames are easier than real footage, and player identity isn't solved 
 
 | Agent | Job | Model | Fallback when it fails |
 |---|---|---|---|
-| **Auto-director** | Who the ring follows and why, ten times a second; predicts the receiver of crosses and through balls; holds a player ≥ 6 s unless a chance is imminent | code (by design: a plain function beats an agent here) | nearest player to the ball |
+| **Auto-director** | Who the ring follows and why, ten times a second: whoever has the ball (99.9% of possession frames), and the receiver of a cross or through ball before it lands | code (by design: a plain function beats an agent here) | nearest player to the ball |
 | **Explainer** | One short line per moment, using only the facts it's given | gpt-4.1-mini | the engine's stats line |
 | **Verifier** | Every number (digits, decimals, scores, number words, ordinals, percentages; 5 languages), every player name, every superlative must be in the evidence | code | blocks; the Explainer rewrites once with the reason |
 | **Reviewer** | Rejects claimed events or details the facts don't support ("a header", "an assist" that didn't happen) | gpt-5-mini, low reasoning effort | **fails closed** after one retry |
 | **Personalizer** | The verified line for each fan profile in parallel (audience × language × voice), each re-verified in its language | gpt-4.1-mini | the verified English line |
-| **Q&A agent** | Answers fan questions by calling tools over the live match state (card, rating ledger, recent moments, team state, leaders) | gpt-4.1-mini + tools | *"I can't verify that from the match data."* |
+| **Q&A agent** | Answers fan questions with ten tools over the live match (cards, rating ledger, moments, team state, leaders, plays, play breakdowns with space control, stat definitions, comparisons, time windows); its play answers open in Show me | gpt-4.1-mini + tools | *"I can't verify that from the match data."* |
 | **Red team** | Corrupts the Explainer's first draft on demand, to show the checks working on air | wraps the Explainer | not applicable |
 
 Lines appear in two phases: the engine's stats line airs instantly (it's code, verified in
@@ -134,7 +138,7 @@ English, Spanish and French, with lies planted in 275.
 The two layers cover each other: code can't judge an invented header; a model can miss a
 digit. Microsoft Foundry's own evaluators rate the **raw** Explainer 14/15 on groundedness (the
 reason nothing raw airs) and the Q&A agent 5/5 on intent resolution, task adherence and
-tool-call accuracy. The test suite (149 tests) includes a whole-match mutation test: change any
+tool-call accuracy. The test suite (194 tests) includes a whole-match mutation test: change any
 one number in any engine-written line and the verifier must block it.
 
 **Ask, measured** ([docs/qa-evaluation.md](docs/qa-evaluation.md)): 42 analyst and fan questions run through the Q&A agent at full time. The agent has ten tools over the live engine: cards, rating ledger, moments, team state, leaders, plays, play breakdowns with space control, stat definitions, player comparisons and time windows.
@@ -196,18 +200,21 @@ Only numbers we measured (details in [docs/decisions.md](docs/decisions.md)):
 | Full 90-minute simulation | ~1.5 s for 54,000 frames + ~2,300 events |
 | Match through Event Hubs | 1,093 messages, 12.4 MB compressed; published in 8.5 s, ingested in 12.9 s |
 | Planted lies aired | **0 of 275** |
+| Concurrent live viewers, one server process | **200** in real time (p95 frame gap 103 ms, 66% of one core); 400 saturates it ([load test](docs/load-test.md)) |
+| Ring on the player with the ball | **99.9%** of frames once they've had it 1.3 s (43% before the auto-director was retuned) |
+| Ask: answerable questions answered / right tool / out-of-scope refused | 91% / 97% / 100% ([evaluation](docs/qa-evaluation.md)) |
 
 ## Run it
 
 ```bash
 # backend (Python 3.12, uv)
 cd backend && uv sync --extra agents --extra azure
-uv run pytest -q                                   # 149 tests
+uv run pytest -q                                   # 194 tests
 uv run uvicorn livecards.server.app:app --port 8010
 
 # web (Node 22)
 cd web && npm install && npm run dev -- --port 5180
-# open http://localhost:5180/?start=3935  (just before the 65' goal)
+# open http://localhost:5180  (or ?page=analyse&showme=e-1666 for the hero goal)
 ```
 
 Without Azure configured, everything still runs: templates instead of AI lines, a local
@@ -225,8 +232,8 @@ and fill in `backend/.env`. Deploy with `deploy/redeploy.sh <tag>`. Other script
   up (+0.87 for 29 of them), which an analyst will spot. That's why "Your model" exists.
 - **The verifier matches numbers, not units:** a wrong number that happens to equal another fact
   can pass the code check (8 of 55 in the evaluation); the reviewer caught all of them.
-- **One replica:** the console's control plane and viewer sessions live in memory; scaling out
-  would move them to shared state (Redis or Cosmos change feed).
+- **One replica:** the console's control plane and viewer sessions live in memory. One process
+  handles 200 live viewers; scaling out would move that state to Redis or the Cosmos change feed.
 - **Pass difficulty, momentum and control vs. chaos are our own formulas,** not industry standards.
 
 ## Repo layout
@@ -238,8 +245,8 @@ backend/livecards/
   agents/     explainer, verifier, reviewer, personalizer, Q&A, director, red team, pipeline
   server/     FastAPI app, live sessions, console control plane, audit log, cues, Web PubSub
   feed.py     Event Hubs publish/ingest      telemetry.py   Application Insights
-backend/tests/  149 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
-web/src/    React + three.js: viewer, overlays, Fan/Studio views, console, i18n
+backend/tests/  194 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
+web/src/    React + three.js: viewer, tactics board, Show me, Learn, story pages, players, console, i18n
 vision/     YOLO vision layer, capture with ground truth, evaluation
 docs/       evaluation, vision, deployment, decisions, pitch, cue schema, media
 ```
