@@ -2721,3 +2721,15 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .an-placeholder em { font-style: normal; font-size: 13px; font-weight: 600; color: #4b2bd6; }
 .an-placeholder:hover { border-color: #4b2bd6; }
 .lu-pitch { background: repeating-linear-gradient(90deg, #23703a 0 7%, #1f6634 7% 14%) !important; }
+/* Stat rings on the video: a row of chips under the score bug */
+.stat-chips { position: absolute; left: 12px; top: 56px; z-index: 12; display: flex; align-items: center; gap: 3px; padding: 4px; border-radius: 10px; background: rgba(13,10,36,.72); backdrop-filter: blur(8px); box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
+.sc-label { font-size: 10.5px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; color: rgba(255,255,255,.6); padding: 0 6px 0 4px; }
+.stat-chips button { border: 0; background: none; color: rgba(255,255,255,.85); font: inherit; font-size: 12px; font-weight: 600; padding: 5px 9px; border-radius: 7px; cursor: pointer; }
+.stat-chips button:hover { background: rgba(255,255,255,.12); color: #fff; }
+.stat-chips button.on { background: #d4ff3a; color: #0d0a24; }
+.an-stage.pip .stat-chips { display: none; }
+.an-stage .stat-legend { top: auto !important; bottom: 74px; }
+.an-stage .stat-legend { bottom: auto !important; top: 56px !important; left: auto !important; right: 12px; transform: none !important; }
+.an-stage:has(.board-mini) .stat-legend { top: 172px !important; }
+.stat-chips { opacity: 0; transition: opacity .25s; }
+.an-stage:hover .stat-chips, .stat-chips:has(button.on:not(:first-of-type)) { opacity: 1; }

@@ -5,7 +5,7 @@ import { clock, live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug, ShowMeHUD } from "./ui/Overlays";
 import { Wordmark } from "./ui/Wordmark";
-import { AskFloat, Controls, UnderTheHood } from "./ui/SidePanel";
+import { AskFloat, Controls, StatChips, UnderTheHood } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
@@ -134,6 +134,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
                 <RevisitBadge />
                 <ShowMeHUD />
               </ScaledStage>
+              <StatChips />
               {/* YouTube-style controls over the bottom of the video: shown on hover and while paused. */}
               <div className={`an-overlay ${paused ? "paused" : ""}`}>
                 <Timeline />

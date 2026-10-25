@@ -228,6 +228,21 @@ export function StatRingPicker() {
   );
 }
 
+/** Stat rings, one tap away on the video: colour every player by a stat (hover for values). */
+export function StatChips() {
+  const stat = useLive((s) => s.statRing);
+  const lang = useLang();
+  return (
+    <div className="stat-chips" role="radiogroup" aria-label="Colour every player by a stat">
+      <span className="sc-label">Colour by</span>
+      <button className={!stat ? "on" : ""} onClick={() => live.setStatRing(null)} role="radio" aria-checked={!stat}>Off</button>
+      {STAT_RINGS.map((k) => (
+        <button key={k} className={stat === k ? "on" : ""} onClick={() => live.setStatRing(k)} role="radio" aria-checked={stat === k}>{tr(lang, k)}</button>
+      ))}
+    </div>
+  );
+}
+
 /** Audience, language, voice and stat rings in one menu, so the header stays quiet. */
 export function ViewMenu({ up = false }: { up?: boolean }) {
   const [open, setOpen] = useState(false);
