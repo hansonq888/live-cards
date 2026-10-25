@@ -72,9 +72,10 @@ async def viewer(url: str, start: float, hold: float, ready: asyncio.Event) -> d
 def cpu_seconds(port: int) -> float | None:
     """Total CPU time used so far by the process listening on the port (via lsof + ps)."""
     try:
-        pid = subprocess.run(["lsof", "-ti", f"tcp:{port}", "-sTCP:LISTEN"], capture_output=True,
+        pid = subprocess.run(["lsof", "-ti", f"tcp:{port}", "-sTCP:LISTEN"], check=False, capture_output=True,
                              text=True).stdout.split()[0]
-        out = subprocess.run(["ps", "-o", "time=", "-p", pid], capture_output=True, text=True).stdout.strip()
+        out = subprocess.run(["ps", "-o", "time=", "-p", pid], check=False, capture_output=True,
+                             text=True).stdout.strip()
         parts = [float(x) for x in out.replace("-", ":").split(":")]
         sec = 0.0
         for x in parts:
@@ -139,8 +140,8 @@ async def main() -> None:
         md.append(f"| {r['viewers']} | {r['connected']} | {r['realtime_ratio_median']} / {r['realtime_ratio_min']} | "
                   f"{r['frame_gap_ms_p50']} / {r['frame_gap_ms_p95']} / {r['frame_gap_ms_p99']} ms | "
                   f"{r['frames_per_viewer_per_s']} | {r['server_cpu_pct']}% |")
-    md += ["", "A real-time ratio of 1.00 means the match plays at true speed for that viewer; "
-           "below 1 the server can no longer keep every session's clock up."]
+    md += ["", ("A real-time ratio of 1.00 means the match plays at true speed for that viewer; "
+                "below 1 the server can no longer keep every session's clock up.")]
     (ROOT / "docs" / "load-test.md").write_text("\n".join(md) + "\n")
 
 

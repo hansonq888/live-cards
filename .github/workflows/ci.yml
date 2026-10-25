@@ -1,0 +1,44 @@
+# Every push and pull request: lint, the full test suite, a named hallucination gate (the code
+# verifier must block every mutated number and every unsupported claim), and a type-checked web
+# build. No cloud credentials are used: agents fall back to templates, Azure to local stand-ins.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen --extra agents
+      - name: Lint
+        run: uv run ruff check livecards tests scripts
+      - name: Hallucination gate
+        run: uv run pytest -q tests/test_verifier.py tests/test_redteam.py tests/test_qa.py
+      - name: Full test suite
+        run: uv run pytest -q
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Type check and build
+        run: npm run build
