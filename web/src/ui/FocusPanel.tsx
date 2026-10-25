@@ -81,7 +81,7 @@ export function FollowCard() {
       </div>
       <div className="flc-foot">
         <button className="flc-more" onClick={() => setAll((a) => !a)}>{all ? "Key stats" : "All stats"}</button>
-        <button className="flc-stop" onClick={() => live.send({ type: "auto" })} title="Let the auto-director choose who to follow again">Stop following</button>
+        <button className="flc-stop" onClick={() => live.stopFollowing()} title="Let the auto-director choose who to follow again">Stop following</button>
       </div>
     </section>
   );

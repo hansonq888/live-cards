@@ -218,6 +218,14 @@ class LiveStore {
     this.send({ type: "play" });
   }
 
+  /** Hand the ring back to the auto-director. Updates the view at once, so the Following
+   *  tag and card close even while paused (an older server only reports it on the next tick). */
+  stopFollowing() {
+    const d = this.state.director;
+    if (d) this.set({ director: { ...d, mode: "auto" } });
+    this.send({ type: "auto" });
+  }
+
   stepIndex(t: number): number {
     const b = this.state.buildup;
     if (!b) return -1;

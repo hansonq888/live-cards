@@ -2744,3 +2744,10 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .stat-chips .sc-x { padding: 5px 8px; color: rgba(255,255,255,.7); }
 .stat-chips .sc-x:hover { background: rgba(251,113,133,.3); color: #fff; }
 .an-stage:hover .stat-chips, .stat-chips.active, .stat-chips.open { opacity: 1 !important; }
+/* Stat legend sits right under the Colour by control, clear of the mini-map and the card */
+.an-stage .stage-1280 .stat-legend, .an-stage:has(.board-mini) .stage-1280 .stat-legend { top: 106px !important; left: 18px !important; right: auto !important; bottom: auto !important; transform: none !important; }
+/* Full screen: the player card drops below the mini-map so neither covers the other */
+.an-stage:fullscreen .card { top: 196px !important; right: 18px !important; }
+/* The controls' gradient never blocks clicks; only the controls themselves take them */
+.an-stage:hover .an-overlay, .an-overlay.paused { pointer-events: none !important; }
+.an-stage:hover .an-overlay > *, .an-overlay.paused > * { pointer-events: auto; }

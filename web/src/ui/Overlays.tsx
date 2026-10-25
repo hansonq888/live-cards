@@ -188,7 +188,7 @@ export function DirectorTicker() {
     return (
       <div className="director director-pick">
         <span className="director-reason">Following{" "}<b>{name}</b></span>
-        <button className="director-x" onClick={() => live.send({ type: "auto" })} aria-label="Stop following" title="Stop following">✕</button>
+        <button className="director-x" onClick={(e) => { e.stopPropagation(); live.stopFollowing(); }} aria-label="Stop following" title="Stop following">✕</button>
       </div>
     );
   }
