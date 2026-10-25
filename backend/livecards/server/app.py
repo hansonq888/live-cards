@@ -25,6 +25,7 @@ from fastapi.staticfiles import StaticFiles
 
 from livecards import telemetry
 from livecards.contracts import OverlayCue
+from livecards.engine import metrics as mx
 from livecards.engine.rating import WEIGHTS
 from livecards.engine.registry import as_json
 from livecards.server.control import plane
@@ -97,6 +98,14 @@ async def match_summary() -> dict:
 async def stats_registry() -> dict:
     """Every stat, defined once: meaning, formula, calibratable settings, fan wording."""
     return as_json()
+
+
+@app.get("/api/xg")
+async def xg_at(x: float, y: float) -> dict:
+    """The engine's xG for a shot from (x, y), attacking the +x goal: the Learn page's "try it"
+    pitch asks the real model instead of copying its formula into the browser."""
+    x, y = max(-52.5, min(52.5, x)), max(-34.0, min(34.0, y))
+    return {"x": x, "y": y, "xg": mx.xg(x, y, 1), "distance_m": mx.shot_distance(x, y, 1)}
 
 
 @app.get("/api/cue-schema")

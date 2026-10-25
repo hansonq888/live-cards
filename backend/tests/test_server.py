@@ -232,3 +232,12 @@ def test_stop_following_while_paused_reports_auto(monkeypatch):
     got = asyncio.run(main())
     d = [m for m in got if m["type"] == "director"]
     assert d and d[-1]["mode"] == "auto"
+
+
+def test_xg_endpoint_matches_the_engine():
+    from fastapi.testclient import TestClient
+
+    from livecards.engine import metrics as mx
+    from livecards.server.app import app
+    r = TestClient(app).get("/api/xg", params={"x": 41.5, "y": 0}).json()  # penalty spot
+    assert r["xg"] == mx.xg(41.5, 0, 1) and 0.25 < r["xg"] < 0.33 and r["distance_m"] == 11.0

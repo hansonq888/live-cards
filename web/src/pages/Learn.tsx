@@ -6,6 +6,8 @@ import { useRegistry } from "../live/stats";
 import { Shell } from "./Shell";
 import { Avatar } from "../ui/Avatar";
 import { Formula } from "./Formula";
+import { Doodle } from "../ui/Doodle";
+import { XgTry } from "./XgTry";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { playHref, useSummary } from "./summary";
 
@@ -41,6 +43,8 @@ export function Learn() {
         {st && look && (
           <article key={st.id} className={`ls-lesson t-${look.tint}`}>
             <div className="ls-hero">
+              <Doodle look="chalk" className="ls-doodle" />
+              <span className="ls-big" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
               <div className="ls-text">
                 <span className="ls-step">Lesson {i + 1} of {stats.length}</span>
                 <h1>{st.name}</h1>
@@ -49,6 +53,7 @@ export function Learn() {
               <div className="ls-visual"><StatVisual id={st.id} big /></div>
             </div>
             <div className="ls-body">
+              {st.id === "xg" && <XgTry />}
               {exPlay && exPlayer && (
                 <a className="ls-example" href={playHref(exPlay.id)} style={{ ["--club" as string]: exClub }}>
                   <span className="lse-bust"><Avatar player={exPlayer} color={exClub} size={110} bare /></span>
@@ -57,7 +62,9 @@ export function Learn() {
                     <b>{exPlayer.short}'s {exPlay.outcome === "goal" ? "goal" : "chance"}, {exPlay.minute}′</b>
                     <span>xG {exPlay.xg.toFixed(2)} · walk through it touch by touch</span>
                   </span>
-                  <span className="lse-go">See it →</span>
+                  <span className="lse-show" role="link" tabIndex={0}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); location.href = `/?page=analyse&showme=${encodeURIComponent(exPlay.id)}`; }}>▶ Show me</span>
+                  <span className="lse-go">Story →</span>
                 </a>
               )}
               <details>
