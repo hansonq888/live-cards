@@ -228,17 +228,30 @@ export function StatRingPicker() {
   );
 }
 
-/** Stat rings, one tap away on the video: colour every player by a stat (hover for values). */
+/** Stat rings on the video: a small "Colour by" button that opens the options; while a stat is
+ *  on it shows which, with ✕ to turn it off. Hover a player for their value. */
 export function StatChips() {
   const stat = useLive((s) => s.statRing);
   const lang = useLang();
+  const [open, setOpen] = useState(false);
+  const pick = (k: string | null) => { live.setStatRing(k); setOpen(false); };
   return (
-    <div className="stat-chips" role="radiogroup" aria-label="Colour every player by a stat">
-      <span className="sc-label">Colour by</span>
-      <button className={!stat ? "on" : ""} onClick={() => live.setStatRing(null)} role="radio" aria-checked={!stat}>Off</button>
-      {STAT_RINGS.map((k) => (
-        <button key={k} className={stat === k ? "on" : ""} onClick={() => live.setStatRing(k)} role="radio" aria-checked={stat === k}>{tr(lang, k)}</button>
-      ))}
+    <div className={`stat-chips ${open ? "open" : ""} ${stat ? "active" : ""}`}>
+      {!open && (stat ? (
+        <>
+          <button className="sc-toggle on" onClick={() => setOpen(true)}>Colour: {tr(lang, stat)}</button>
+          <button className="sc-x" onClick={() => pick(null)} aria-label="Turn off stat colours">✕</button>
+        </>
+      ) : <button className="sc-toggle" onClick={() => setOpen(true)}>◐ Colour by</button>)}
+      {open && (
+        <div role="radiogroup" aria-label="Colour every player by a stat" className="sc-opts">
+          {STAT_RINGS.map((k) => (
+            <button key={k} className={stat === k ? "on" : ""} onClick={() => pick(k)} role="radio" aria-checked={stat === k}>{tr(lang, k)}</button>
+          ))}
+          {stat && <button onClick={() => pick(null)}>Off</button>}
+          <button className="sc-x" onClick={() => setOpen(false)} aria-label="Close">✕</button>
+        </div>
+      )}
     </div>
   );
 }

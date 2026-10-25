@@ -2565,7 +2565,8 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .an-overlay .an-full:hover { background: rgba(255,255,255,.12) !important; }
 /* keep the video's own overlays clear of the controls */
 .an-stage .board-mini, .an-stage .board-mini-back, .an-stage .stage-1280:has(.board-main) > .stage { top: 18px !important; bottom: auto !important; }
-.an-stage:hover .director, .an-stage:has(.an-overlay.paused) .director { opacity: 0; transition: opacity .25s; }
+.an-stage .director { transition: transform .25s ease; }
+.an-stage:hover .director, .an-stage:has(.an-overlay.paused) .director { transform: translateY(calc(-78px / var(--stage-scale, 1))); }
 .an-stage .goal-strip { bottom: 96px; }
 .an-stage .sm-hud.right { top: 192px; }
 .an-overlay .an-time { grid-column: 2; grid-row: 2; font-size: 13px; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.9); }
@@ -2733,3 +2734,13 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .an-stage:has(.board-mini) .stat-legend { top: 172px !important; }
 .stat-chips { opacity: 0; transition: opacity .25s; }
 .an-stage:hover .stat-chips, .stat-chips:has(button.on:not(:first-of-type)) { opacity: 1; }
+.stage-1280 .stat-chips { left: 18px; top: 66px; }
+/* Colour by: collapsed to one button until opened */
+.stat-chips { padding: 3px !important; }
+.sc-label { display: none; }
+.sc-opts { display: flex; gap: 3px; }
+.stat-chips .sc-toggle { font-weight: 700; }
+.stat-chips .sc-toggle.on { background: #d4ff3a; color: #0d0a24; }
+.stat-chips .sc-x { padding: 5px 8px; color: rgba(255,255,255,.7); }
+.stat-chips .sc-x:hover { background: rgba(251,113,133,.3); color: #fff; }
+.an-stage:hover .stat-chips, .stat-chips.active, .stat-chips.open { opacity: 1 !important; }

@@ -7,12 +7,14 @@ from the stats engine's formulas.
 
 Signals (weight, lifetime):
   goal scorer 1.0 (until the restart) · cross/through ball into the box -> receiver 0.9 · sprint alert 0.8
-  ball carrier breaking at 25+ km/h 0.75 · big chance 0.7 · long ball -> receiver 0.6
-  rating upgrade 0.6 · streak 0.5 · nearest player to the ball 0.3 (0.4 in the final third)
+  ball carrier breaking at 25+ km/h 0.78 · player on the ball 0.72 (0.76 in the final third)
+  big chance 0.7 · long ball -> receiver 0.6 · rating upgrade 0.45 · streak 0.4
 
-Switching: the ring holds a player at least 6 s, unless a 0.85+ signal appears (a
-chance about to happen), which may cut in after 1.5 s. A challenger must beat the
-current target's score by 0.1 (the current target gets a 0.15 stickiness bonus).
+The ring follows the ball: whoever has it wins over background signals (a rating change, a
+streak), and while a pass is in the air the ring stays on the passer until someone receives
+it (or a predicted receiver takes over). Switching is near-instant: a player is held 1 s,
+0.5 s for a 0.85+ signal, so the ring doesn't flicker on a one-touch exchange. A challenger
+must beat the current target's score by 0.05 (the current target gets 0.05 stickiness).
 """
 
 from __future__ import annotations
@@ -23,11 +25,11 @@ from dataclasses import dataclass, field
 from livecards.contracts import Event, MatchMeta, Moment
 from livecards.engine import metrics as mx
 
-MIN_HOLD_S = 6.0
-URGENT_HOLD_S = 1.5
+MIN_HOLD_S = 1.0
+URGENT_HOLD_S = 0.5
 URGENT_WEIGHT = 0.85
-STICKINESS = 0.15
-MARGIN = 0.1
+STICKINESS = 0.05
+MARGIN = 0.05
 BOX_X = 52.5 - 16.5
 
 
@@ -107,8 +109,8 @@ class AutoDirector:
                                {"name": name, "kmh": kmh}),
             "sprint": (0.8, 8, f"{name} sprinting at {kmh:.1f} km/h", {"name": name, "kmh": kmh}),
             "big_chance": (0.7, 8, f"Big chance for {name}", {"name": name}),
-            "rating_upgrade": (0.6, 8, f"{name}'s card upgrades to {to:.1f}", {"name": name, "to": to}),
-            "streak": (0.5, 8, f"{name}: {count} successful actions in a row",
+            "rating_upgrade": (0.45, 6, f"{name}'s card upgrades to {to:.1f}", {"name": name, "to": to}),
+            "streak": (0.4, 6, f"{name}: {count} successful actions in a row",
                        {"name": name, "count": count}),
         }
         if m.type in table:
@@ -157,14 +159,17 @@ class AutoDirector:
         dist = math.hypot(x - bx, y - by)
         name = self.names[pid]
         if dist < 2.5 and v * 3.6 >= mx.SPRINT_KMH:
-            offer(Signal(pid, 0.75, t, f"{name} breaking forward at {v * 3.6:.0f} km/h", "carry",
+            offer(Signal(pid, 0.78, t, f"{name} breaking forward at {v * 3.6:.0f} km/h", "carry",
                          "breaking", {"name": name, "kmh": round(v * 3.6)}))
-        else:
+        elif dist < 2.5:
             final_third = x * self.dirs[self.team_of[pid]] >= mx.FINAL_THIRD_X
-            on_ball = dist < 2.5
-            offer(Signal(pid, 0.4 if final_third else 0.3, t,
-                         f"{name} on the ball" if on_ball else f"{name} nearest the ball",
-                         "ball", "on_ball" if on_ball else "nearest_ball", {"name": name}))
+            offer(Signal(pid, 0.76 if final_third else 0.72, t, f"{name} on the ball", "ball",
+                         "on_ball", {"name": name}))
+        elif self.current is None:  # nobody has it yet (kick-off): start with the nearest
+            offer(Signal(pid, 0.3, t, f"{name} nearest the ball", "ball", "nearest_ball",
+                         {"name": name}))
+        if not scores:  # the ball is in the air and nothing else is happening: hold
+            return self.current
 
         best_pid, (best_w, best_sig) = max(scores.items(), key=lambda kv: kv[1][0])
         cur = self.current

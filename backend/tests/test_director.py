@@ -48,7 +48,7 @@ def test_minimum_hold(match, decisions):
         assert held >= URGENT_HOLD_S - 1e-6
         if cur[5] < URGENT_WEIGHT:
             assert held >= MIN_HOLD_S - 1e-6, (prev, cur)
-    assert 100 < len(switches) < 1200
+    assert 100 < len(switches) < 4000  # follows the ball, so roughly once per possession
 
 
 def test_manual_pick_overrides_until_auto(match):
@@ -57,3 +57,20 @@ def test_manual_pick_overrides_until_auto(match):
     assert d.update(11.0, (0, 0), [("RIV-09", 0.5, 0, 0), ("NGT-08", 30, 0, 0)]).target == "NGT-08"
     d.set_auto()
     assert d.update(20.0, (0, 0), [("RIV-09", 0.5, 0, 0), ("NGT-08", 30, 0, 0)]).target == "RIV-09"
+
+
+def test_ring_follows_whoever_has_the_ball(match, decisions):
+    """Once a player has had the ball for over a second, the ring is on them (or on a predicted
+    receiver / goal scorer, which outrank the ball) almost all of the time."""
+    import math
+    held_by, since, ok, total = None, 0.0, 0, 0
+    for (t, target, _r, kind, _c, _w), i in zip(decisions, range(len(decisions))):
+        bx, by = match.ball[i, 0], match.ball[i, 1]
+        near = min(positions(match, i), key=lambda p: math.hypot(p[1] - bx, p[2] - by))
+        on = near[0] if math.hypot(near[1] - bx, near[2] - by) < 2.5 else None
+        if on != held_by:
+            held_by, since = on, t
+        if on and t - since > MIN_HOLD_S + 0.3:
+            total += 1
+            ok += target == on or kind in ("predict", "goal", "moment")
+    assert total > 1000 and ok / total > 0.9, ok / total

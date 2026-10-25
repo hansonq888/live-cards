@@ -133,8 +133,9 @@ function Analyse({ onFan }: { onFan: () => void }) {
                 <RedTeamPanel />
                 <RevisitBadge />
                 <ShowMeHUD />
+                {/* inside the scaled frame so it sits under the score bug at any size, full screen included */}
+                <StatChips />
               </ScaledStage>
-              <StatChips />
               {/* YouTube-style controls over the bottom of the video: shown on hover and while paused. */}
               <div className={`an-overlay ${paused ? "paused" : ""}`}>
                 <Timeline />
