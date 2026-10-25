@@ -14,7 +14,7 @@ words from AI agents, and nothing reaches the screen until two independent check
 **[Live demo](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/)** ·
 **[Show me a goal](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?page=analyse&showme=e-1666)** ·
 **[Broadcast console](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?view=console)** ·
-[Evaluation](docs/evaluation.md) · [Load test](docs/load-test.md) · [Architecture and deployment](docs/deployment.md) · [Design decisions](docs/decisions.md)
+[Evaluation](docs/evaluation.md) · [Load test](docs/load-test.md) · [Cost](docs/cost.md) · [Architecture and deployment](docs/deployment.md) · [Design decisions](docs/decisions.md)
 
 > Built solo for the Microsoft × Premier League *Inside the Game* hackathon, October 2026.
 > **All data is synthetic:** the clubs (Riverside FC, Northgate Athletic), the players, the
@@ -33,6 +33,7 @@ words from AI agents, and nothing reaches the screen until two independent check
 | **Learn the numbers** | Each stat as a short lesson built from this match: what it means, a diagram, a real example to replay, and the formula. The xG lesson lets you click anywhere on a pitch and the engine scores the shot. |
 | **Every play as a story** | A scroll-driven breakdown per play: a lesson card per touch, the space it created, and a *"your call"* guess at the shot's xG before it's revealed. |
 | **Two different experiences** | Casual or analyst wording, five languages (English, Spanish, French, Portuguese, Arabic), and a neutral or home/away fan voice. Every variant is re-verified in its language. |
+| **Watch the agents work** | An Agents tab shows every moment going through the pipeline live: Explainer → code Verifier → Reviewer → aired, with timings, any rejection and its reason, the rewrite, and what the AI cost so far. A *Plant a lie* button shows the checks catching one. |
 | **Built for a broadcaster** | A console with kill switches, an insight allowlist, human approval, and a permanent audit log of every line aired or blocked. Every on-screen element is also a timed, machine-readable overlay cue ([JSON Schema](docs/overlay-cue.schema.json)). |
 
 | Studio view: Analyst mode with "Your model" | Red team: a planted lie, blocked |
@@ -138,7 +139,7 @@ English, Spanish and French, with lies planted in 275.
 The two layers cover each other: code can't judge an invented header; a model can miss a
 digit. Microsoft Foundry's own evaluators rate the **raw** Explainer 14/15 on groundedness (the
 reason nothing raw airs) and the Q&A agent 5/5 on intent resolution, task adherence and
-tool-call accuracy. The test suite (194 tests) includes a whole-match mutation test: change any
+tool-call accuracy. The test suite (196 tests) includes a whole-match mutation test: change any
 one number in any engine-written line and the verifier must block it.
 
 **Ask, measured** ([docs/qa-evaluation.md](docs/qa-evaluation.md)): 42 analyst and fan questions run through the Q&A agent at full time. The agent has ten tools over the live engine: cards, rating ledger, moments, team state, leaders, plays, play breakdowns with space control, stat definitions, player comparisons and time windows.
@@ -203,13 +204,14 @@ Only numbers we measured (details in [docs/decisions.md](docs/decisions.md)):
 | Concurrent live viewers, one server process | **200** in real time (p95 frame gap 103 ms, 66% of one core); 400 saturates it ([load test](docs/load-test.md)) |
 | Ring on the player with the ball | **99.9%** of frames once they've had it 1.3 s (43% before the auto-director was retuned) |
 | Ask: answerable questions answered / right tool / out-of-scope refused | 91% / 97% / 100% ([evaluation](docs/qa-evaluation.md)) |
+| AI cost of a full match | **~$0.15** for 135 explained moments: 496 model calls, 228k tokens; 122 AI lines aired, 25 fixed by a rewrite, 13 fell back to the stats line ([cost](docs/cost.md)) |
 
 ## Run it
 
 ```bash
 # backend (Python 3.12, uv)
 cd backend && uv sync --extra agents --extra azure
-uv run pytest -q                                   # 194 tests
+uv run pytest -q                                   # 196 tests
 uv run uvicorn livecards.server.app:app --port 8010
 
 # web (Node 22)
@@ -245,7 +247,7 @@ backend/livecards/
   agents/     explainer, verifier, reviewer, personalizer, Q&A, director, red team, pipeline
   server/     FastAPI app, live sessions, console control plane, audit log, cues, Web PubSub
   feed.py     Event Hubs publish/ingest      telemetry.py   Application Insights
-backend/tests/  194 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
+backend/tests/  196 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
 web/src/    React + three.js: viewer, tactics board, Show me, Learn, story pages, players, console, i18n
 vision/     YOLO vision layer, capture with ground truth, evaluation
 docs/       evaluation, vision, deployment, decisions, pitch, cue schema, media

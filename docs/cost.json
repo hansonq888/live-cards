@@ -1,0 +1,33 @@
+{
+  "moments_explained": 135,
+  "ai_lines_aired": 122,
+  "fell_back_to_stats_line": 13,
+  "fixed_by_rewrite": 25,
+  "wall_s": 208,
+  "calls": 496,
+  "tokens": 228016,
+  "usd": 0.1504,
+  "cache_hits": 0,
+  "cache_pct": 0,
+  "prices": "October 2026 list prices",
+  "by_agent": {
+    "Reviewer": {
+      "calls": 211,
+      "tokens": 111214,
+      "usd": 0.0955,
+      "model": "gpt-5-mini"
+    },
+    "Explainer": {
+      "calls": 173,
+      "tokens": 67134,
+      "usd": 0.0309,
+      "model": "gpt-4.1-mini"
+    },
+    "Personalizer": {
+      "calls": 112,
+      "tokens": 49668,
+      "usd": 0.024,
+      "model": "gpt-4.1-mini"
+    }
+  }
+}
