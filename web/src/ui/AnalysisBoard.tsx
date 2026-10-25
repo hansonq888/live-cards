@@ -1,5 +1,6 @@
 // The analysis board under the pitch, in tabs: Chances (xG race and the shot map), Flow
-// (momentum and leaders), Box score, and the Live feed on its own.
+// (momentum and leaders), Box score, the Live feed, and Agents (each moment through the
+// agent pipeline, with what it cost).
 import { useState, type ReactNode } from "react";
 import { live, useLive } from "../live/store";
 import { useSummary, type Summary } from "../pages/summary";
@@ -7,13 +8,14 @@ import { BoxScore } from "../pages/WatchHome";
 import { XgRace } from "./XgRace";
 import { Avatar } from "./Avatar";
 import { Feed } from "./SidePanel";
+import { AgentTrace } from "./AgentTrace";
 
 function Block({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
   return <section className={`bd-block ${className}`}><h3 className="bd-h">{title}</h3>{children}</section>;
 }
 
-type Tab = "chances" | "flow" | "box" | "feed";
-const TABS: [Tab, string][] = [["chances", "Chances"], ["flow", "Flow & leaders"], ["box", "Box score"], ["feed", "Live feed"]];
+type Tab = "chances" | "flow" | "box" | "feed" | "agents";
+const TABS: [Tab, string][] = [["chances", "Chances"], ["flow", "Flow & leaders"], ["box", "Box score"], ["feed", "Live feed"], ["agents", "Agents"]];
 
 export function AnalysisBoard() {
   const s = useSummary();
@@ -43,6 +45,7 @@ export function AnalysisBoard() {
             <Block title="Leaders"><Leaders s={s} /></Block>
           </div>
         ) : tab === "box" ? <BoxScore s={s} />
+        : tab === "agents" ? <Block title="Agents, live"><AgentTrace /></Block>
         : (
           <Block title="Live feed" className="bd-feedblock">
             {feed > 0 ? <div className="bd-feed"><Feed /></div> : <p className="bd-empty">Lines appear here as moments happen. Press play, or jump to a moment on the timeline.</p>}

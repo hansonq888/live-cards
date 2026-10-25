@@ -33,6 +33,7 @@ export interface TraceItem {
   player: string | null;
   steps: TraceStep[];
   at: number;
+  aired?: { source: string; ms: number | null; text: string };
 }
 
 export interface Line {
@@ -456,9 +457,15 @@ class LiveStore {
       case "redteam":
         this.set({ redteam: { stage: m.stage, mode: m.mode, player: m.player, injected: m.injected, blockedBy: m.blocked_by, reason: m.reason, aired: m.aired, at: now } });
         break;
-      case "trace":
-        this.set({ traces: [{ moment: m.moment, type: m.moment_type, player: m.player, steps: m.steps, at: now }, ...s.traces].slice(0, 30) });
+      case "trace": {
+        // The explain path and the personalizer fan-out report separately: one row per moment.
+        const prev = s.traces.find((x) => x.moment === m.moment && x.type === m.moment_type);
+        const item: TraceItem = prev
+          ? { ...prev, steps: [...prev.steps, ...m.steps], aired: m.aired ?? prev.aired }
+          : { moment: m.moment, type: m.moment_type, player: m.player, steps: m.steps, at: now, aired: m.aired };
+        this.set({ traces: [item, ...s.traces.filter((x) => x !== prev)].slice(0, 40) });
         break;
+      }
       case "team":
         this.set({
           team: { possession: m.possession, possession_5m: m.possession_5m, momentum: m.momentum, chaos: m.chaos, score: m.score, xg: m.xg, shots: m.shots, shots_on_target: m.shots_on_target },

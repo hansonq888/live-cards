@@ -18,6 +18,7 @@ from functools import cache
 
 import numpy as np
 
+from livecards.agents import meter
 from livecards.agents.director import AutoDirector, Decision
 from livecards.agents.explainer import INSTRUCTIONS, ExplainJob, job_for
 from livecards.agents.llm import make_agent
@@ -223,6 +224,7 @@ class LiveSession:
         self.shadow_ev = 0
         self._shadow_gen = 0
         self.redteam_mode = "number"
+        self.ledger = meter.Ledger()  # this viewer's model calls, tokens and estimated cost
         self.inflight = 0
         self.tasks: set[asyncio.Task] = set()
         self._reset(start)
@@ -255,6 +257,7 @@ class LiveSession:
 
     # ---- commands from the viewer -----------------------------------------------------
     async def command(self, msg: dict) -> None:
+        meter.current.set(self.ledger)
         kind = msg.get("type")
         if kind == "select" and msg.get("player"):
             d = self.director.select(msg["player"], self.t, msg.get("reason"))
@@ -308,6 +311,7 @@ class LiveSession:
         return float(self.match.times[min(self.i, len(self.match) - 1)])
 
     async def run(self) -> None:
+        meter.current.set(self.ledger)  # tasks started from here inherit it
         await self.send(self.hello())
         await self.send(self.history())
         await self._send_current()
@@ -570,9 +574,13 @@ class LiveSession:
                 self.metrics["claims_checked"] += 1
                 self.metrics["blocked"] += ev.outcome == "rejected"
         await self.send({"type": "trace", "moment": m.id, "moment_type": f"red team: {m.type}",
-                         "player": m.player, "steps": [asdict(e) for e in traces]})
+                         "player": m.player, "steps": [asdict(e) for e in traces],
+                         "aired": {"source": result.source if result else "template",
+                                   "ms": round(result.ms) if result else None,
+                                   "text": result.text if result else job.template}})
         if result is not None:
             self.metrics["aired_unverified"] += not result.verdict.ok
+            self.metrics["rewrites"] += result.attempts > 1
         self._audit("redteam", m, text=attacker.injected, source=mode,
                     stage=blocked.stage if blocked else "", reason=blocked.detail if blocked else "",
                     evidence=m.evidence)
@@ -606,6 +614,7 @@ class LiveSession:
         key = (self.seed, m.id, job.template)
         if key in LINE_CACHE:
             result = LINE_CACHE[key]
+            meter.cache_hit()
             traces.append(TraceEvent(m.id, "cache", "ok", 0, "verified line reused", 0))
         else:
             self.inflight += 1
@@ -621,7 +630,10 @@ class LiveSession:
                 self.metrics["claims_checked"] += 1
                 self.metrics["blocked"] += ev.outcome == "rejected"
         await self.send({"type": "trace", "moment": m.id, "moment_type": m.type,
-                         "player": m.player, "steps": [asdict(e) for e in traces]})
+                         "player": m.player, "steps": [asdict(e) for e in traces],
+                         "aired": {"source": result.source if result else "template",
+                                   "ms": round(result.ms) if result else None,
+                                   "text": result.text if result else job.template}})
         self._audit_blocked(m, traces)
         span.set_attributes({
             "result.source": result.source if result else "none",
@@ -662,6 +674,8 @@ class LiveSession:
         cached = [VARIANT_CACHE[k] for p in profiles
                   if (k := (self.seed, m.id, p.key, base)) in VARIANT_CACHE]
         todo = [p for p in profiles if (self.seed, m.id, p.key, base) not in VARIANT_CACHE]
+        if cached:
+            meter.cache_hit(len(cached))
         req = PersonalizeRequest(job, base, self.meta.home.name, self.meta.away.name)
         fresh = await personalize(req, todo, personalizer_agent(), self.roster,
                                   traces.append, reviewer_agent()) if todo else []
@@ -736,6 +750,7 @@ class LiveSession:
         m = {k: v for k, v in self.metrics.items() if k != "latency_ms"}
         m["latency_p50_ms"] = lat[len(lat) // 2] if lat else None
         m["latency_p95_ms"] = lat[int(len(lat) * 0.95)] if lat else None
+        m["cost"] = self.ledger.summary()
         return {"type": "team", **asdict(ts), "metrics": m, "speed": self.speed,
                 "model_enabled": self.model_enabled, "board": self.engine.board(),
                 "plays": self.plays()}

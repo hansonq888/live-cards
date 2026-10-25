@@ -100,6 +100,14 @@ async def stats_registry() -> dict:
     return as_json()
 
 
+@app.get("/api/cost")
+async def cost() -> dict:
+    """Model calls, tokens and estimated cost across every viewer since the server started."""
+    from livecards.agents import meter
+
+    return meter.SERVER.summary()
+
+
 @app.get("/api/xg")
 async def xg_at(x: float, y: float) -> dict:
     """The engine's xG for a shot from (x, y), attacking the +x goal: the Learn page's "try it"

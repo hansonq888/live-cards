@@ -2,6 +2,7 @@
 import { Wordmark } from "../ui/Wordmark";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { clock } from "../live/store";
+import type { CostSummary } from "../live/protocol";
 
 interface Entry {
   id: number;
@@ -40,6 +41,19 @@ const FILTERS: [string, string][] = [
   ["all", "All"], ["aired", "Aired"], ["blocked", "Blocked"], ["pending", "Approvals"],
   ["answer", "Q&A"], ["redteam", "Red team"],
 ];
+
+/** Server-wide model usage and estimated cost (all viewers), refreshed every 5 s. */
+function useCost() {
+  const [cost, setCost] = useState<CostSummary | null>(null);
+  useEffect(() => {
+    let on = true;
+    const load = () => fetch("/api/cost").then((r) => (r.ok ? r.json() : null)).then((c) => on && setCost(c)).catch(() => {});
+    load();
+    const id = setInterval(load, 5000);
+    return () => { on = false; clearInterval(id); };
+  }, []);
+  return cost;
+}
 
 export function Console() {
   const [controls, setControls] = useState<Controls | null>(null);
@@ -111,6 +125,7 @@ export function Console() {
   );
   const queue = Object.values(pending).sort((a, b) => a.entry.id - b.entry.id);
   const aired = counts.aired ?? 0, blocked = counts.blocked ?? 0;
+  const cost = useCost();
 
   return (
     <div className="console">
@@ -128,6 +143,7 @@ export function Console() {
         <div><b>{(counts.pending ?? 0)}</b><span>sent for approval</span></div>
         <div><b>{counts.answer ?? 0}</b><span>fan questions</span></div>
         <div><b>{counts.redteam ?? 0}</b><span>red-team attacks</span></div>
+        {cost && <div title={`${cost.calls} model calls · ${cost.tokens.toLocaleString()} tokens · ${cost.prices}`}><b>${cost.usd.toFixed(cost.usd < 1 ? 3 : 2)}</b><span>AI cost (est.) · {cost.calls} calls · {cost.cache_pct}% cached</span></div>}
       </div>
 
       <div className="c-grid">

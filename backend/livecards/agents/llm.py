@@ -68,4 +68,6 @@ def make_agent(name: str, instructions: str, model_env: str = "FOUNDRY_MODEL",
     model = os.environ.get(model_env) or os.environ["FOUNDRY_MODEL"]
     client = FoundryChatClient(project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
                                model=model, credential=_credential())
-    return Agent(client=client, name=name, instructions=instructions, tools=tools)
+    from livecards.agents.meter import Metered
+
+    return Metered(Agent(client=client, name=name, instructions=instructions, tools=tools), name, model)

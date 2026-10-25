@@ -121,6 +121,12 @@ export interface Metrics {
   aired_unverified: number;
   latency_p50_ms: number | null;
   latency_p95_ms: number | null;
+  cost?: CostSummary;
+}
+
+export interface CostSummary {
+  calls: number; tokens: number; usd: number; cache_hits: number; cache_pct: number; prices: string;
+  by_agent: Record<string, { calls: number; tokens: number; usd: number; model: string }>;
 }
 
 export type ServerMsg =
@@ -139,7 +145,7 @@ export type ServerMsg =
   | { type: "answer_status"; id: string; question: string; stage: string }
   | { type: "answer"; id: string; question: string; text: string; verified: boolean; source: string; evidence: string[]; tools: string[]; ms: number; problems: string[]; minute: number; actions?: AnswerAction[]; table?: AnswerTable | null }
   | { type: "redteam"; stage: "started" | "result" | "unavailable"; mode?: string; moment?: string; player?: string | null; injected?: string; blocked_by?: string | null; reason?: string; aired?: string | null; aired_source?: string | null }
-  | { type: "trace"; moment: string; moment_type: string; player: string | null; steps: TraceStep[] }
+  | { type: "trace"; moment: string; moment_type: string; player: string | null; steps: TraceStep[]; aired?: { source: string; ms: number | null; text: string } }
   | {
       type: "team";
       t: number;
