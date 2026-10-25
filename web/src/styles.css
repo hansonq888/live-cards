@@ -2300,3 +2300,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .lu-p.on { transform: translate(-50%, -66%) scale(1.12); z-index: 3; }
 .lu-p.on .lu-name { background: var(--club); color: #fff; }
 @media (max-width: 1000px) { .sq-split { grid-template-columns: 1fr; } .sq-split .lu { position: static; } .sq-list { max-height: none; } }
+.sq-row:hover, .sq-row.on { box-shadow: 0 6px 18px rgba(30,20,90,.12) !important; }
