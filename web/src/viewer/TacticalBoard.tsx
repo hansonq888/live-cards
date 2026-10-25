@@ -119,6 +119,9 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
       if (!mini && step?.args) {
         if (stepKey !== step.t) { stepKey = step.t; stepAt = now; }
         const grow = Math.min(1, (now - stepAt) / 450), ease = 1 - (1 - grow) ** 3;
+        // Once play moves on from this touch, fade its marking out over a second of match time.
+        const fade = Math.max(0, Math.min(1, 1 - (s.t - step.t - 0.35) / 1.0));
+        g.globalAlpha = fade;
         const a = step.args as Record<string, number | string | boolean | null>;
         const x1 = X(Number(a.x)), y1 = Y(Number(a.y));
         g.strokeStyle = "#ffffff"; g.fillStyle = "#ffffff"; g.lineWidth = 0.35 * k; g.setLineDash([1.2 * k, 0.9 * k]);
@@ -138,8 +141,10 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
             spots: [[x1, y1 - 2.6 * k], [x1, y1 + 2.6 * k], [x1 - 4.5 * k, y1], [x1 + 4.5 * k, y1]] });
         }
         g.setLineDash([]);
+        g.globalAlpha = 1;
+        if (fade < 0.6) labels.length = 0;
         // Show me puts the space gain in its big callout; otherwise label it next to the touch.
-        if (!s.showMe && grow >= 1 && spaceStep?.space && s.showSpace && spaceStep === step && spaceStep.space.gain_m2) {
+        if (!s.showMe && grow >= 1 && fade >= 0.6 && spaceStep?.space && s.showSpace && spaceStep === step && spaceStep.space.gain_m2) {
           const gain = spaceStep.space.gain_m2;
           const ax = X(Number(a.end_x ?? a.x ?? 0)), ay = Y(Number(a.end_y ?? a.y ?? 0));
           labels.push({ text: `${gain > 0 ? "+" : "−"}${Math.abs(gain)} m² of final-third space`, x: ax, y: ay, bg: gain > 0 ? "#d4ff3a" : "#fb7185", fg: "#0d0a24", px: 1.1 * k,

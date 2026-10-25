@@ -2638,3 +2638,10 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .pp-facts .pp-moment .ppm-text em { display: block; font-size: 12px; color: #6c668a; }
 .pp-facts .pp-moment .ppm-text b { display: block; font-family: var(--headline) !important; font-size: 15px !important; font-weight: 700 !important; color: #160f35; }
 .pp-facts .pp-moment .ppm-go { display: inline-block; color: #fff !important; font-size: 13px !important; font-weight: 800 !important; opacity: 1 !important; }
+/* Overlay controls: smaller, tighter */
+.an-overlay { column-gap: 6px !important; }
+.an-overlay .ring-pick { height: 28px; font-size: 12px !important; padding: 0 24px 0 9px !important; min-width: 0 !important; width: auto; max-width: 140px; }
+.an-overlay .explain-goal { height: 28px; padding: 0 10px !important; font-size: 12px !important; gap: 5px; }
+.an-overlay .explain-goal .icon { width: 13px; height: 13px; }
+.an-overlay .an-full { width: 30px !important; height: 30px !important; } .an-overlay .an-full svg { width: 17px; height: 17px; }
+.an-overlay .play-main { width: 30px !important; height: 30px !important; }

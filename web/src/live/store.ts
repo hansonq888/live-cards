@@ -50,6 +50,7 @@ export interface Line {
 
 export interface KeyMoment { id: string; t: number; type: string; player: string | null; label: string; play?: string }
 
+const HOLD_MS = 1600;  // how long a breakdown pauses on each drawn pass or shot
 const KEY_TYPES = new Set(["goal", "big_chance", "fastest_sprint", "rating_upgrade", "rating_downgrade", "momentum_swing", "card", "substitution"]);
 
 export interface Pending {
@@ -209,6 +210,8 @@ class LiveStore {
     const k = Math.max(0, Math.min(b.steps.length - 1, i));
     const s = b.steps[k];
     this.lastBuildPlayer = null;
+    this.heldStep = k;
+    window.clearTimeout(this.holdTimer);
     this.set({ buildup: { ...b, pauseAt: s.t + 0.15, playing: true } });
     this.send({ type: "seek", t: Math.max(b.start - 2, s.t - 1.4) });
     this.send({ type: "speed", value: 0.5 });
@@ -264,8 +267,22 @@ class LiveStore {
       this.lastBuildPlayer = step.player;
       this.send({ type: "select", player: step.player, reason: stepCaption(this.lang(), step) });
     }
+    // Hold on each drawn touch (a pass or a shot) so its marking can be read, then carry on;
+    // the board fades the marking out once the play moves past it.
+    const k = b.steps.indexOf(step!);
+    if (step && k > this.heldStep && b.pauseAt === null && (step.kind === "pass" || step.kind === "shot")) {
+      this.heldStep = k;
+      this.send({ type: "pause" });
+      window.clearTimeout(this.holdTimer);
+      this.holdTimer = window.setTimeout(() => {
+        const cur = this.state.buildup;
+        if (cur && cur.playing && cur.goal === b.goal) this.send({ type: "play" });
+      }, HOLD_MS);
+    }
   }
   private lastBuildPlayer: string | null = null;
+  private heldStep = -1;
+  private holdTimer = 0;
   private buildArrived = false;
 
   backToLive() {
@@ -404,6 +421,7 @@ class LiveStore {
           liveEdge: Math.max(s.liveEdge, s.t),
         });
         this.buildArrived = false;
+        this.heldStep = -1;
         this.send({ type: "seek", t: Math.max(0, m.start_t - 2) });
         this.send({ type: "speed", value: s.showMe ? 0.8 : 0.5 });  // Show me keeps it moving
         this.send({ type: "play" });
