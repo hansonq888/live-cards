@@ -89,12 +89,12 @@ export function XgRace() {
         }))}
       </svg>
       <div className="xr-list">
-        <span className="xr-list-h">Every shot, best chance first</span>
+        <span className="xr-list-h">Every shot, best chance first · click to show me</span>
         {ranked.map((p) => {
           const tm = p.team === meta.home.code ? meta.home : meta.away;
           return (
             <button key={p.id} className={`xr-row ${hover === p.id ? "on" : ""} ${p.outcome === "goal" ? "goal" : ""}`} style={{ ["--team" as string]: tm.color }}
-              onMouseEnter={() => setHover(p.id)} onMouseLeave={() => setHover(null)} onClick={() => live.breakdown(p.id)}>
+              onMouseEnter={() => setHover(p.id)} onMouseLeave={() => setHover(null)} onClick={() => live.showMe(p.id)} title="Show me this play">
               <span className="xr-min">{p.minute}′</span>
               <span className="xr-who"><b>{name(p.player)}</b><em>{p.outcome === "goal" ? "Goal" : p.outcome.replace("_", " ")}</em></span>
               <span className="xr-bar"><i style={{ width: `${Math.min(100, p.xg * 160)}%` }} /></span>

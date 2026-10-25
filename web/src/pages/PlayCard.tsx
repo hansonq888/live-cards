@@ -5,6 +5,8 @@ import { ShotMap } from "./ShotMap";
 import { outcomeLabel, playHref, useSummary } from "./summary";
 import { Avatar } from "../ui/Avatar";
 
+const showMeHref = (id: string) => `/?page=analyse&showme=${encodeURIComponent(id)}`;
+
 export function PlayCard({ play, title, feature = false }: { play: Play; title: string; feature?: boolean }) {
   const goal = play.outcome === "goal";
   const n = Math.round(Number(play.xg.toFixed(2)) * 10);
@@ -17,6 +19,9 @@ export function PlayCard({ play, title, feature = false }: { play: Play; title: 
         <span className="lp-min" aria-hidden="true">{play.minute}′</span>
         <span className={`lp-tag ${goal ? "goal" : ""}`}>{outcomeLabel(play.outcome)}</span>
         <div className="lp-map"><ShotMap ax={play.ax} ay={play.ay} xg={play.xg} goal={goal} /></div>
+        <span className="lp-show" role="link" tabIndex={0} title="Replay this play on the tactics board"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); location.href = showMeHref(play.id); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); location.href = showMeHref(play.id); } }}>▶ Show me</span>
         {p && <span className="lp-bust"><Avatar player={p} color={club} size={feature ? 300 : 170} bare /></span>}
       </div>
       {feature && <span className="lp-kicker">Featured play</span>}

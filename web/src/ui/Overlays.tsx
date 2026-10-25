@@ -326,7 +326,8 @@ export function ShowMeHUD() {
   const done = t > b.goalT + 0.3;
   const gain = sp?.gain_m2 ?? 0;
   return (
-    <div className="sm-hud" style={{ ["--team" as string]: team.color }}>
+    // Sit at the end the team defends, so the card never covers the goal they attack.
+    <div className={`sm-hud ${team.attack_dir < 0 ? "right" : ""}`} style={{ ["--team" as string]: team.color }}>
       <span className="sm-kicker">Show me · how the {b.kind === "goal" ? "goal" : "chance"} was built</span>
       <h3>{scorer?.short ?? ""}</h3>
       <div className="sm-steps" aria-label={`Touch ${i + 1} of ${b.steps.length}`}>{b.steps.map((_, j) => <i key={j} className={j < i ? "done" : j === i ? "on" : ""} />)}</div>

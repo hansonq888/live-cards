@@ -2393,3 +2393,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
   background: #fff; color: #160f35; font-size: 13px; font-weight: 800; box-shadow: 0 6px 16px rgba(0,0,0,.25); cursor: pointer; transition: transform .15s, background .15s; }
 .lp-show:hover, .lp-show:focus-visible { background: #d4ff3a; transform: scale(1.05); outline: none; }
 .l-play.feature .lp-show { font-size: 15px; padding: 10px 16px; right: 18px; top: 18px; }
+.sm-hud.right { left: auto; right: 22px; animation-name: sm-in-r; } @keyframes sm-in-r { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }

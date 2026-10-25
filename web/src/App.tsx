@@ -56,8 +56,10 @@ function Live({ initial }: { initial: View }) {
     live.connect(Number(q.get("speed") ?? 1), Number(q.get("start") ?? (play || initial === "studio" ? 5395 : 0)));
   }, []);
   useEffect(() => {
-    const play = new URLSearchParams(location.search).get("play");
-    if (meta && play) setTimeout(() => live.breakdown(play), 400);
+    // ?play= opens a breakdown; ?showme= replays it on the tactical board with callouts.
+    const q = new URLSearchParams(location.search), play = q.get("play"), show = q.get("showme");
+    if (meta && show) setTimeout(() => live.showMe(show), 400);
+    else if (meta && play) setTimeout(() => live.breakdown(play), 400);
   }, [meta]);
   const go = (v: View) => {
     setView(v);
