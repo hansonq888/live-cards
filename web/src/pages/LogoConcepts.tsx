@@ -74,6 +74,80 @@ function PitchNote({ dark }: { dark: boolean }) {
   );
 }
 
+/** 7 · Shard F¹: the lightning F tile beside the wordmark, with the footnote ¹. */
+function ShardSup({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <rect x="8" y="12" width="66" height="66" rx="14" fill={V} />
+      <path d="M26 25 H60 V37 H40 V43 H54 V54 H40 V66 H26 Z" fill="#fff" />
+      <path d="M52 12 L74 12 L74 32 L60 46 L69 46 L46 78 L51 55 L42 55 Z" fill={L} />
+      <text x="86" y="62" className="lg-word sm" fill={dark ? "#fff" : P}>Footnote<tspan className="lg-sup" dx="3" dy="-24" fill={dark ? L : V}>1</tspan></text>
+    </svg>
+  );
+}
+
+/** 8 · Asterisk shard: the asterisk on the lightning tile; one mark that is both ideas. */
+function AsteriskShard({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <rect x="8" y="12" width="66" height="66" rx="14" fill={V} />
+      <path d="M50 12 L74 12 L74 40 L58 52 L66 52 L40 78 L8 78 L8 60 Z" fill={P} opacity=".55" />
+      <g stroke={L} strokeWidth="8" strokeLinecap="round">{[0, 60, 120].map((a) => <line key={a} x1="41" y1="27" x2="41" y2="63" transform={`rotate(${a} 41 45)`} />)}</g>
+      <text x="86" y="62" className="lg-word sm" fill={dark ? "#fff" : P}>Footnote</text>
+    </svg>
+  );
+}
+
+/** 9 · Ball o: the first o is a ball with asterisk seams, inside the wordmark itself. */
+function BallO({ dark }: { dark: boolean }) {
+  const ink = dark ? "#fff" : P;
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <text x="10" y="64" className="lg-word" fill={ink}>F</text>
+      <g transform="translate(62 46)">
+        <circle r="19" fill={L} />
+        <g stroke={P} strokeWidth="5" strokeLinecap="round">{[0, 60, 120].map((a) => <line key={a} x1="0" y1="-11" x2="0" y2="11" transform={`rotate(${a})`} />)}</g>
+      </g>
+      <text x="84" y="64" className="lg-word" fill={ink}>otnote</text>
+    </svg>
+  );
+}
+
+/** 10 · Italic star: heavy italic wordmark (movement, like a sports title) ending in a lime asterisk. */
+function ItalicStar({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <text x="10" y="66" className="lg-italic" fill={dark ? "#fff" : P}>FOOTNOTE</text>
+      <g transform="translate(268 26)" stroke={L} strokeWidth="6" strokeLinecap="round">{[0, 60, 120].map((a) => <line key={a} x1="0" y1="-12" x2="0" y2="12" transform={`rotate(${a})`} />)}</g>
+    </svg>
+  );
+}
+
+/** 11 · F¹ monogram: a compact app-icon mark: F with the superscript in the corner. */
+function Monogram({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <rect x="8" y="8" width="74" height="74" rx="18" fill={dark ? "#fff" : V} />
+      <path d="M26 24 H58 V36 H40 V44 H54 V55 H40 V68 H26 Z" fill={dark ? V : "#fff"} />
+      <circle cx="66" cy="26" r="11" fill={L} />
+      <text x="66" y="31" textAnchor="middle" className="lg-mini" fill={P}>1</text>
+      <text x="96" y="60" className="lg-word sm" fill={dark ? "#fff" : P}>Footnote</text>
+    </svg>
+  );
+}
+
+/** 12 · Split shard: the wordmark cut by a lime lightning slash between "Foot" and "note". */
+function SplitShard({ dark }: { dark: boolean }) {
+  const ink = dark ? "#fff" : P;
+  return (
+    <svg viewBox="0 0 300 90" className="lg">
+      <text x="8" y="64" className="lg-word" fill={ink}>Foot</text>
+      <path d="M140 10 L156 10 L146 40 L156 40 L136 82 L141 52 L131 52 Z" fill={L} />
+      <text x="158" y="64" className="lg-word" fill={dark ? L : V}>note</text>
+    </svg>
+  );
+}
+
 const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["1 · Superscript", "The name as a footnote reference: Footnote¹. Simple, clever, works at any size.", Superscript],
   ["2 · Asterisk ball", "The footnote asterisk drawn as football seams.", AsteriskBall],
@@ -81,6 +155,12 @@ const CONCEPTS: [string, string, (p: { dark: boolean }) => JSX.Element][] = [
   ["4 · Roundel", "A badge with the footnote asterisk, good for app icons and favicons.", Roundel],
   ["5 · Stacked", "FOOT / NOTE in heavy caps with a [1] citation, poster style.", Stacked],
   ["6 · Pitch note", "The second o becomes the centre circle of a pitch.", PitchNote],
+  ["7 · Shard F + ¹", "3's lightning F with 1's footnote mark on the name.", ShardSup],
+  ["8 · Asterisk shard", "2's asterisk on 3's lightning tile: one mark, both ideas.", AsteriskShard],
+  ["9 · Ball o", "The asterisk ball becomes the first o of the name.", BallO],
+  ["10 · Italic star", "Heavy italic caps for movement, ending in a lime asterisk.", ItalicStar],
+  ["11 · F¹ monogram", "A compact icon: F with the footnote 1 in its corner.", Monogram],
+  ["12 · Split shard", "A lightning slash between Foot and note.", SplitShard],
 ];
 
 export function LogoConcepts() {

@@ -1,6 +1,11 @@
 import { clock, live, useLive } from "../live/store";
 
 const LABELS = [0, 15, 30, 45, 60, 75, 90];
+// One icon per kind of moment, so the bar reads at a glance.
+const ICON: Record<string, string> = {
+  goal: "⚽", big_chance: "◎", card: "", substitution: "⇄", fastest_sprint: "⚡",
+  rating_upgrade: "▲", rating_downgrade: "▼", momentum_swing: "↗",
+};
 const MINOR = Array.from({ length: 19 }, (_, i) => i * 5);
 
 /** The match as a track: minute ticks, half-time, how far you've watched, and every key
@@ -23,6 +28,7 @@ export function Timeline() {
           <button key={k.id} className={`tl-mark tl-${k.type} ${revisit?.id === k.id ? "on" : ""}`}
             style={{ left: pct(k.t) }} data-label={`${clock(k.t)} · ${k.label}`} aria-label={`${clock(k.t)} ${k.label}`}
             onClick={() => live.revisitMoment(k)}>
+            <span className="tl-ico" aria-hidden="true">{ICON[k.type] ?? "•"}</span>
           </button>
         ))}
         <div className="tl-head" style={{ left: pct(t) }}><span>{Math.floor(t / 60)}′</span></div>

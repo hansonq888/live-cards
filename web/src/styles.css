@@ -2588,3 +2588,24 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .lg-stack { font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 46px; letter-spacing: 0; }
 .lg-cite { font-family: var(--headline); font-weight: 800; font-size: 34px; }
 .lg-sup { font-size: 30px; } .lg-cite { font-family: var(--headline); font-style: normal; }
+/* Key-moment markers on the YouTube-style bar: an icon per kind, sitting just above the scrubber */
+.tl-ico { display: none; }
+.an-overlay .tl-mark { top: auto !important; bottom: 10px !important; transform: translateX(-50%) !important; width: 22px !important; height: 22px !important; border-radius: 6px !important;
+  background: rgba(13,10,36,.85) !important; box-shadow: 0 0 0 1px rgba(255,255,255,.25) !important; opacity: 1 !important; }
+.an-overlay .tl-mark:hover, .an-overlay .tl-mark.on { transform: translateX(-50%) scale(1.2) !important; box-shadow: 0 0 0 2px #d4ff3a !important; }
+.an-overlay .tl-ico { display: block; font-size: 12px; line-height: 1; color: #fff; }
+.an-overlay .tl-goal { width: 26px !important; height: 26px !important; background: #fff !important; }
+.an-overlay .tl-goal .tl-ico { font-size: 15px; }
+.an-overlay .tl-big_chance .tl-ico { color: #d4ff3a; font-size: 14px; }
+.an-overlay .tl-card { background: rgba(13,10,36,.85) !important; } .an-overlay .tl-card .tl-ico { width: 9px; height: 12px; border-radius: 2px; background: #facc15; }
+.an-overlay .tl-fastest_sprint .tl-ico { color: #ffd23f; }
+.an-overlay .tl-rating_upgrade .tl-ico { color: #3ddc97; font-size: 10px; } .an-overlay .tl-rating_downgrade .tl-ico { color: #fb7185; font-size: 10px; }
+.an-overlay .tl-momentum_swing .tl-ico { color: #93c5fd; }
+/* the frequent ones only when you hover the bar */
+.an-overlay .tl-rating_upgrade, .an-overlay .tl-rating_downgrade, .an-overlay .tl-momentum_swing { opacity: 0 !important; transition: opacity .2s; }
+.an-overlay .timeline:hover .tl-rating_upgrade, .an-overlay .timeline:hover .tl-rating_downgrade, .an-overlay .timeline:hover .tl-momentum_swing { opacity: 1 !important; }
+.an-overlay .timeline { padding-top: 34px !important; }
+.an-overlay .tl-mark::after { bottom: calc(100% + 8px) !important; }
+.an-overlay .tl-head, .an-overlay .tl-watched { transition: none !important; }
+.lg-italic { font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 64px; letter-spacing: .5px; }
+.lg-mini { font-family: var(--headline); font-weight: 900; font-size: 15px; }
