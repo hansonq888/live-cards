@@ -10,6 +10,37 @@ import { Wordmark } from "../ui/Wordmark";
 import { Viewer } from "../viewer/Viewer";
 import { TacticalBoard } from "../viewer/TacticalBoard";
 import { xgWords } from "./summary";
+import { Avatar } from "../ui/Avatar";
+
+// What kind of touch each step is, as a short heading, and which lesson explains it.
+const KIND: Record<string, [string, string | null]> = {
+  win: ["Winning the ball", null], pass: ["The pass", "pass_difficulty"], sprint: ["The run", "sprints"],
+  shot: ["The shot", "xg"], goal: ["The finish", null], end: ["How it ended", null],
+};
+const GUESSES: [string, number][] = [["Unlikely", 0.05], ["Maybe", 0.15], ["Good chance", 0.35], ["Should score", 0.6]];
+
+/** Before the shot's xG is revealed, the reader guesses how good the chance was. */
+function GuessXg({ xg }: { xg: number }) {
+  const [pick, setPick] = useState<number | null>(null);
+  const closest = GUESSES.reduce((a, g) => (Math.abs(g[1] - xg) < Math.abs(a[1] - xg) ? g : a));
+  return (
+    <div className="sp-guess">
+      <b>Your call: how good was this chance?</b>
+      <div className="sp-guess-opts">
+        {GUESSES.map(([label, v], i) => (
+          <button key={label} className={pick === i ? (GUESSES[i] === closest ? "right" : "wrong") : pick !== null && GUESSES[i] === closest ? "right" : ""}
+            onClick={() => setPick(i)} disabled={pick !== null}>{label}</button>
+        ))}
+      </div>
+      {pick !== null && (
+        <p className="sp-guess-ans">
+          {GUESSES[pick] === closest ? "Spot on. " : "Not quite. "}The engine's xG is <strong>{xg.toFixed(2)}</strong>: a chance like this {xgWords(xg)}.{" "}
+          <a href="/?page=learn#xg">How xG works →</a>
+        </p>
+      )}
+    </div>
+  );
+}
 
 export function PlayStory() {
   const playId = new URLSearchParams(location.search).get("play") ?? "";
@@ -49,7 +80,8 @@ export function PlayStory() {
   const xg = shot ? Number(shot.args?.xg) : null;
 
   return (
-    <div className="story-page">
+    // The page wears the attacking team's colours.
+    <div className={`story-page ${team ? "themed" : ""}`} style={team ? { ["--team" as string]: team.color } : undefined}>
       <header className="sp-top">
         <a className="brand" href="/"><Wordmark /></a>
         <a className="sp-link" href={`/?page=analyse&play=${encodeURIComponent(playId)}`}>Open this play in Analyse</a>
@@ -82,23 +114,40 @@ export function PlayStory() {
                 </div>
                 <p className="sp-hint">Scroll to walk through it, touch by touch.</p>
               </section>
-              {b.steps.map((s, i) => (
-                <section key={i} className={`sp-step ${i === active ? "on" : ""}`} data-step={i} ref={(el) => { sections.current[i + 1] = el; }}>
-                  <span className="sp-time">{(s.t - b.goalT).toFixed(1)} s</span>
-                  <h2>{stepCaption("en", s)}</h2>
-                  <div className="sp-stats">
-                    {stepMeaning("en", s).map((m, j) => (
-                      <div key={j}><b>{m.label}</b>{m.meaning && <span>{m.meaning}</span>}</div>
-                    ))}
-                    {s.space && team && (
-                      <div className="sp-space">
-                        <b>{team.name} control {s.space.final_third_m2} m² of the final third</b>
-                        {s.space.gain_m2 !== null && <span>{s.space.gain_m2 >= 0 ? "+" : "−"}{Math.abs(s.space.gain_m2)} m² since the last touch. The shading shows who would win the race to each part of the pitch.</span>}
+              {b.steps.map((s, i) => {
+                const [heading, lesson] = KIND[s.kind] ?? ["", null];
+                const who = meta?.players.find((p) => p.id === s.player);
+                const shotXg = s.kind === "shot" ? Number(s.args?.xg) : NaN;
+                const meanings = stepMeaning("en", s).filter((m) => !(s.kind === "shot" && m.label.startsWith("xG")));
+                return (
+                  <section key={i} className={`sp-step ${i === active ? "on" : ""}`} data-step={i} ref={(el) => { sections.current[i + 1] = el; }}>
+                    <div className="sp-head">
+                      <span className="sp-n">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="sp-kind">{heading}<em>{(b.goalT - s.t).toFixed(1)} s before the shot</em></span>
+                      {who && team && <span className="sp-who"><Avatar player={who} color={team.color} size={64} bare /></span>}
+                    </div>
+                    {/* the shot's xG stays hidden until the reader has made their call */}
+                    <h2>{s.kind === "shot" ? stepCaption("en", s).replace(/, xG [\d.]+/, "") : stepCaption("en", s)}</h2>
+                    {meanings.length > 0 && (
+                      <div className="sp-stats">
+                        {meanings.map((m, j) => (
+                          <div key={j}><b>{m.label}</b>{m.meaning && <span>{m.meaning}</span>}</div>
+                        ))}
                       </div>
                     )}
-                  </div>
-                </section>
-              ))}
+                    {s.space && team && (
+                      <div className="sp-spacebar">
+                        <div className="spb-top"><b>{s.space.final_third_m2} m²</b><span>of the final third controlled by {team.name}</span>
+                          {s.space.gain_m2 !== null && s.space.gain_m2 !== 0 && <em className={s.space.gain_m2 > 0 ? "up" : "down"}>{s.space.gain_m2 > 0 ? "+" : "−"}{Math.abs(s.space.gain_m2)} m²</em>}</div>
+                        <div className="spb-track"><i style={{ width: `${Math.min(100, (s.space.final_third_m2 / 2380) * 100)}%`, background: team.color }} /></div>
+                        <a href="/?page=learn#space_control">What's space control?</a>
+                      </div>
+                    )}
+                    {!Number.isNaN(shotXg) && <GuessXg xg={shotXg} />}
+                    {lesson && lesson !== "xg" && <a className="sp-learn" href={`/?page=learn#${lesson}`}>Learn: {lesson === "pass_difficulty" ? "pass difficulty" : "sprints"} →</a>}
+                  </section>
+                );
+              })}
               <section className="sp-outro">
                 <h2>{b.kind === "goal" ? "That's the goal." : "That's the chance."}</h2>
                 <div className="sp-next">

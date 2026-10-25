@@ -99,28 +99,30 @@ function Directory({ s }: { s: Summary }) {
   );
 }
 
-// The starting XI in their lines, attacking up the page, from each player's formation spot; the
+// The starting XI in their lines, attacking to the right, from each player's formation spot; the
 // list beside it holds everyone, substitutes included. Hovering either highlights both.
 function Lineup({ s, club, hover, setHover }: { s: Summary; club: string; hover: string | null; setHover: (id: string | null) => void }) {
   const team = club === s.meta.home.code ? s.meta.home : s.meta.away;
   const squad = s.players.filter((p) => p.team === club);
   const xi = squad.filter((p) => p.starter && p.spot);
-  const top = (x: number) => 14 + ((14 - x) / 64) * 76;  // keeper (-48) near the bottom, forwards near the top
-  const left = (y: number) => 8 + ((30 - y) / 60) * 84;  // facing up, the right flank is on the right
+  // Landscape, attacking right, in true proportions (metres): own goal line on the left,
+  // a little past halfway on the right, so circles stay round and nothing is squashed.
+  const X0 = -54, XW = 71, Y0 = 36, YH = 72;
+  const left = (x: number) => ((x - X0) / XW) * 100;
+  const top = (y: number) => ((Y0 - y) / YH) * 100;  // facing right, +y (left flank) is at the top
   return (
     <section className="lu" style={{ ["--club" as string]: team.color }}>
       <div className="lu-pitch">
-        {/* Pitch markings in the same frame as the players: halfway line, centre circle, own box */}
-        <svg className="lu-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          <line x1="0" y1={top(0)} x2="100" y2={top(0)} />
-          <ellipse cx="50" cy={top(0)} rx="13.5" ry={top(-9.15) - top(0)} />
-          <rect x={left(20.15)} y={top(-36)} width={left(-20.15) - left(20.15)} height={top(-52.5) - top(-36)} />
-          <rect x={left(9.15)} y={top(-47)} width={left(-9.15) - left(9.15)} height={top(-52.5) - top(-47)} />
-          <line x1="0" y1={top(-52.5)} x2="100" y2={top(-52.5)} />
+        <svg className="lu-lines" viewBox={`${X0} ${-Y0} ${XW} ${YH}`} aria-hidden="true">
+          <rect x="-52.5" y="-34" width="69" height="68" />
+          <line x1="0" y1="-34" x2="0" y2="34" />
+          <circle cx="0" cy="0" r="9.15" />
+          <rect x="-52.5" y="-20.16" width="16.5" height="40.32" /><rect x="-52.5" y="-9.16" width="5.5" height="18.32" />
+          <path d="M -36 -7.3 A 9.15 9.15 0 0 1 -36 7.3" /><rect x="-54" y="-3.66" width="1.5" height="7.32" />
         </svg>
         <span className="lu-form">{CLUBS[club]?.short ?? team.name} · {(team as { formation?: string }).formation ?? ""}</span>
         {xi.map((p) => (
-          <a key={p.id} className={`lu-p ${hover === p.id ? "on" : ""}`} href={`/?page=players&id=${p.id}`} style={{ top: `${top(p.spot![0])}%`, left: `${left(p.spot![1])}%` }}
+          <a key={p.id} className={`lu-p ${hover === p.id ? "on" : ""}`} href={`/?page=players&id=${p.id}`} style={{ left: `${left(p.spot![0])}%`, top: `${top(p.spot![1])}%` }}
             onMouseEnter={() => setHover(p.id)} onMouseLeave={() => setHover(null)}>
             <span className="lu-bust"><Avatar player={p} color={team.color} size={70} bare /></span>
             <span className="lu-name">{p.short}</span>

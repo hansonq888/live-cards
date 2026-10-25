@@ -72,9 +72,9 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
       const ox = c.width / 2, oy = c.height / 2;
       const X = (x: number) => ox + x * k, Y = (y: number) => oy - y * k;  // +y is the far touchline
       g.clearRect(0, 0, c.width, c.height);
-      g.fillStyle = "#123321"; g.fillRect(0, 0, c.width, c.height);
+      g.fillStyle = "#2a8a47"; g.fillRect(0, 0, c.width, c.height);
       for (let i = 0; i < 12; i++) {  // mowing stripes
-        g.fillStyle = i % 2 ? "rgba(255,255,255,0.025)" : "rgba(0,0,0,0)";
+        g.fillStyle = i % 2 ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0)";
         g.fillRect(X(-L / 2 + (i * L) / 12), Y(W / 2), (L / 12) * k, W * k);
       }
       const s = live.get(), b = s.buildup;

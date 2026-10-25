@@ -148,7 +148,7 @@ const COLS: [string, string, (p: Summary["players"][number]) => number, (v: numb
   ["top", "Top km/h", (p) => p.stats.top_speed_kmh ?? 0, (v) => v.toFixed(1)],
 ];
 
-function BoxScore({ s }: { s: Summary }) {
+export function BoxScore({ s }: { s: Summary }) {
   const [team, setTeam] = useState(s.meta.home.code);
   const [sort, setSort] = useState("rating");
   const t = team === s.meta.home.code ? s.meta.home : s.meta.away;

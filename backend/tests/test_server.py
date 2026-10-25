@@ -241,3 +241,23 @@ def test_xg_endpoint_matches_the_engine():
     from livecards.server.app import app
     r = TestClient(app).get("/api/xg", params={"x": 41.5, "y": 0}).json()  # penalty spot
     assert r["xg"] == mx.xg(41.5, 0, 1) and 0.25 < r["xg"] < 0.33 and r["distance_m"] == 11.0
+
+
+def test_breakdown_of_a_later_play_after_jumping_back(monkeypatch):
+    """Regression: after a breakdown seeks back to 25', asking for a 65' play must still work
+    (the session's engine hasn't reached it, so it is read from a full run)."""
+    import asyncio
+
+    from livecards.server import session as S
+    monkeypatch.setattr(S, "explainer_agent", lambda: None)
+
+    async def main():
+        got = []
+
+        async def send(m):
+            got.append(m)
+        s = S.LiveSession(send, start=1500)
+        await s._explain_goal(None, play_id="e-1666")
+        return [m for m in got if m["type"] == "buildup"]
+    b = asyncio.run(main())
+    assert b and "error" not in b[-1] and b[-1]["scorer"] == "RIV-09"

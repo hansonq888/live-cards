@@ -149,7 +149,14 @@ function Analyse({ onFan }: { onFan: () => void }) {
               </div>
               {pip && <button className="an-pip-close" onClick={() => setClosed(true)} aria-label="Close the corner player">✕</button>}
             </div>
+            {/* Where the video was, while it plays in the corner */}
+            {away && (
+              <button className="an-placeholder" onClick={() => { setClosed(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                <span>{pip ? "Playing in the corner" : "Video paused here"}</span><em>Back to the video ↑</em>
+              </button>
+            )}
             </div>
+            <AnalysisBoard />
             </div>
             <div className={`an-right ${following ? "following" : ""}`}>
               {/* Following someone turns the live card into one taller card with their numbers. */}
@@ -158,7 +165,6 @@ function Analyse({ onFan }: { onFan: () => void }) {
             </div>
           </div>
           {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
-          <AnalysisBoard />
         </section>
       </main>
       <AskFloat />

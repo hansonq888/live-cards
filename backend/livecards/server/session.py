@@ -39,7 +39,7 @@ from livecards.engine import metrics as mx
 from livecards.engine import space
 from livecards.engine.buildup import build_up
 from livecards.engine.engine import MatchEngine
-from livecards.replay import positions
+from livecards.replay import positions, run_engine
 from livecards.server.control import plane
 from livecards.server.cues import make_cue
 from livecards.sim.match import Match
@@ -63,6 +63,12 @@ ALERT_TYPES = {"sprint", "fastest_sprint", "streak", "distance_milestone"}
 # moment reuses its verified line instead of calling, and paying for, the model again.
 LINE_CACHE: dict[tuple, Explained] = {}
 VARIANT_CACHE: dict[tuple, dict] = {}
+
+
+@cache
+def full_engine(seed: int):
+    """The whole match already played through (cached): for plays the live clock hasn't reached."""
+    return run_engine(load_match(seed))
 
 
 @cache
@@ -482,6 +488,12 @@ class LiveSession:
         """Break down a play: a goal (the latest so far, or a given one), or any shot by its
         event id. Steps now, AI story after."""
         events = self.engine.events
+        moments = self.engine.moments
+        if play_id and play_id not in events:
+            # The viewer jumped back in time (another breakdown, a seek): this session's engine
+            # hasn't reached that shot yet, so read it from a full run of the same match.
+            full = full_engine(self.seed)
+            events, moments = full.events, full.moments
         goal_ev = None
         if play_id and play_id in events and events[play_id].type in ("shot", "goal"):
             goal_ev = events[play_id]
@@ -489,7 +501,7 @@ class LiveSession:
                 goal_ev = next((e for e in events.values() if e.type == "goal"
                                 and e.player == goal_ev.player and e.t >= goal_ev.t), goal_ev)
         else:
-            goals = [m for m in self.engine.moments if m.type == "goal"]
+            goals = [m for m in moments if m.type == "goal"]
             if goal_id:
                 goals = [m for m in goals if m.evidence and m.evidence[0] == goal_id] or goals
             if goals:
@@ -497,7 +509,7 @@ class LiveSession:
         if goal_ev is None:
             await self.send({"type": "buildup", "error": "no play to break down"})
             return
-        b = build_up(list(self.engine.events.values()), goal_ev, self.meta, self.engine.moments)
+        b = build_up(list(events.values()), goal_ev, self.meta, moments)
         if b is None:
             await self.send({"type": "buildup", "error": "no build-up found"})
             return

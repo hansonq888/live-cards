@@ -2645,3 +2645,80 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .an-overlay .explain-goal .icon { width: 13px; height: 13px; }
 .an-overlay .an-full { width: 30px !important; height: 30px !important; } .an-overlay .an-full svg { width: 17px; height: 17px; }
 .an-overlay .play-main { width: 30px !important; height: 30px !important; }
+/* Story steps as lesson cards */
+.story-page .sp-step { gap: 14px; }
+.sp-head { display: flex; align-items: center; gap: 14px; }
+.sp-n { font-family: var(--headline); font-weight: 900; font-size: 44px; line-height: 1; color: #4b2bd6; letter-spacing: -2px; }
+.sp-kind { display: flex; flex-direction: column; flex: 1; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #160f35; }
+.sp-kind em { font-style: normal; font-weight: 500; text-transform: none; letter-spacing: 0; color: #6c668a; font-size: 13px; margin-top: 2px; }
+.sp-who { line-height: 0; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: #ece9f8; }
+.story-page .sp-stats div { background: #fff; box-shadow: 0 0 0 1px rgba(22,15,53,.06), 0 6px 16px rgba(60,40,140,.06); }
+.story-page .sp-stats b { color: #3a1fd0; } .story-page .sp-stats span { color: #3a3358; }
+.sp-spacebar { background: #fff; border-radius: 12px; padding: 14px 16px; box-shadow: 0 0 0 1px rgba(22,15,53,.06); display: flex; flex-direction: column; gap: 8px; }
+.spb-top { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.spb-top b { font-family: var(--headline); font-weight: 900; font-size: 28px; color: #160f35; } .spb-top span { font-size: 13.5px; color: #6c668a; }
+.spb-top em { font-style: normal; font-weight: 800; font-size: 14px; padding: 2px 8px; border-radius: 6px; } .spb-top em.up { background: #d4ff3a; color: #0d0a24; } .spb-top em.down { background: #ffe4e8; color: #c81e45; }
+.spb-track { height: 10px; border-radius: 5px; background: #ece9f8; overflow: hidden; } .spb-track i { display: block; height: 100%; border-radius: 5px; transition: width .6s ease; }
+.sp-spacebar a, .sp-learn { font-size: 13px; font-weight: 700; color: #4b2bd6; text-decoration: none; }
+.sp-learn { align-self: flex-start; }
+/* the guess */
+.sp-guess { background: linear-gradient(135deg, #3a1fd0, #2a0a4a); color: #fff; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.sp-guess > b { font-family: var(--headline); font-size: 17px; }
+.sp-guess-opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.sp-guess-opts button { border: 0; border-radius: 10px; padding: 10px 6px; background: rgba(255,255,255,.12); color: #fff; font: inherit; font-weight: 700; font-size: 13.5px; cursor: pointer; transition: background .15s, transform .15s; }
+.sp-guess-opts button:not(:disabled):hover { background: rgba(255,255,255,.22); transform: translateY(-2px); }
+.sp-guess-opts button.right { background: #d4ff3a; color: #0d0a24; } .sp-guess-opts button.wrong { background: #fb7185; }
+.sp-guess-opts button:disabled { cursor: default; }
+.sp-guess-ans { margin: 0; font-size: 14.5px; line-height: 1.5; } .sp-guess-ans strong { color: #d4ff3a; } .sp-guess-ans a { color: #fff; font-weight: 700; }
+/* Shot map: tallies on each side, hover card, the shot's line to goal, click to Show me */
+.sma { gap: 10px; }
+.sma-teams { display: flex; justify-content: space-between; gap: 10px; }
+.sma-team { display: flex; align-items: baseline; gap: 8px; } .sma-team + .sma-team { flex-direction: row-reverse; }
+.sma-team b { font-family: var(--headline); font-weight: 900; font-size: 18px; color: var(--team); } .sma-team span { font-size: 12.5px; color: #6c668a; }
+.sma-wrap { position: relative; }
+.sma-shot { cursor: pointer; } .sma-shot circle { transition: stroke-width .15s; }
+.sma-path { stroke-width: .5; stroke-dasharray: 1.2 .9; opacity: .9; }
+.sma-tip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 14px; border-radius: 10px; background: rgba(13,10,36,.88); color: #fff; pointer-events: none; text-align: center; }
+.sma-tip b { font-size: 14px; } .sma-tip span { font-size: 12.5px; text-transform: capitalize; color: rgba(255,255,255,.85); } .sma-tip em { font-style: normal; font-size: 11.5px; color: #d4ff3a; font-weight: 700; }
+.sma-key { display: flex; gap: 16px; justify-content: center; font-size: 12px; color: #6c668a; }
+.sma-key span { display: inline-flex; align-items: center; gap: 6px; }
+.sma-key i { display: inline-block; border-radius: 50%; }
+.sma-key .k-big { width: 14px; height: 14px; border: 1.5px solid #6c668a; box-shadow: -10px 0 0 -3px #fff, -10px 0 0 -1.5px #6c668a; margin-left: 10px; }
+.sma-key .k-goal { width: 11px; height: 11px; background: #4b2bd6; box-shadow: 0 0 0 1.5px #fff, 0 0 0 2.5px #4b2bd6; }
+.sma .bd-note { display: none; }
+/* Tactical board: brighter grass */
+.board-main, .board-mini, .sp-stage { background: #2a8a47 !important; }
+/* Board tabs under the video */
+.an-left .board.all { margin-top: 16px; }
+.bd-tabs { display: flex; gap: 6px; padding: 4px; background: #fff; border-radius: 12px; box-shadow: 0 0 0 1px rgba(22,15,53,.06); align-self: flex-start; }
+.bd-tabs button { border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: #6c668a; padding: 8px 14px; border-radius: 9px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.bd-tabs button:hover { color: #160f35; background: #f4f2fb; }
+.bd-tabs button.on { background: #160f35; color: #fff; }
+.bd-tabs i { font-style: normal; font-size: 11px; font-weight: 800; background: #d4ff3a; color: #160f35; padding: 1px 6px; border-radius: 999px; }
+.an-left .bd-row.xm { grid-template-columns: 1fr !important; }
+.an-left .bd-row { grid-template-columns: 1fr 1fr; }
+.bd-empty { color: #6c668a; font-size: 14px; margin: 0; }
+.an-left .bx { margin: 0; }
+/* Story page in the attacking team's colours */
+.story-page.themed { background: radial-gradient(1100px 620px at 8% -12%, color-mix(in srgb, var(--team) 16%, transparent), transparent 62%), linear-gradient(180deg, color-mix(in srgb, var(--team) 4%, #f8f7fd), #f1eff9) !important; }
+.story-page.themed .sp-top { background: linear-gradient(100deg, color-mix(in srgb, var(--team) 80%, #000), var(--team)) !important; }
+.story-page.themed .sp-n, .story-page.themed .sp-stats b, .story-page.themed .sp-spacebar a, .story-page.themed .sp-learn { color: var(--team) !important; }
+.story-page.themed .sp-badge { background: var(--team) !important; color: #fff !important; }
+.story-page.themed .sp-progress i.on { background: var(--team) !important; }
+.story-page.themed .sp-guess { background: linear-gradient(135deg, var(--team), color-mix(in srgb, var(--team) 40%, #0b0820)) !important; }
+.story-page.themed .sp-step.on { border-left: 0; }
+.story-page.themed .sp-btn.primary { background: var(--team) !important; }
+.story-page.themed .sp-who { background: color-mix(in srgb, var(--team) 15%, #fff); }
+/* Lineup in true proportions */
+.sq-split .lu-pitch, .lu-pitch { height: auto !important; aspect-ratio: 71 / 72 !important; width: min(100%, 620px) !important; margin: 0 auto; }
+.lu-lines { display: block !important; position: absolute; inset: 0; width: 100%; height: 100%; }
+.lu-lines * { fill: none; stroke: rgba(255,255,255,.55); stroke-width: .35; vector-effect: none; }
+.sq-list { max-height: 640px; }
+/* Analyse Chances tab: keep the shot map a sensible size */
+.an-left .sma-wrap { max-width: 720px; margin: 0 auto; width: 100%; }
+/* Placeholder where the video was while it plays in the corner */
+.an-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 2px dashed #cfc9e6; border-radius: var(--r-lg); background: repeating-linear-gradient(135deg, #f1eff9 0 14px, #ebe8f5 14px 28px); color: #6c668a; font: inherit; cursor: pointer; }
+.an-placeholder span { font-family: var(--headline); font-weight: 700; font-size: 18px; color: #3a3358; }
+.an-placeholder em { font-style: normal; font-size: 13px; font-weight: 600; color: #4b2bd6; }
+.an-placeholder:hover { border-color: #4b2bd6; }
+.lu-pitch { background: repeating-linear-gradient(90deg, #23703a 0 7%, #1f6634 7% 14%) !important; }
