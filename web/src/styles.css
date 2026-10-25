@@ -2617,3 +2617,24 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .lg-stack2 { font-family: var(--headline); font-weight: 900; font-size: 46px; letter-spacing: -2px; }
 .an-overlay .tl-mark.on::before { content: none !important; } .an-overlay .tl-mark.on { transform: translateX(-50%) translateY(-3px) scale(1.15) !important; }
 .pp-hero { border-radius: 14px !important; }
+/* Logo (concept 22): mark + one-colour name */
+.wordmark { align-items: center !important; gap: .3em; }
+.wm-note, .wm-ball { display: none; }
+.wm-mark { width: 1.05em; height: 1.05em; flex: none; }
+.wm-mark circle { fill: #d4ff3a; } .wm-mark line { stroke: #2a0a4a; stroke-width: 7.5; stroke-linecap: round; }
+/* on light grounds the mark is violet with a lime asterisk */
+.light .l-foot .wm-mark circle, .lg-light .wm-mark circle { fill: #4b2bd6; }
+.light .l-foot .wm-mark line, .lg-light .wm-mark line { stroke: #d4ff3a; }
+/* Player page: the key moment as a real link, not a vague button */
+.pp-moment { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; margin-top: 4px; padding: 12px 14px; border-radius: 12px; background: #f6f5fb; color: #160f35; text-decoration: none; transition: background .15s; }
+.pp-moment:hover { background: #ece9f8; }
+.ppm-min { font-family: var(--headline); font-weight: 900; font-size: 26px; color: #4b2bd6; }
+.ppm-text { display: flex; flex-direction: column; } .ppm-text em { font-style: normal; font-size: 12px; color: #6c668a; } .ppm-text b { font-size: 15px; }
+.ppm-go { padding: 8px 12px; border-radius: 8px; background: #3a1fd0; color: #fff; font-weight: 800; font-size: 13px; white-space: nowrap; }
+.pp-all { grid-column: 1 / -1; justify-self: start; font-size: 13.5px; font-weight: 600; color: #4b2bd6; text-decoration: none; }
+.pp-facts .pp-moment span, .pp-facts .pp-moment b { text-transform: none !important; letter-spacing: 0 !important; margin: 0 !important; font-style: normal !important; }
+.pp-facts .pp-moment .ppm-min { font-family: var(--headline) !important; font-weight: 900 !important; font-size: 26px !important; color: #4b2bd6 !important; }
+.pp-facts .pp-moment .ppm-text { display: flex !important; flex-direction: column; gap: 2px; }
+.pp-facts .pp-moment .ppm-text em { display: block; font-size: 12px; color: #6c668a; }
+.pp-facts .pp-moment .ppm-text b { display: block; font-family: var(--headline) !important; font-size: 15px !important; font-weight: 700 !important; color: #160f35; }
+.pp-facts .pp-moment .ppm-go { display: inline-block; color: #fff !important; font-size: 13px !important; font-weight: 800 !important; opacity: 1 !important; }

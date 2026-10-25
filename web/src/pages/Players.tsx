@@ -174,11 +174,17 @@ function PlayerPage({ p, s }: { p: PlayerSummary; s: Summary }) {
           <div><span>Minutes</span><b>{Math.round(st.minutes)}</b></div>
           <div><span>Rating</span><b>{p.rating.toFixed(1)}</b></div>
           <div><span>Form</span><b><Form rating={p.rating} /></b></div>
-          <div className="pp-actions">
-            {goal ? <a className="l-btn primary" href={`/?page=play&play=${goal.id}`}>Break down goal</a>
-              : plays[0] && <a className="l-btn primary" href={`/?page=play&play=${plays[0].id}`}>Break down chance</a>}
-            <a className="l-btn" href="/?page=players">All players</a>
-          </div>
+          {(goal ?? plays[0]) && (() => {
+            const k = goal ?? [...plays].sort((a, b) => b.xg - a.xg)[0];
+            return (
+              <a className="pp-moment" href={`/?page=analyse&showme=${encodeURIComponent(k.id)}`}>
+                <span className="ppm-min">{k.minute}′</span>
+                <span className="ppm-text"><em>{goal ? "His goal" : "His best chance"}</em><b>{outcomeLabel(k.outcome)} · xG {k.xg.toFixed(2)}</b></span>
+                <span className="ppm-go">▶ Show me</span>
+              </a>
+            );
+          })()}
+          <a className="pp-all" href="/?page=players">← All players</a>
         </section>
       </aside>
       <div className="pp-main">
