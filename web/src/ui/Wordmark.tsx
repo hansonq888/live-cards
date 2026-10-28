@@ -26,13 +26,3 @@ export function MiniMark({ size = 40 }: { size?: number }) {
     </svg>
   );
 }
-
-/** For bars: the 5. tile, then the name on one line. */
-export function BrandBar() {
-  return (
-    <span className="brand-bar" aria-label={BRAND}>
-      <MiniMark />
-      <span aria-hidden="true"><b className="bb-the">The</b> Fifth Official<i>.</i></span>
-    </span>
-  );
-}

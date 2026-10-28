@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import copy
+import logging
 import secrets
 import time
 from collections.abc import Awaitable, Callable
@@ -46,6 +47,8 @@ from livecards.server.cues import make_cue
 from livecards.sim.match import Match
 from livecards.sim.simulator import simulate
 from livecards.telemetry import tracer
+
+log = logging.getLogger(__name__)
 
 Send = Callable[[dict], Awaitable[None]]
 
@@ -211,8 +214,9 @@ class LiveSession:
         self.meta = self.match.meta
         self.roster = {n for p in self.meta.players for n in (p.name, p.short)}
         self._heat_at: dict[str, float] = {}
-        self.speed = speed
+        self.speed = max(0.25, min(40.0, speed))
         self.paused = False
+        self.ai_on = True  # this viewer's own switch; the console's kill switch overrides it
         self.sid = secrets.token_hex(3)
         self.metrics = {"moments": 0, "cues": 0, "claims_checked": 0, "blocked": 0,
                         "model_lines": 0, "template_lines": 0, "rewrites": 0, "aired_unverified": 0,
@@ -234,8 +238,9 @@ class LiveSession:
 
     @property
     def model_enabled(self) -> bool:
-        """AI lines run only if Foundry is configured and the broadcaster allows them."""
-        return plane().controls.feature("ai_lines") and explainer_agent() is not None
+        """AI lines run only if Foundry is configured, the broadcaster allows them and this
+        viewer hasn't switched them off."""
+        return self.ai_on and plane().controls.feature("ai_lines") and explainer_agent() is not None
 
     def _audit(self, kind: str, m: Moment | None, **kw) -> None:
         plane().record(kind=kind, session=self.sid, match_t=m.t if m else self.t,
@@ -260,9 +265,16 @@ class LiveSession:
 
     # ---- commands from the viewer -----------------------------------------------------
     async def command(self, msg: dict) -> None:
+        """Apply one viewer command; a malformed one is ignored rather than closing the socket."""
+        try:
+            await self._command(msg)
+        except (ValueError, TypeError, KeyError):
+            log.warning("ignored malformed command %r", msg)
+
+    async def _command(self, msg: dict) -> None:
         meter.current.set(self.ledger)
         kind = msg.get("type")
-        if kind == "select" and msg.get("player"):
+        if kind == "select" and msg.get("player") in self.director.names:
             d = self.director.select(msg["player"], self.t, msg.get("reason"))
             await self._send_director(d)
             await self._send_card(d.target)
@@ -305,7 +317,7 @@ class LiveSession:
         elif kind == "breakdown":
             self._spawn(self._explain_goal(None, play_id=msg.get("play")))
         elif kind == "model":
-            plane().update({"features": {"ai_lines": bool(msg.get("enabled"))}})
+            self.ai_on = bool(msg.get("enabled"))  # per viewer: only the console flips it for everyone
             await self.send({"type": "model", "enabled": self.model_enabled})
 
     # ---- main loop ------------------------------------------------------------------

@@ -8,6 +8,7 @@ import { clock, live, useLang, useLive } from "../live/store";
 import { directorReason, isRtl, statsLine, stepCaption, stepMeaning, storyLine, t as tr, type Lang } from "../i18n";
 import { AnalystCard, TeamStrip } from "./Analyst";
 import { useSpeed } from "./FocusPanel";
+import { teamOf } from "../live/teams";
 
 const STORY_TYPES = new Set(["goal", "rating_upgrade", "rating_downgrade", "big_chance", "momentum_swing", "fastest_sprint", "attr_upgrade", "attr_downgrade"]);
 
@@ -95,7 +96,7 @@ export function PlayerCard() {
   if (!meta || !pid || !card) return null;
   if (profile.startsWith("analyst.")) return <><AnalystCard pid={pid} /><TeamStrip /></>;
   const p = meta.players.find((x) => x.id === pid)!;
-  const team = p.team === meta.home.code ? meta.home : meta.away;
+  const team = teamOf(meta, p.team);
   const up = upgrades[pid];
   const fresh = up && now - up.at < 5000;
   const isUp = fresh && up.to >= up.from;
@@ -402,7 +403,7 @@ export function ShowMeHUD() {
   const step = b.steps[i];
   const sp = b.steps.slice(0, i + 1).reverse().find((s) => s.space)?.space;
   const scorer = meta.players.find((p) => p.id === b.scorer);
-  const team = scorer?.team === meta.home.code ? meta.home : meta.away;
+  const team = teamOf(meta, scorer?.team);
   const done = t > b.goalT + 0.3;
   const gain = sp?.gain_m2 ?? 0;
   return (

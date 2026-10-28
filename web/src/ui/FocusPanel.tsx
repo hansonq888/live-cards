@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { live, useLive } from "../live/store";
 import { formLevel } from "./Overlays";
 import { Avatar } from "./Avatar";
+import { teamOf } from "../live/teams";
 
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
 // Each tile is tinted by what it measures: running, passing, attacking, defending.
@@ -70,7 +71,7 @@ export function FollowCard() {
   if (!pid || !meta) return null;
   const p = meta.players.find((x) => x.id === pid);
   if (!p) return null;
-  const team = p.team === meta.home.code ? meta.home : meta.away;
+  const team = teamOf(meta, p.team);
   const keys = ["ST", "W", "AM"].includes(p.role) ? KEY.attack : KEY.other;
   const tiles = all ? TILES : TILES.filter(([k]) => keys.includes(k));
   return (
@@ -94,50 +95,4 @@ function Tile({ label, value, kind }: { label: string; value: string; kind: stri
     if (prev.current !== value) { prev.current = value; setFlash(true); const t = setTimeout(() => setFlash(false), 900); return () => clearTimeout(t); }
   }, [value]);
   return <div className={`fp-tile k-${kind} ${flash ? "flash" : ""}`}><span>{label}</span><b>{value}</b></div>;
-}
-
-export function FocusPanel() {
-  const director = useLive((s) => s.director);
-  const meta = useLive((s) => s.meta);
-  const pid = director?.mode === "manual" ? director.target : null;
-  const stats = useLive((s) => (pid ? s.stats[pid] : undefined));
-  const card = useLive((s) => (pid ? s.cards[pid] : undefined));
-  const heat = useLive((s) => (pid ? s.heat[pid] : undefined));
-  const feed = useLive((s) => s.feed);
-  const speed = useSpeed(pid ?? "");
-  if (!pid || !meta) return null;
-  const p = meta.players.find((x) => x.id === pid);
-  if (!p) return null;
-  const team = p.team === meta.home.code ? meta.home : meta.away;
-  const level = formLevel(card?.rating ?? 6);
-  const sprinting = speed >= 25.2, fast = speed >= 19.8;
-  const recent = feed.filter((f) => f.player === pid).slice(0, 4);
-  return (
-    <section className="an-panel fp" style={{ ["--team" as string]: team.color }}>
-      <header className={`fp-head ${sprinting ? "sprinting" : ""}`}>
-        <span className="fp-num" aria-hidden="true">{p.number}</span>
-        <span className="fp-bust"><Avatar player={p} color={team.color} size={124} bare /></span>
-        <div className="fp-id"><em>Following</em><b>{p.name}</b><span>{p.position} · #{p.number} · {team.name}</span></div>
-        <span className={`fp-form f${level}`}><small>{FORM[level]}</small>{card ? card.rating.toFixed(1) : ""}</span>
-        <button className="fp-close" title="Let the auto-director choose who to follow again" onClick={() => live.send({ type: "auto" })}>Stop following</button>
-      </header>
-      <div className="fp-grid">
-        <div className={`fp-speed ${sprinting ? "sprint" : fast ? "fast" : ""}`}>
-          <span>Speed now</span>
-          <b>{speed.toFixed(1)}<small> km/h</small></b>
-          <div className="fp-gauge"><i style={{ width: `${Math.min(100, (speed / 36) * 100)}%` }} className={sprinting ? "sprint" : fast ? "fast" : ""} /></div>
-          <em>{sprinting ? "Sprinting" : fast ? "High intensity" : speed > 7 ? "Jogging" : "Walking"}</em>
-        </div>
-        <div className="fp-tiles">{stats && TILES.map(([k, label, f, kind]) => <Tile key={k} label={label} value={f(stats)} kind={kind} />)}</div>
-        <div className="fp-heat">
-          <span>Where they've played</span>
-          <Heat heat={heat} />
-          <em>{team.code === meta.home.code ? "Attacking →" : "← Attacking"}</em>
-        </div>
-      </div>
-      {recent.length > 0 && (
-        <ul className="fp-recent">{recent.map((f) => <li key={f.id}><b>{Math.floor(f.t / 60)}′</b>{f.text}</li>)}</ul>
-      )}
-    </section>
-  );
 }

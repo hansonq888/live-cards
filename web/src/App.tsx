@@ -16,7 +16,6 @@ import { FollowCard } from "./ui/FocusPanel";
 import { LiveStats } from "./ui/LiveStats";
 import { PlayStory } from "./pages/PlayStory";
 import { AvatarSheet } from "./pages/AvatarSheet";
-import { Mock } from "./pages/Mock";
 import { Thumb } from "./pages/Thumb";
 import { Matches } from "./pages/Matches";
 import { WatchHome } from "./pages/WatchHome";
@@ -41,7 +40,6 @@ export default function App() {
   if (page === "players") return <Players />;
   if (page === "play") return <PlayStory />;
   if (page === "avatars") return <AvatarSheet />;
-  if (page === "mock") return <Mock />;
   if (page === "thumb") return <Thumb />;
   // Watch starts on a match page; the broadcast opens once you pick how to watch (?start=).
   // Match with no game picked lists every game; with ?match= it's that game's match centre.
@@ -64,8 +62,9 @@ function Live({ initial }: { initial: View }) {
   useEffect(() => {
     // ?play= opens a breakdown; ?showme= replays it on the tactical board with callouts.
     const q = new URLSearchParams(location.search), play = q.get("play"), show = q.get("showme");
-    if (meta && show) setTimeout(() => live.showMe(show), 400);
-    else if (meta && play) setTimeout(() => live.breakdown(play), 400);
+    if (!meta || !(show || play)) return;
+    const id = window.setTimeout(() => (show ? live.showMe(show) : live.breakdown(play!)), 400);
+    return () => window.clearTimeout(id);
   }, [meta]);
   const go = (v: View) => {
     setView(v);

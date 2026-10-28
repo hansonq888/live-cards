@@ -286,3 +286,39 @@ def test_matches_endpoint_lists_both():
     from livecards.server.app import app
     ms = TestClient(app).get("/api/matches").json()
     assert [m["match"] for m in ms] == [7, 11] and ms[1]["score"] == {"RIV": 1, "NGT": 2}
+
+
+def test_malformed_commands_keep_the_session():
+    """Bad input from a viewer is ignored: the socket stays open and still answers."""
+    with TestClient(app).websocket_connect("/ws/live?speed=1") as ws:
+        for _ in range(3):
+            ws.receive_json()
+        ws.send_text("not json")
+        ws.send_json({"type": "seek", "t": "soon"})
+        ws.send_json({"type": "select", "player": "NOPE-99"})
+        ws.send_json({"type": "speed", "value": None})
+        ws.send_json({"type": "profile", "key": "analyst.es.neutral"})
+        for _ in range(200):
+            m = ws.receive_json()
+            if m.get("type") == "profile":
+                assert m["key"] == "analyst.es.neutral"
+                break
+        else:
+            raise AssertionError("session stopped answering")
+
+
+def test_console_rejects_malformed_decision():
+    r = TestClient(app).post("/api/console/command", json={"type": "decide", "id": "x"})
+    assert r.status_code == 400
+
+
+def test_viewer_ai_switch_is_per_session():
+    from livecards.server.control import plane
+    before = plane().controls.feature("ai_lines")
+    with TestClient(app).websocket_connect("/ws/live?speed=1") as ws:
+        ws.receive_json()
+        ws.send_json({"type": "model", "enabled": False})
+        for _ in range(200):
+            if ws.receive_json().get("type") == "model":
+                break
+    assert plane().controls.feature("ai_lines") == before

@@ -262,6 +262,8 @@ Without Azure configured, everything still runs: templates instead of AI lines, 
 feed, SQLite, and the app socket. To use Foundry, follow [docs/azure-setup.md](docs/azure-setup.md)
 and fill in `backend/.env`. Deploy with `deploy/redeploy.sh <tag>`. Other scripts:
 `scripts/evaluate.py` (safety + Foundry evals), `scripts/calibrate_baselines.py`,
+`scripts/qa_eval.py` (Ask answers against the data), `scripts/cache_eval.py` (what the cache
+saves), `scripts/record_gif.py` and `scripts/screenshots.py` (README media),
 `livecards replay --seed 7 --from 64 --to 68` (terminal replay).
 
 ## Limitations, honestly
@@ -286,7 +288,7 @@ backend/livecards/
   agents/     explainer, verifier, reviewer, personalizer, Q&A, director, red team, pipeline
   server/     FastAPI app, live sessions, console control plane, audit log, cues, Web PubSub
   feed.py     Event Hubs publish/ingest      telemetry.py   Application Insights
-backend/tests/  196 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
+backend/tests/  202 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
 web/src/    React + three.js: viewer, tactics board, Show me, Learn, story pages, players, console, i18n
 vision/     YOLO vision layer, capture with ground truth, evaluation
 docs/       evaluation, vision, deployment, decisions, pitch, cue schema, media

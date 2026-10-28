@@ -2,6 +2,7 @@
 // Backend coords: x along the pitch (+x = right goal), y across. three.js: x = x, z = -y.
 import * as THREE from "three";
 import type { MatchMeta } from "../live/protocol";
+import { teamOf } from "../live/teams";
 
 export interface PlayerPose { id: string; x: number; y: number; v: number }
 
@@ -153,7 +154,7 @@ export class PitchScene {
     }
 
     for (const p of meta.players) {
-      const team = p.team === meta.home.code ? meta.home : meta.away;
+      const team = teamOf(meta, p.team);
       this.bodies.set(p.id, this.makePlayer(team.color, team.secondary, p.role === "GK", p.id));
     }
 

@@ -1,7 +1,7 @@
 // Broadcast console: what airs, what was blocked, and who decided. Open with ?view=console.
 import { Wordmark } from "../ui/Wordmark";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { clock } from "../live/store";
+import { clock, wsUrl } from "../live/store";
 import type { CostSummary } from "../live/protocol";
 
 interface Entry {
@@ -98,12 +98,13 @@ export function Console() {
       if (closed) return;
       if (neg.url) {
         setVia("Azure Web PubSub");
-        handle(await fetch("/api/console/snapshot").then((r) => r.json()));
+        const snap = await fetch("/api/console/snapshot").then((r) => r.json()).catch(() => null);
+        if (closed) return;  // unmounted while loading: don't open a socket nobody closes
+        if (snap) handle(snap);
         sock = new WebSocket(neg.url);
         commander.current = (msg) => fetch("/api/console/command", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(msg) });
       } else {
-        const proto = location.protocol === "https:" ? "wss" : "ws";
-        sock = new WebSocket(`${proto}://${location.host}/ws/console`);
+        sock = new WebSocket(wsUrl("/ws/console"));
         commander.current = (msg) => sock?.readyState === WebSocket.OPEN && sock.send(JSON.stringify(msg));
       }
       ws.current = sock;

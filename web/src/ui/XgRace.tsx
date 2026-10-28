@@ -3,6 +3,7 @@
 // click any shot to break the play down. The verdict line compares goals with xG, in code.
 import { useEffect, useRef, useState } from "react";
 import { live, useLive } from "../live/store";
+import { teamOf } from "../live/teams";
 
 const H = 340, PAD = { l: 34, r: 58, t: 30, b: 24 };
 
@@ -96,7 +97,7 @@ export function XgRace() {
       <div className="xr-list">
         <span className="xr-list-h">Every shot, best chance first · click to show me</span>
         {ranked.map((p) => {
-          const tm = p.team === meta.home.code ? meta.home : meta.away;
+          const tm = teamOf(meta, p.team);
           return (
             <button key={p.id} className={`xr-row ${hover === p.id ? "on" : ""} ${p.outcome === "goal" ? "goal" : ""}`} style={{ ["--team" as string]: tm.color }}
               onMouseEnter={() => setHover(p.id)} onMouseLeave={() => setHover(null)} onClick={() => live.showMe(p.id)} title="Show me this play">

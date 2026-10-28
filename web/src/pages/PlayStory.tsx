@@ -54,7 +54,11 @@ export function PlayStory() {
   const timer = useRef<number>();
 
   useEffect(() => { live.connect(1, 5395); }, []);
-  useEffect(() => { if (meta && playId) setTimeout(() => live.breakdown(playId), 400); }, [meta, playId]);
+  useEffect(() => {
+    if (!meta || !playId) return;
+    const id = window.setTimeout(() => live.breakdown(playId), 400);
+    return () => window.clearTimeout(id);
+  }, [meta, playId]);
 
   // The section nearest the middle of the screen drives the replay (debounced while scrolling).
   useEffect(() => {

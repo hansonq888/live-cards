@@ -1,6 +1,6 @@
 """HTTP + WebSocket API.
 
-    uv run uvicorn livecards.server.app:app --reload --port 8000
+    uv run uvicorn livecards.server.app:app --reload --port 8010
 
 GET  /api/health          liveness
 GET  /api/meta            match metadata (clubs, players, formulas)
@@ -20,7 +20,7 @@ import contextlib
 import logging
 from pathlib import Path
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 
 from livecards import telemetry
@@ -163,8 +163,12 @@ async def live(ws: WebSocket, speed: float = 1.0, start: float = 0.0, match: int
     runner = asyncio.create_task(session.run())
     try:
         while True:
-            msg = await ws.receive_json()
-            await session.command(msg)
+            try:
+                msg = await ws.receive_json()
+            except ValueError:
+                continue  # not JSON: ignore it, keep the session
+            if isinstance(msg, dict):
+                await session.command(msg)
     except WebSocketDisconnect:
         pass
     finally:
@@ -178,7 +182,7 @@ async def live(ws: WebSocket, speed: float = 1.0, start: float = 0.0, match: int
 
 @app.get("/api/audit")
 async def audit(kind: str | None = None, limit: int = 200) -> dict:
-    return {"counts": plane().audit.counts(), "entries": plane().audit.recent(min(limit, 1000), kind)}
+    return {"counts": plane().audit.counts(), "entries": plane().audit.recent(max(1, min(limit, 1000)), kind)}
 
 
 @app.get("/api/console/negotiate")
@@ -195,13 +199,23 @@ async def console_snapshot() -> dict:
     return plane().snapshot()
 
 
+def _console_apply(msg: dict) -> bool:
+    """One console action (kill switches, or approving a held line). False if malformed."""
+    p = plane()
+    try:
+        if msg.get("type") == "controls":
+            p.update(msg.get("patch") or {})
+        elif msg.get("type") == "decide":
+            p.decide(int(msg["id"]), bool(msg.get("approve")), str(msg.get("operator") or "operator"))
+    except (ValueError, TypeError, KeyError):
+        return False
+    return True
+
+
 @app.post("/api/console/command")
 async def console_command(msg: dict) -> dict:
-    p = plane()
-    if msg.get("type") == "controls":
-        p.update(msg.get("patch") or {})
-    elif msg.get("type") == "decide":
-        p.decide(int(msg["id"]), bool(msg.get("approve")), str(msg.get("operator") or "operator"))
+    if not _console_apply(msg):
+        raise HTTPException(status_code=400, detail="malformed console command")
     return {"ok": True}
 
 
@@ -220,11 +234,12 @@ async def console(ws: WebSocket) -> None:
     pusher = asyncio.create_task(pump())
     try:
         while True:
-            msg = await ws.receive_json()
-            if msg.get("type") == "controls":
-                p.update(msg.get("patch") or {})
-            elif msg.get("type") == "decide":
-                p.decide(int(msg["id"]), bool(msg.get("approve")), str(msg.get("operator") or "operator"))
+            try:
+                msg = await ws.receive_json()
+            except ValueError:
+                continue
+            if isinstance(msg, dict):
+                _console_apply(msg)
     except WebSocketDisconnect:
         pass
     finally:

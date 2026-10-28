@@ -120,6 +120,9 @@ function mergePlays(seen: Play[], now: Play[] | undefined): Play[] {
   return [...now, ...seen.filter((p) => !ids.has(p.id))].sort((a, b) => a.t - b.t);
 }
 
+/** A WebSocket URL on this host, wss under https. */
+export const wsUrl = (path: string) => `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}${path}`;
+
 export const STAT_RINGS = ["rating", "pace", "passing", "threat", "defending", "engine"] as const;
 
 function savedStatRing(): string | null {
@@ -161,11 +164,17 @@ class LiveStore {
     this.ws?.close();
     this.frames = [];
     this.state = { ...initial, statRing: savedStatRing() };
-    const proto = location.protocol === "https:" ? "wss" : "ws";
-    const ws = new WebSocket(`${proto}://${location.host}/ws/live?speed=${speed}&start=${start}&match=${matchId()}`);
+    const ws = new WebSocket(wsUrl(`/ws/live?speed=${speed}&start=${start}&match=${matchId()}`));
     this.ws = ws;
     ws.onopen = () => this.set({ connected: true });
-    ws.onclose = () => this.ws === ws && this.set({ connected: false });
+    ws.onclose = () => {
+      if (this.ws !== ws) return;  // replaced by a newer connection on purpose
+      this.set({ connected: false });
+      // The server went away (a restart or a network blip): pick up where we were.
+      // A retry that fails before any frame arrives still knows the time it was resuming.
+      const at = this.state.meta ? this.state.t : start;
+      window.setTimeout(() => { if (this.ws === ws) this.connect(this.state.speed || speed, at); }, 2000);
+    };
     ws.onmessage = (ev) => this.onMessage(JSON.parse(ev.data) as ServerMsg);
   }
 

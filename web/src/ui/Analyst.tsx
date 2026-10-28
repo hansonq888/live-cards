@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useLive } from "../live/store";
 import { Avatar } from "./Avatar";
+import { teamOf } from "../live/teams";
 
 const ATTR_LABEL: Record<string, string> = { pace: "Pace", passing: "Passing", threat: "Threat", defending: "Defending", engine: "Engine" };
 const ADV: [string, string, (v: number) => string][] = [
@@ -26,7 +27,7 @@ export function AnalystCard({ pid }: { pid: string }) {
   const [open, setOpen] = useState<string | null>(null);
   if (!meta || !a) return null;
   const p = meta.players.find((x) => x.id === pid)!;
-  const team = p.team === meta.home.code ? meta.home : meta.away;
+  const team = teamOf(meta, p.team);
   const variant = line?.variants[profile];
   const sign = (v: number, d = 2) => `${v >= 0 ? "+" : ""}${v.toFixed(d)}`;
   return (

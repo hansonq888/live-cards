@@ -193,41 +193,6 @@ export function Ask() {
   );
 }
 
-export function ProfilePicker() {
-  const profile = useLive((s) => s.profile);
-  const meta = useLive((s) => s.meta);
-  const [aud, lang, voice] = profile.split(".");
-  const set = (a: string, l: string, v: string) => live.send({ type: "profile", key: `${a}.${l}.${v}` });
-  if (!meta) return null;
-  return (
-    <div className="profile">
-      <select value={aud} onChange={(e) => set(e.target.value, lang, voice)} aria-label="Audience">
-        <option value="casual">Casual fan</option>
-        <option value="analyst">Analyst</option>
-      </select>
-      <select value={lang} onChange={(e) => set(aud, e.target.value, voice)} aria-label="Language">
-        {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-      </select>
-      <select value={voice} onChange={(e) => set(aud, lang, e.target.value)} aria-label="Voice">
-        <option value="neutral">Neutral</option>
-        <option value="home">{meta.home.name} fan</option>
-        <option value="away">{meta.away.name} fan</option>
-      </select>
-    </div>
-  );
-}
-
-export function StatRingPicker() {
-  const stat = useLive((s) => s.statRing);
-  const lang = useLang();
-  return (
-    <select className="ring-pick" value={stat ?? ""} onChange={(e) => live.setStatRing(e.target.value || null)} aria-label={tr(lang, "rings")}>
-      <option value="">{tr(lang, "rings_off")}</option>
-      {STAT_RINGS.map((k) => <option key={k} value={k}>{tr(lang, "rings")}: {tr(lang, k)}</option>)}
-    </select>
-  );
-}
-
 /** Stat rings on the video: a small "Colour by" button that opens the options; while a stat is
  *  on it shows which, with ✕ to turn it off. Hover a player for their value. */
 export function StatChips() {
@@ -252,47 +217,6 @@ export function StatChips() {
           <button className="sc-x" onClick={() => setOpen(false)} aria-label="Close">✕</button>
         </div>
       )}
-    </div>
-  );
-}
-
-/** Audience, language, voice and stat rings in one menu, so the header stays quiet. */
-export function ViewMenu({ up = false }: { up?: boolean }) {
-  const [open, setOpen] = useState(false);
-  const lang = useLang();
-  return (
-    <div className={`view-menu ${up ? "up" : ""}`}>
-      <button className={`switch-view ${open ? "on" : ""}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>{tr(lang, "view")} <Icon name="chevron" size={14} /></button>
-      {open && <div className="fb-pop"><ProfilePicker /><StatRingPicker /></div>}
-    </div>
-  );
-}
-
-/** Every attack so far that ended in a shot; open any one in the play breakdown. */
-export function Plays() {
-  const plays = useLive((s) => s.plays);
-  const meta = useLive((s) => s.meta);
-  const lang = useLang();
-  const name = (id: string) => meta?.players.find((p) => p.id === id)?.short ?? id;
-  const team = (code: string) => (meta?.home.code === code ? meta.home : meta?.away);
-  if (!plays.length) return (
-    <div className="feed">
-      <div className="empty">No shots yet. Every attack that ends in a shot appears here as the match goes on.</div>
-      <button className="load-full" onClick={() => live.send({ type: "seek", t: 5395 })}>Load the full match</button>
-    </div>
-  );
-  return (
-    <div className="feed plays">
-      {[...plays].reverse().map((p) => (
-        <button key={p.id} className="play-row" onClick={() => live.breakdown(p.id)}>
-          <span className="pr-min">{p.minute}′</span>
-          <span className="pr-main">
-            <b><i className="team-dot" style={{ ["--team" as string]: team(p.team)?.color }} />{name(p.player)}</b>
-            <span>{p.outcome === "goal" ? tr(lang, "bd_goal") : tr(lang, `out_${p.outcome}`)} · xG {p.xg.toFixed(2)}</span>
-          </span>
-          <span className={`pr-tag ${p.outcome === "goal" ? "goal" : ""}`}>{tr(lang, "bd_open")}</span>
-        </button>
-      ))}
     </div>
   );
 }
