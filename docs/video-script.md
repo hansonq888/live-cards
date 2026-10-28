@@ -9,7 +9,7 @@ Files go in `video/takes/`: `face-start.mov`, `face-end.mov`, takes `3.mov`–`7
 
 | # | Time | Source | Words (VO or on camera) | On screen |
 |---|---|---|---|---|
-| 1 | 0:00–0:10 | **Face** (`face-start`) | "I'm Hanson, a CS and math student at Yale. Every top-flight match is now tracked: every player, every touch. But fans get the numbers without the meaning. So I built The Fifth Official." | You, on camera. Name tag: *Hanson Qin · Yale CS & Math*. |
+| 1 | 0:00–0:10 | **Face** (`face-start`) | "Hi, I'm Hanson. I've loved football for as long as I can remember. Today every top-flight match is tracked: every player, every touch. But fans like me get the numbers without the meaning. So I built The Fifth Official." | You, on camera. Name tag: *Hanson Qin*. |
 | 2 | 0:10–0:15 | Card: hook (cut to 5 s) | *(music-free; let it breathe, or VO:)* "It turns match data into a new kind of content." | 2–1 → "Inside every scoreline…" → pass path, 22 m · +28 m² · xG 0.16. |
 | 3 | 0:15–0:23 | Card: three ways in | "Interactive, like a video you can step inside. Walk through curated explanations, break down any play yourself, or just scroll through the match." | Plays · Analyse · Matches tiles light up in turn. |
 | 4 | 0:23–0:48 | Take 3: Plays story | "Curated plays are the heart of it. Every goal becomes a play-by-play. Step through each touch: this pass was routine, this one split the defence, and here's the space it opened. Then make your call: how good was this chance? The engine says 0.16." | Plays tab → **Start the play-by-play** → scroll the bubbles as the board replays → difficulty meter fills → space badge → **Guess the xG** → answer revealed. |
