@@ -3186,3 +3186,51 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .gc-score i { color: rgba(255,255,255,.4) !important; }
 .gc-score em { transform: translateX(-50%) skewX(8deg); }
 .gc-half b { font-family: var(--poster) !important; font-style: italic !important; font-weight: 900 !important; text-transform: uppercase; font-size: 22px !important; letter-spacing: .3px !important; }
+/* Hero cards: a gradient instead of flat violet */
+.hero-card { background: radial-gradient(70% 90% at 12% 10%, #6a4bff 0%, transparent 60%), linear-gradient(120deg, #4b2bd6 0%, #3a1fd0 45%, #24127a 100%) !important; }
+/* Hero base layer: a clear violet-to-blue gradient under the shards */
+.hero-card { background: linear-gradient(125deg, #6d4dff 0%, #4a2be0 40%, #2b2fc4 75%, #1d2a9e 100%) !important; }
+/* Shot map and momentum: room between the charts and their captions */
+.sma-key { margin-top: 14px !important; }
+.sma-teams { margin-bottom: 10px; }
+.mo2-detail { margin-top: 14px; }
+.mo2-sum { margin-bottom: 8px; }
+.mo2-chart { margin-bottom: 4px; }
+/* Section titles: plain and heavy, no highlighter stroke */
+.l-head h2, .mc-h, .bd-h { background: none !important; transform: none !important; padding: 0 !important; margin-left: 0 !important; }
+/* Play-by-play mode: a thin bar right under the header; the page is visibly in a different mode */
+.pbar { position: sticky; top: 0; z-index: 40; background: #160f35; color: #fff; padding: 8px 24px 9px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 6px 18px rgba(22,15,53,.25); border-bottom: 3px solid #d4ff3a; }
+.pbar-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.pbar-mode { font-size: 11px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; background: #d4ff3a; color: #160f35; padding: 3px 9px; transform: skewX(-10deg); flex: none; }
+.pbar-kind { font-size: 11px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: #d4ff3a; flex: none; }
+.pbar-kind.chance { color: #ffd23f; }
+.pbar-title { font-family: var(--headline); font-weight: 900; font-size: 17px; letter-spacing: -.01em; flex: none; }
+.pbar-story { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13.5px; color: rgba(255,255,255,.82); }
+.pbar-story em { font-style: normal; color: #3ddc97; font-size: 12px; font-weight: 700; }
+.pbar-ctl { display: flex; align-items: center; gap: 6px; flex: none; }
+.pbar-ctl button { height: 28px; min-width: 28px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: rgba(255,255,255,.1); color: #fff; cursor: pointer; font: inherit; font-size: 12px; padding: 0 8px; }
+.pbar-ctl button:hover { background: rgba(255,255,255,.2); }
+.pbar-ctl button.on { background: #fff; color: #160f35; }
+.pbar-ctl .pbar-space.on { background: rgba(212,255,58,.18); color: #d4ff3a; }
+.pbar-exit { flex: none; border: 0; border-radius: 6px; background: #fff; color: #160f35; font: inherit; font-weight: 700; font-size: 13px; padding: 7px 14px; cursor: pointer; transition: background .15s; }
+.pbar-exit:hover { background: #d4ff3a; }
+.pbar-row.steps { gap: 14px; }
+.pbar-steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; flex: none; }
+.pbar-steps button { width: 24px; height: 22px; border: 0; border-radius: 4px; background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); font: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; }
+.pbar-steps button.done { background: rgba(255,255,255,.28); color: #fff; }
+.pbar-steps button.cur { background: #d4ff3a; color: #160f35; }
+.pbar-now { flex: 1; min-width: 0; display: flex; gap: 14px; align-items: baseline; white-space: nowrap; overflow: hidden; font-size: 13px; color: rgba(255,255,255,.75); }
+.pbar-now b { color: #fff; font-weight: 700; }
+.pbar-now span { overflow: hidden; text-overflow: ellipsis; }
+.playmode .an-stage { box-shadow: 0 0 0 3px #d4ff3a; }
+/* Player stats table: a headshot next to each name */
+.bx-face { width: 34px; height: 34px; flex: none; line-height: 0; border-radius: 50%; overflow: hidden; background: color-mix(in srgb, var(--club) 18%, #fff); }
+.bx-face .avatar { width: 34px; height: 34px; }
+.bx-name a { gap: 8px; }
+.pbar-ctl .flip { display: inline-flex; transform: scaleX(-1); }
+.revisit-badge .rv-close { background: rgba(255,255,255,.12) !important; color: #fff !important; width: 26px; padding: 0 !important; }
+.sm-why { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.sm-why div { background: rgba(255,255,255,.08); border-radius: 6px; padding: 7px 10px; font-size: 13px; line-height: 1.35; }
+.sm-why b { display: block; color: #fff; font-weight: 700; }
+.sm-why span { color: rgba(255,255,255,.72); font-size: 12.5px; }
+.sm-hud { top: 98px !important; }

@@ -226,14 +226,18 @@ export function RevisitBadge() {
   const revisit = useLive((s) => s.revisit);
   const breakdown = useLive((s) => s.buildup);
   const lang = useLang();
-  if (!revisit) return null;
+  const over = useLive((s) => s.liveEdge >= (s.meta?.duration ?? 5400) - 2);
+  // In play-by-play the bar under the header says where you are.
+  if (!revisit || breakdown) return null;
   return (
     <div className="revisit-badge">
       <span className="rv-tag">{tr(lang, "revisit")}</span>
       <span className="rv-time">{clock(revisit.t)}</span>
       <span>{revisit.label}</span>
       {revisit.play && !breakdown && <button className="rv-break" onClick={() => live.breakdown(revisit.play!)}>{tr(lang, "bd_open")}</button>}
-      <button onClick={() => live.backToLive()}>{tr(lang, "back_live")}</button>
+      {over
+        ? <button className="rv-close" onClick={() => live.closeRevisit()} aria-label="Close">✕</button>
+        : <button onClick={() => live.backToLive()}>{tr(lang, "back_live")}</button>}
     </div>
   );
 }
@@ -319,6 +323,62 @@ export function BuildUpPanel({ docked = false }: { docked?: boolean }) {
   );
 }
 
+/** Play-by-play mode: a thin bar under the header that says you're stepping through one play,
+ * with the touches as chips, the current touch explained, and a clear way back to the analysis. */
+export function BreakdownBar() {
+  const b = useLive((s) => s.buildup);
+  const showSpace = useLive((s) => s.showSpace);
+  const t = useLive((s) => s.t);
+  const paused = useLive((s) => s.paused);
+  const meta = useLive((s) => s.meta);
+  const lang = useLang();
+  useEffect(() => { live.stepBuildup(t); }, [t]);
+  if (!b) return null;
+  const idx = live.stepIndex(t);
+  const cur = b.steps[Math.max(0, idx)];
+  const aiStory = lang === "en" ? (b.storySource === "model" ? b.story : null) : b.localized;
+  const story = aiStory ?? storyLine(lang, b.storyArgs, b.story);
+  const who = meta?.players.find((p) => p.id === b.scorer)?.short ?? "";
+  const exit = () => {
+    const q = new URLSearchParams(location.search);
+    q.delete("play"); q.delete("showme"); q.delete("start");
+    history.replaceState(null, "", `${location.pathname}?${q}`);
+    live.backToLive();
+  };
+  return (
+    <div className="pbar" dir={isRtl(lang) ? "rtl" : undefined}>
+      <div className="pbar-row">
+        <span className="pbar-mode">Play breakdown</span>
+        <span className={`pbar-kind ${b.kind}`}>{tr(lang, b.kind === "goal" ? "bd_goal" : "bd_chance")}</span>
+        <b className="pbar-title">{who} {Math.floor(b.goalT / 60)}′</b>
+        <span className="pbar-story" title={story}>{story}{aiStory && <em> {tr(lang, "verified")}</em>}</span>
+        <div className="pbar-ctl">
+          <button onClick={() => live.stepPrev()} aria-label="Previous touch"><Icon name="back" size={14} /></button>
+          <button className="on" onClick={() => live.toggleBreakdown()} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={14} /></button>
+          <button onClick={() => live.stepNext()} aria-label="Next touch"><span className="flip"><Icon name="back" size={14} /></span></button>
+          <button className={`pbar-space ${showSpace ? "on" : ""}`} onClick={() => live.toggleSpace()}>{tr(lang, "sp_toggle")}</button>
+        </div>
+        <button className="pbar-exit" onClick={exit}>Exit to analysis ✕</button>
+      </div>
+      <div className="pbar-row steps">
+        <ol className="pbar-steps">
+          {b.steps.map((s, i) => (
+            <li key={i}><button className={`${i < idx ? "done" : ""} ${i === idx ? "cur" : ""}`} onClick={() => live.stepTo(i)} title={stepCaption(lang, s)}>
+              {i + 1}
+            </button></li>
+          ))}
+        </ol>
+        {cur && (
+          <span className="pbar-now">
+            <b>{stepCaption(lang, cur)}</b>
+            {idx >= 0 && stepMeaning(lang, cur).map((m, j) => <span key={j}>{m.label}{m.meaning ? ` · ${m.meaning}` : ""}</span>)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ExplainGoalButton({ className = "" }: { className?: string }) {
   const keys = useLive((s) => s.keyMoments);
   const t = useLive((s) => s.t);
@@ -336,7 +396,8 @@ export function ShowMeHUD() {
   const meta = useLive((s) => s.meta);
   const t = useLive((s) => s.t);
   const lang = useLang();
-  if (!on || !b || !meta) return null;
+  // Shown for every play breakdown, not only Show me: the card over the video is the play-by-play.
+  if (!b || !meta) return null;
   const i = Math.max(0, live.stepIndex(t));
   const step = b.steps[i];
   const sp = b.steps.slice(0, i + 1).reverse().find((s) => s.space)?.space;
@@ -347,10 +408,15 @@ export function ShowMeHUD() {
   return (
     // Sit at the end the team defends, so the card never covers the goal they attack.
     <div className={`sm-hud ${team.attack_dir < 0 ? "right" : ""}`} style={{ ["--team" as string]: team.color }}>
-      <span className="sm-kicker">Show me · how the {b.kind === "goal" ? "goal" : "chance"} was built</span>
+      <span className="sm-kicker">{on ? "Show me" : "Play breakdown"} · how the {b.kind === "goal" ? "goal" : "chance"} was built</span>
       <h3>{scorer?.short ?? ""}</h3>
       <div className="sm-steps" aria-label={`Touch ${i + 1} of ${b.steps.length}`}>{b.steps.map((_, j) => <i key={j} className={j < i ? "done" : j === i ? "on" : ""} />)}</div>
       <p className="sm-cap" key={done ? "story" : i}>{done ? (b.localized ?? b.story) : stepCaption(lang, step)}</p>
+      {!done && (
+        <div className="sm-why">
+          {stepMeaning(lang, step).slice(0, 2).map((m, j) => <div key={j}><b>{m.label}</b>{m.meaning && <span>{m.meaning}</span>}</div>)}
+        </div>
+      )}
       {sp && !done && sp.final_third_m2 >= 20 && (
         <div className="sm-space">
           <b>{sp.final_third_m2}<small> m²</small></b><span>of the final third controlled</span>

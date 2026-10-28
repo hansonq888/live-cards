@@ -295,6 +295,11 @@ class LiveStore {
   private holdTimer = 0;
   private buildArrived = false;
 
+  /** Leave a revisit where it is: after full time there is no live edge to go back to. */
+  closeRevisit() {
+    this.set({ revisit: null });
+  }
+
   backToLive() {
     const b = this.state.buildup;
     if (b) {

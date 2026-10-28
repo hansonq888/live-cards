@@ -5,7 +5,7 @@ import { BoardSwitch } from "./viewer/BoardSwitch";
 import { Icon } from "./ui/Icon";
 import { clock, live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
-import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug, ShowMeHUD } from "./ui/Overlays";
+import { BreakdownBar, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug, ShowMeHUD } from "./ui/Overlays";
 import { Wordmark } from "./ui/Wordmark";
 import { AskFloat, Controls, StatChips, UnderTheHood } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
@@ -115,7 +115,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
   const following = useLive((s) => s.director?.mode === "manual" && !s.buildup);
   const paused = useLive((s) => s.paused);
   return (
-    <div className="app al">
+    <div className={`app al ${breakdown ? "playmode" : ""}`}>
       <header className="top">
         <Stripes className="nav-stripes" />
         <a className="brand" href="/"><Wordmark /></a>
@@ -125,6 +125,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
         <a className="an-exit" href="/?page=watch" title="Pick another match">All matches</a>
         <a className="an-exit" href={`/?page=watch&match=${matchId()}`}>← Back to the match</a>
       </header>
+      {breakdown && <BreakdownBar />}
       <main className="main analyse">
         <section className="broadcast">
           <div className="an-top">
@@ -175,7 +176,6 @@ function Analyse({ onFan }: { onFan: () => void }) {
               <LeadersPanel />
             </div>
           </div>
-          {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}
         </section>
       </main>
       <AskFloat />

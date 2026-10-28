@@ -176,7 +176,7 @@ export function BoxScore({ s }: { s: Summary }) {
           <tbody>
             {rows.map((p) => (
               <tr key={p.id}>
-                <td className="bx-name"><a href={`/?page=players&id=${p.id}`}><span className="bx-num" style={{ background: t.color }}>{p.number}</span><b>{p.short}</b><em>{p.position}</em></a></td>
+                <td className="bx-name"><a href={`/?page=players&id=${p.id}`} style={{ ["--club" as string]: t.color }}><span className="bx-face"><Avatar player={p} color={t.color} size={34} bare /></span><span className="bx-num" style={{ background: t.color }}>{p.number}</span><b>{p.short}</b><em>{p.position}</em></a></td>
                 {COLS.map(([k, , get, fmt]) => { const v = get(p); return <td key={k} className={v > 0 && v === best[k] ? "best" : ""}>{fmt(v)}</td>; })}
               </tr>
             ))}
