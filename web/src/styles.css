@@ -3026,3 +3026,15 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .mh-chips button { border-radius: 8px; border-right: 0 !important; }
 .mh-chips { gap: 4px !important; }
 .mh-filters { border-radius: 12px; }
+/* Match cards, sportier inside a rounded card: square tags and buttons, a poster score */
+.mh-comp, .mh-ft { border-radius: 0 !important; font-weight: 900; letter-spacing: 1.2px; }
+.mh-comp { background: #160f35 !important; color: #d4ff3a !important; }
+.mh-body::before { height: 6px !important; }
+.mh-big { font-family: var(--poster) !important; font-style: italic !important; font-weight: 900 !important; font-size: 58px !important; letter-spacing: 0 !important; }
+.mh-big i { opacity: .3 !important; }
+.mh-side b { font-family: var(--poster) !important; font-style: italic !important; font-weight: 900 !important; text-transform: uppercase !important; font-size: 19px !important; letter-spacing: .3px; }
+.mh-btn { border-radius: 0 !important; text-transform: uppercase !important; letter-spacing: .8px !important; font-size: 12px !important; font-weight: 900 !important; }
+.mh-btn.primary { background: #160f35 !important; color: #d4ff3a !important; }
+.mh-btn.primary:hover { background: #2a1f5a !important; }
+.mh-chips button { border-radius: 0 !important; }
+.mh-filters { border-radius: 0 !important; }
