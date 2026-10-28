@@ -6,7 +6,7 @@
 > layer that explains every moment and checks every claim before fans see it.
 
 [![ci](https://github.com/hansonq888/the-fifth-official/actions/workflows/ci.yml/badge.svg)](https://github.com/hansonq888/the-fifth-official/actions/workflows/ci.yml)
-![tests](https://img.shields.io/badge/tests-197%20passing-2ea44f)
+![tests](https://img.shields.io/badge/tests-203%20passing-2ea44f)
 ![planted lies aired](https://img.shields.io/badge/planted%20lies%20aired-0%20of%20275-2ea44f)
 ![Azure](https://img.shields.io/badge/runs%20on-Azure%20Container%20Apps-0078D4)
 
@@ -40,6 +40,8 @@ words from AI agents, and nothing reaches the screen until two independent check
 4. **Watch the agents work.** Open the *Agents* tab under the video, press play, then *Plant a lie*:
    the row shows the lie rejected by the code verifier, rewritten, and aired clean.
 5. **[Learn xG](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?page=learn#xg).** Click anywhere on the pitch and the engine scores the shot.
+6. **[Curated plays](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?page=plays).** Pick a goal and scroll through it touch by touch, then *Open in Analyse* to break it down yourself.
+7. **Explore the whole match.** On Analyse, scroll to the Overview: the xG race, shot map, momentum, **pass network** (hover a player for their links) and **chance quality** (who took good chances and who forced it). Click a shot to replay it.
 
 ---
 
@@ -50,9 +52,10 @@ words from AI agents, and nothing reaches the screen until two independent check
 | **Show me** | Ask *"How was Varenne's goal built?"* (or tap ▶ Show me on any play) and the move replays on a tactics board: each touch drawn and held, the space each team controls shaded, *"+28 m² of the final third"* popping up as a pass opens the pitch, then a verified one-line story. |
 | **Ask the match** | Plain-language questions answered by a tool-calling agent over the match data, with evidence. Questions about the future, other seasons, money or opinions are refused in code before any model runs. |
 | **Follow anyone, live** | Click a player: their card, heatmap and key numbers update as they play, and every rating change says why (*"Rating up to 6.4: passed under pressure and won a tackle"*). Otherwise an auto-director keeps the ring on the ball, and jumps to the striker *before* a cross lands. |
-| **Colour by any stat** | One tap colours all 22 players by rating, pace, passing, threat, defending or work rate, cool to hot, live. Hover for the number. |
-| **Learn the numbers** | Each stat as a short lesson built from this match: what it means, a diagram, a real example to replay, and the formula. The xG lesson lets you click anywhere on a pitch and the engine scores the shot. |
-| **Every play as a story** | A scroll-driven breakdown per play: a lesson card per touch, the space it created, and a *"your call"* guess at the shot's xG before it's revealed. |
+| **Colour by any stat** | One tap colours all 22 players by rating, pace, passing, threat, defending or work rate, cool to hot, live, on both the broadcast view and the tactics board. Hover for the number. |
+| **Learn the numbers** | Each stat as a short lesson: a looping animation of the one idea, the top five players on it, a quick quiz, a real play to replay, and the formula. The xG lesson lets you click anywhere on a pitch and the engine scores the shot. Lessons are generated from the stat registry, so a new stat becomes a new chapter. |
+| **Curated plays** | A Plays tab of every goal and chance, each a scroll-driven play-by-play: one card per touch, the pass difficulty and the space it created, a *"your call"* guess at the shot's xG before it's revealed, and *Open in Analyse* to break it down yourself. |
+| **The whole match, at a glance** | The Analyse Overview: xG race, shot map (click a shot to replay it), momentum by 5-minute window, a **pass network** (average positions and who connects with whom) and **chance quality** (shots against xG per shot, per player). Each followed player also gets their own xG-over-time chart. |
 | **Two different experiences** | Casual or analyst wording, five languages (English, Spanish, French, Portuguese, Arabic), and a neutral or home/away fan voice. Every variant is re-verified in its language. |
 | **Watch the agents work** | An Agents tab shows every moment going through the pipeline live: Explainer → code Verifier → Reviewer → aired, with timings, any rejection and its reason, the rewrite, and what the AI cost so far. A *Plant a lie* button shows the checks catching one. |
 | **Built for a broadcaster** | A console with kill switches, an insight allowlist, human approval, and a permanent audit log of every line aired or blocked. Every on-screen element is also a timed, machine-readable overlay cue ([JSON Schema](docs/overlay-cue.schema.json)). |
@@ -177,7 +180,7 @@ English, Spanish and French, with lies planted in 275.
 The two layers cover each other: code can't judge an invented header; a model can miss a
 digit. Microsoft Foundry's own evaluators rate the **raw** Explainer 14/15 on groundedness (the
 reason nothing raw airs) and the Q&A agent 5/5 on intent resolution, task adherence and
-tool-call accuracy. The test suite (196 tests) includes a whole-match mutation test: change any
+tool-call accuracy. The test suite (203 tests) includes a whole-match mutation test: change any
 one number in any engine-written line and the verifier must block it.
 
 **Ask, measured** ([docs/qa-evaluation.md](docs/qa-evaluation.md)): 42 analyst and fan questions run through the Q&A agent at full time. The agent has ten tools over the live engine: cards, rating ledger, moments, team state, leaders, plays, play breakdowns with space control, stat definitions, player comparisons and time windows.
@@ -250,7 +253,7 @@ Only numbers we measured (details in [docs/decisions.md](docs/decisions.md)):
 ```bash
 # backend (Python 3.12, uv)
 cd backend && uv sync --extra agents --extra azure
-uv run pytest -q                                   # 196 tests
+uv run pytest -q                                   # 203 tests
 uv run uvicorn livecards.server.app:app --port 8010
 
 # web (Node 22)
@@ -278,6 +281,8 @@ saves), `scripts/record_gif.py` and `scripts/screenshots.py` (README media),
 - **One replica:** the console's control plane and viewer sessions live in memory. One process
   handles 200 live viewers; scaling out would move that state to Redis or the Cosmos change feed.
 - **Pass difficulty, momentum and control vs. chaos are our own formulas,** not industry standards.
+- **One simulator glitch we know of:** in the 87' goal, one pass ends 13 m from its receiver and the ball snaps to him in a single frame. The 65' goal (the one the demo uses) is clean.
+- **Space control is recomputed in steps** (about once a second) and faded between, so its shading moves in small jumps rather than continuously.
 
 ## Repo layout
 
@@ -288,7 +293,7 @@ backend/livecards/
   agents/     explainer, verifier, reviewer, personalizer, Q&A, director, red team, pipeline
   server/     FastAPI app, live sessions, console control plane, audit log, cues, Web PubSub
   feed.py     Event Hubs publish/ingest      telemetry.py   Application Insights
-backend/tests/  202 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
+backend/tests/  203 tests       backend/scripts/  evaluate, calibrate, record GIF, screenshots
 web/src/    React + three.js: viewer, tactics board, Show me, Learn, story pages, players, console, i18n
 vision/     YOLO vision layer, capture with ground truth, evaluation
 docs/       evaluation, vision, deployment, decisions, pitch, cue schema, media
