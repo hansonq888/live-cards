@@ -227,11 +227,11 @@ function Lockup3({ dark, icon }: C & { icon: string }) {
 /** One line: the mark, then "THE" small and "Fifth Official" in the heavy wordmark. */
 function LockupLine({ dark, icon, the = true }: C & { icon: string; the?: boolean }) {
   return (
-    <svg viewBox="0 0 380 80" className="lg">
+    <svg viewBox="0 0 400 80" className="lg">
       <Mark icon={icon} dark={dark} x={6} y={10} w={60} h={60} />
       <text x="78" y="53" className="fo-line" fill={ink(dark)}>
-        {the && <tspan className="fo-line-the" fill={dark ? L : V} dy="-2">THE </tspan>}
-        <tspan dy={the ? 2 : 0}>Fifth Official</tspan>
+        {the && <tspan fill={dark ? L : V}>The </tspan>}
+        <tspan>Fifth Official</tspan>
       </text>
     </svg>
   );
