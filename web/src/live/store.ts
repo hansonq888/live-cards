@@ -343,7 +343,8 @@ class LiveStore {
       case "frame":
         this.frames.push({ frame: m, at: now });
         if (this.frames.length > 40) this.frames.splice(0, this.frames.length - 40);
-        if (Math.floor(m.t) !== Math.floor(s.t)) this.set({ t: m.t, liveEdge: s.revisit ? s.liveEdge : Math.max(s.liveEdge, m.t) });
+        // Once a second is enough for the page, but a breakdown steps through touches tenths apart.
+        if (s.buildup || Math.floor(m.t) !== Math.floor(s.t)) this.set({ t: m.t, liveEdge: s.revisit ? s.liveEdge : Math.max(s.liveEdge, m.t) });
         break;
       case "director":
         this.set({ director: { target: m.target, reason: m.reason, kind: m.kind, predicted: m.predicted, mode: m.mode, at: now, key: m.key, args: m.args } });

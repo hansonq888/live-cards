@@ -7,7 +7,7 @@ import { clock, live, useLive } from "./live/store";
 import { Viewer } from "./viewer/Viewer";
 import { BreakdownBar, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug, ShowMeHUD } from "./ui/Overlays";
 import { Wordmark } from "./ui/Wordmark";
-import { AskFloat, Controls, StatChips, UnderTheHood } from "./ui/SidePanel";
+import { AskFloat, Controls, StatChips, UnderTheHood, ViewerSettings } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
@@ -150,6 +150,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
                 <Timeline />
                 <div className="an-controls"><ExplainGoalButton /><Controls /></div>
                 <TimeReadout />
+                <ViewerSettings />
                 <button className="an-full" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} title={full ? "Exit full screen" : "Full screen"}>
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     {full

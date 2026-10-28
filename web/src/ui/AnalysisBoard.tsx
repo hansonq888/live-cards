@@ -76,7 +76,8 @@ function Momentum({ s }: { s: Summary }) {
       <div className="mo2-chart" onMouseLeave={() => setHover(null)}>
         <span className="mo2-team home" style={{ color: home.color }}>{home.code}</span>
         <span className="mo2-team away" style={{ color: away.color }}>{away.code}</span>
-        <div className="mo2-now" style={{ left: `${Math.min(100, (t / 5400) * 100)}%` }} />
+        {/* No "now" line after the final whistle: the whole match is in */}
+        {t < 5400 - 1 && <div className="mo2-now" style={{ ["--f" as string]: Math.min(1, t / 5400) }} />}
         {rows.map((r, i) => {
           // Possession rarely strays far from 50%, so scale the lead: a 70/30 window fills the half.
           const d = Math.max(-1, Math.min(1, (r.share - 0.5) * 5));

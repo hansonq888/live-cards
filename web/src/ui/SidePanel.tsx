@@ -320,17 +320,14 @@ export function UnderTheHood({ onClose }: { onClose: () => void }) {
 }
 
 function HoodSettings() {
-  const speed = useLive((s) => s.speed);
   const modelEnabled = useLive((s) => s.modelEnabled);
-  const director = useLive((s) => s.director);
   const profile = useLive((s) => s.profile);
   const meta = useLive((s) => s.meta);
-  const stat = useLive((s) => s.statRing);
-  const lang = useLang();
   const [aud, lg, voice] = profile.split(".");
   const set = (a: string, l: string, v: string) => live.send({ type: "profile", key: `${a}.${l}.${v}` });
   return (
     <div className="hood-settings">
+      <p className="hs-note">Playback speed, stat rings and the auto-director are in the ⚙ menu on the video.</p>
       <span className="hs-h">Display</span>
       <div className="hs-row"><div><b>Explanations for</b><span>Casual: plain words. Analyst: the full working.</span></div>
         <select value={aud} onChange={(e) => set(e.target.value, lg, voice)}><option value="casual">Casual fan</option><option value="analyst">Analyst</option></select></div>
@@ -338,17 +335,11 @@ function HoodSettings() {
         <select value={lg} onChange={(e) => set(aud, e.target.value, voice)}>{Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
       <div className="hs-row"><div><b>Voice</b><span>Neutral, or as a supporter of one club</span></div>
         <select value={voice} onChange={(e) => set(aud, lg, e.target.value)}><option value="neutral">Neutral</option>{meta && <><option value="home">{meta.home.name} fan</option><option value="away">{meta.away.name} fan</option></>}</select></div>
-      <div className="hs-row"><div><b>Stat rings</b><span>Colour every player by a stat</span></div>
-        <select value={stat ?? ""} onChange={(e) => live.setStatRing(e.target.value || null)}><option value="">Off</option>{STAT_RINGS.map((k) => <option key={k} value={k}>{tr(lang, k)}</option>)}</select></div>
-      <span className="hs-h">Playback and AI</span>
-      <div className="hs-row"><div><b>Auto-director</b><span>Moves the ring to the player who matters</span></div>
-        <button className={director?.mode !== "manual" ? "on" : ""} onClick={() => live.send({ type: "auto" })}>{director?.mode !== "manual" ? "On" : "Turn on"}</button></div>
+      <span className="hs-h">AI</span>
       <div className="hs-row"><div><b>AI explanations</b><span>Off: only the engine's checked stats lines air</span></div>
         <button className={modelEnabled ? "on" : ""} onClick={() => live.send({ type: "model", enabled: !modelEnabled })}>{modelEnabled ? "On" : "Off"}</button></div>
       <div className="hs-row"><div><b>Red team</b><span>Plant a false claim and watch the checks block it</span></div>
         <button className="danger" onClick={() => live.send({ type: "redteam" })}>Run</button></div>
-      <div className="hs-row"><div><b>Playback speed</b><span>How fast the match plays</span></div>
-        <div className="seg-speed">{[0.5, 1, 2, 5, 10, 20].map((v) => <button key={v} className={speed === v ? "on" : ""} onClick={() => live.send({ type: "speed", value: v })}>{v}×</button>)}</div></div>
     </div>
   );
 }
@@ -388,6 +379,64 @@ export function Controls() {
         </select>
         <span className={`conn ${connected ? "up" : "down"}`} title={connected ? "connected" : "offline"} />
       </div>
+    </div>
+  );
+}
+
+const SPEEDS = [0.5, 1, 2, 5, 10, 20];
+
+/** Viewing settings, YouTube-style: a gear on the video opens a menu of rows, each row opens
+ *  its own list of choices. */
+export function ViewerSettings() {
+  const [open, setOpen] = useState(false);
+  const [sub, setSub] = useState<null | "speed" | "rings" | "level" | "lang">(null);
+  const speed = useLive((s) => s.speed);
+  const stat = useLive((s) => s.statRing);
+  const director = useLive((s) => s.director);
+  const profile = useLive((s) => s.profile);
+  const lang = useLang();
+  const [aud, lg, voice] = profile.split(".");
+  const setProfile = (a: string, l: string) => live.send({ type: "profile", key: `${a}.${l}.${voice}` });
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => { if (!(e.target as Element).closest?.(".vset")) setOpen(false); };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+  const auto = director?.mode !== "manual";
+  const pick = <T,>(label: string, options: [T, string][], cur: T, on: (v: T) => void) => (
+    <div className="vset-menu">
+      <button className="vset-back" onClick={() => setSub(null)}><Icon name="back" size={14} />{label}</button>
+      {options.map(([v, l]) => (
+        <button key={String(v)} className={`vset-opt ${v === cur ? "on" : ""}`} onClick={() => { on(v); setSub(null); }}>
+          <span className="vset-tick">{v === cur ? "✓" : ""}</span>{l}
+        </button>
+      ))}
+    </div>
+  );
+  return (
+    <div className="vset">
+      <button className={`vset-gear ${open ? "open" : ""}`} onClick={() => { setOpen((o) => !o); setSub(null); }} aria-label="Viewing settings" title="Viewing settings">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+      {open && !sub && (
+        <div className="vset-menu">
+          <button className="vset-row" onClick={() => live.send({ type: "auto" })} disabled={auto}>
+            <span>Auto-director</span><em className={`vset-switch ${auto ? "on" : ""}`}><i /></em>
+          </button>
+          <button className="vset-row" onClick={() => setSub("rings")}><span>Stat rings</span><em>{stat ? tr(lang, stat) : "Off"} ›</em></button>
+          <button className="vset-row" onClick={() => setSub("level")}><span>Explanations</span><em>{aud === "analyst" ? "Analyst" : "Casual"} ›</em></button>
+          <button className="vset-row" onClick={() => setSub("lang")}><span>Language</span><em>{LANGS[lg] ?? lg} ›</em></button>
+          <button className="vset-row" onClick={() => setSub("speed")}><span>Playback speed</span><em>{speed === 1 ? "Normal" : `${speed}×`} ›</em></button>
+        </div>
+      )}
+      {open && sub === "speed" && pick("Playback speed", SPEEDS.map((v) => [v, v === 1 ? "Normal" : `${v}×`] as [number, string]), speed, (v) => live.send({ type: "speed", value: v }))}
+      {open && sub === "rings" && pick("Stat rings", [["", "Off"] as [string, string], ...STAT_RINGS.map((k) => [k, tr(lang, k)] as [string, string])], stat ?? "", (v) => live.setStatRing(v || null))}
+      {open && sub === "level" && pick("Explanations", [["casual", "Casual fan"], ["analyst", "Analyst"]] as [string, string][], aud, (v) => setProfile(v, lg))}
+      {open && sub === "lang" && pick("Language", Object.entries(LANGS) as [string, string][], lg, (v) => setProfile(aud, v))}
     </div>
   );
 }
