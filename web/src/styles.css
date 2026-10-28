@@ -3524,3 +3524,11 @@ html { font-synthesis: none; }
 .cq .mo2-detail { margin-top: 12px; }
 .bd-row.two .pn-note { display: none; }
 .bd-row.two .pn-node .pn-name { font-size: 2.6px; }
+/* Pass network + chance quality: sit in their blocks like the shot map, no inner boxes */
+.cq-chart { background: none !important; border-radius: 0; }
+.pn-tabs { background: none !important; padding: 0 !important; gap: 14px !important; }
+.pn-tabs button { padding: 2px 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; font-size: 14px !important; color: #8a85a3 !important; border-bottom: 2px solid transparent !important; }
+.pn-tabs button.on { color: var(--team) !important; border-bottom-color: var(--team) !important; }
+.pn-bar { margin-bottom: 12px !important; }
+.pn-pitch { border-radius: 12px; }
+.pn .mo2-detail, .cq .mo2-detail { margin-top: 14px; }
