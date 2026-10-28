@@ -3,6 +3,7 @@ import { useSummary, type PlayerSummary } from "./summary";
 import { Avatar, type AvatarLook } from "../ui/Avatar";
 import { Doodle, type DoodleLook } from "../ui/Doodle";
 import { LogoConcepts } from "./LogoConcepts";
+import { FifthOfficialConcepts } from "./FifthOfficial";
 
 const WORDS = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
 
@@ -59,6 +60,8 @@ export function Mock() {
   const picks = [hearne, ...s.players.filter((x) => x.id !== hearne.id).filter((_, i) => i % 5 === 0).slice(0, 4)];
   return (
     <div className="mk">
+      <h1 id="fifth">The Fifth Official · logo concepts</h1>
+      <FifthOfficialConcepts />
       <h1>Footnote logo concepts</h1>
       <LogoConcepts />
       <h1>Sketch backgrounds</h1>

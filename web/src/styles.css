@@ -2786,3 +2786,10 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .at-why { margin-top: 6px; font-size: 12.5px; color: #a5163a; }
 .at-line { margin: 8px 0 0; font-size: 13.5px; color: #3a3358; line-height: 1.45; }
 .at-line span { color: #6c668a; font-size: 12px; }
+/* Fifth Official concepts */
+.fo-word { font-family: var(--headline); font-weight: 900; font-size: 30px; letter-spacing: -1.2px; }
+.fo-the { font-size: 15px; font-weight: 800; letter-spacing: 1.5px; }
+.fo-num { font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 34px; }
+.fo-num.big { font-size: 46px; }
+.fo-th { font-family: var(--headline); font-weight: 900; font-size: 15px; }
+.fo-poster { font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 42px; letter-spacing: .5px; }
