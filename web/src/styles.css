@@ -3486,3 +3486,13 @@ html { font-synthesis: none; }
 .tl-hover::after { content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 8px; background: #fff; transform: translateX(-50%); }
 .hs-intro { margin: 0 0 14px; font-size: 13.5px; line-height: 1.5; color: var(--dim); }
 .metric-grid b.ok { color: #1f9d55 !important; }
+/* Follow card: this player's xG over the match */
+.pxg { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.06); }
+.pxg-head { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--dim); }
+.pxg-head span { flex: 1; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; font-size: 11px; }
+.pxg-head b { font-family: var(--headline); font-weight: 900; font-size: 18px; color: var(--text); }
+.pxg-chart { width: 100%; height: auto; display: block; margin-top: 6px; }
+.pxg-grid { stroke: rgba(255,255,255,.08); stroke-width: 1; }
+.pxg-now { stroke: #d4ff3a; stroke-width: 1.4; stroke-dasharray: 3 3; }
+.pxg-shot { cursor: pointer; transition: r .15s; } .pxg-shot:hover { stroke-width: 2.6; }
+.pxg-empty { margin: 4px 0 0; font-size: 12px; color: var(--dim); }

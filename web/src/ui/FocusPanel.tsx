@@ -80,11 +80,46 @@ export function FollowCard() {
         <div className="flc-heat"><span>Where they've played</span><Heat heat={heat} /><em>{team.code === meta.home.code ? "Attacking →" : "← Attacking"}</em></div>
         <div className={`flc-tiles ${all ? "all" : ""}`}>{stats && tiles.map(([k, label, f, kind]) => <Tile key={k} label={label} value={f(stats)} kind={kind} />)}</div>
       </div>
+      <PlayerXg pid={pid} color={team.color} />
       <div className="flc-foot">
         <button className="flc-more" onClick={() => setAll((a) => !a)}>{all ? "Key stats" : "All stats"}</button>
         <button className="flc-stop" onClick={() => live.stopFollowing()} title="Let the auto-director choose who to follow again">Stop following</button>
       </div>
     </section>
+  );
+}
+
+/** This player's xG over the match: a step line that climbs with each shot (goals filled),
+ *  the "now" line moving with the clock. Click a shot to replay it on the tactics board. */
+function PlayerXg({ pid, color }: { pid: string; color: string }) {
+  const plays = useLive((s) => s.plays);
+  const t = useLive((s) => s.t);
+  const shots = plays.filter((x) => x.player === pid && x.t <= t + 1).sort((a, b) => a.t - b.t);
+  const W = 260, H = 84, P = 6, END = 5400;
+  let run = 0;
+  const pts = shots.map((x) => ({ ...x, before: run, after: (run += x.xg) }));
+  const top = Math.max(0.5, run * 1.15);
+  const X = (sec: number) => P + (Math.min(sec, END) / END) * (W - 2 * P);
+  const Y = (v: number) => H - P - (v / top) * (H - 2 * P);
+  let d = `M ${X(0)} ${Y(0)}`;
+  for (const q of pts) d += ` H ${X(q.t)} V ${Y(q.after)}`;
+  d += ` H ${X(t)}`;
+  return (
+    <div className="pxg">
+      <div className="pxg-head"><span>xG over the match</span><b>{run.toFixed(2)}</b><em>{shots.length} shot{shots.length === 1 ? "" : "s"}</em></div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="pxg-chart" role="img" aria-label={`xG over time: ${run.toFixed(2)} from ${shots.length} shots`}>
+        {[15, 30, 45, 60, 75].map((m) => <line key={m} x1={X(m * 60)} x2={X(m * 60)} y1={P} y2={H - P} className="pxg-grid" />)}
+        <path d={d} fill="none" stroke={color} strokeWidth="2.2" />
+        <line x1={X(t)} x2={X(t)} y1={P} y2={H - P} className="pxg-now" />
+        {pts.map((q) => (
+          <circle key={q.id} cx={X(q.t)} cy={Y(q.after)} r={3 + q.xg * 10} className="pxg-shot"
+            fill={q.outcome === "goal" ? color : "#fff"} stroke={color} strokeWidth="1.6" onClick={() => live.showMe(q.id)}>
+            <title>{`${q.minute}′ · xG ${q.xg.toFixed(2)} · ${q.outcome.replace("_", " ")}. Click to replay`}</title>
+          </circle>
+        ))}
+      </svg>
+      {shots.length === 0 && <p className="pxg-empty">No shots yet.</p>}
+    </div>
   );
 }
 
