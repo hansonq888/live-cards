@@ -3051,3 +3051,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .lb-result { background: rgba(13,10,36,.82) !important; }
 .lb-note { background: rgba(13,10,36,.82) !important; }
 .mh-filters { margin-top: 0 !important; }
+.l-band > .nav-stripes { -webkit-mask-image: none !important; mask-image: none !important; opacity: 1 !important; width: 36% !important; }
