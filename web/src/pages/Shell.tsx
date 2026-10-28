@@ -1,6 +1,6 @@
 // Light pages share this frame: a gradient brand band with tabs, then generous space.
 import type { ReactNode } from "react";
-import { BrandBar } from "../ui/Wordmark";
+import { Wordmark } from "../ui/Wordmark";
 import { Crest } from "../ui/Crest";
 import { useSummary } from "./summary";
 import { Bands } from "../ui/Bolts";
@@ -15,7 +15,7 @@ export function Shell({ page, children }: { page: string; children: ReactNode })
       <header className="l-band">
         <Bands className="band-bands" corners="right" w={1400} h={200} />
         <div className="lb-row">
-          <a className="lb-brand" href="/"><BrandBar /></a>
+          <a className="lb-brand" href="/"><Wordmark /></a>
           <div className="lb-right">
             {m && s && (
               <a className="lb-result" href="/?page=watch" title="Latest result">

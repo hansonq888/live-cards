@@ -2893,3 +2893,11 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .l-band .lb-row { padding-top: 18px !important; padding-bottom: 14px !important; }
 .l-band a.lb-cta, .l-band .lb-cta { color: #160f35 !important; } .brand-bar .bb-the { color: #d4ff3a !important; }
 .l-band .brand-bar .mini-mark { display: none; }
+/* Nav bar, compact: one tight row for brand + result + CTA, tabs right under it */
+.l-band .lb-row { padding-top: 10px !important; padding-bottom: 6px !important; min-height: 0 !important; }
+.l-band .lb-tabs { margin-top: 0 !important; padding-top: 0 !important; }
+.l-band .lb-tabs a { padding-top: 8px !important; padding-bottom: 8px !important; }
+.brand-bar { font-size: 22px; }
+.lb-result { padding: 5px 10px; font-size: 13px; } .lbr-score { font-size: 15px; }
+.lb-cta { padding: 7px 12px; font-size: 13px; }
+.lb-tabs .lb-note { margin-bottom: 6px; }
