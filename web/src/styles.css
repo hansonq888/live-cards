@@ -3480,3 +3480,7 @@ html:has(.story-page) { scroll-padding-top: 88px !important; scroll-padding-bott
 html { font-synthesis: none; }
 /* Breakdown card on the left: clear of the Colour by pill */
 .an-stage .sm-hud:not(.right) { top: 118px !important; }
+/* Timeline: the whole track is clickable, with a time preview under the cursor */
+.tl-track { cursor: pointer; }
+.tl-hover { position: absolute; bottom: calc(100% + 10px); transform: translateX(-50%); z-index: 4; pointer-events: none; padding: 3px 7px; border-radius: 5px; background: rgba(5,3,18,.9); color: #fff; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tl-hover::after { content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 8px; background: #fff; transform: translateX(-50%); }
