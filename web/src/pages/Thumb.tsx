@@ -51,9 +51,60 @@ function Frame({ w, h, children, light = false, label }: { w: number; h: number;
   );
 }
 
+/** One-line logo for centred layouts. */
+function LogoLine({ height, ink, acc }: { height: number; ink: string; acc: string }) {
+  return (
+    <svg viewBox="0 0 520 70" width={(520 / 70) * height} height={height}>
+      <text x="260" y="54" textAnchor="middle" className="th-line" fill={ink}>
+        <tspan fill={acc}>The </tspan>Fifth Official<tspan fill={acc === "#fff" ? L : acc}>.</tspan>
+      </text>
+    </svg>
+  );
+}
+
+/** Angular notched bands framing the top and bottom: our own shapes, not a copy of any
+ *  league pattern. Each band is a slanted bar with one step cut into its edge. */
+function Bands({ w, h, fill }: { w: number; h: number; fill: string }) {
+  const band = (x: number, y: number, len: number, thick: number) => {
+    const s = thick * 0.9;  // slant
+    return `M ${x} ${y} L ${x + len} ${y} L ${x + len + s} ${y + thick} L ${x + len * 0.55 + s} ${y + thick}
+      L ${x + len * 0.55 + s * 0.7} ${y + thick * 0.62} L ${x + len * 0.42 + s * 0.7} ${y + thick * 0.62}
+      L ${x + len * 0.42 + s} ${y + thick} L ${x + s} ${y + thick} Z`;
+  };
+  const t = h * 0.24;
+  return (
+    <svg className="th-bolts" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+      <g fill={fill}>
+        <path d={band(-w * 0.05, -t * 0.2, w * 0.34, t)} />
+        <path d={band(w * 0.36, -t * 0.2, w * 0.40, t * 1.25)} />
+        <path d={band(w * 0.80, -t * 0.2, w * 0.30, t * 0.8)} />
+        <path d={band(-w * 0.10, h - t * 1.1, w * 0.30, t * 1.3)} />
+        <path d={band(w * 0.26, h - t * 0.9, w * 0.38, t)} />
+        <path d={band(w * 0.70, h - t * 1.2, w * 0.40, t * 1.4)} />
+      </g>
+    </svg>
+  );
+}
+
+function BandFrame({ w, h, label, variant }: { w: number; h: number; label: string; variant: "lime" | "violet" }) {
+  const lime = variant === "lime";
+  return (
+    <figure className="th-fig">
+      <div className={`th band-${variant}`} style={{ width: w, height: h }}>
+        <Bands w={w} h={h} fill={lime ? P : L} />
+        <div className="th-center"><LogoLine height={Math.round(Math.min(h * 0.2, w * 0.11))} ink={lime ? P : "#fff"} acc={lime ? "#4b2bd6" : L} /></div>
+      </div>
+      <figcaption>{label} · {w} × {h}</figcaption>
+    </figure>
+  );
+}
+
 export function Thumb() {
   return (
     <div className="th-page">
+      <BandFrame w={1280} h={720} variant="lime" label="Bands, lime gradient" />
+      <BandFrame w={1280} h={720} variant="violet" label="Bands, violet" />
+      <BandFrame w={1080} h={1080} variant="lime" label="Bands, square, lime" />
       <Frame w={1280} h={720} label="Video thumbnail">
         <Logo size={460} />
       </Frame>
