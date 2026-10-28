@@ -1,0 +1,37 @@
+<!doctype html>
+<!-- The frame around screen takes and face clips: brand gradient, lime bolt, a section label.
+     ?label=PLAYS&kind=screen|face. frame.py renders it once per take and lays the video on top. -->
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@800;900&family=Inter:wght@600;700&display=swap">
+<style>
+  html { font-synthesis: none; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  body { background: linear-gradient(125deg, #4527dc 0%, #3a1fd0 50%, #2a24b4 100%); font-family: Inter, sans-serif; position: relative; }
+  .shard { position: absolute; top: -10%; bottom: -10%; left: 78%; width: 700px; background: #1c0733; transform: skewX(-18deg); }
+  .bolt { position: absolute; right: -60px; top: 0; height: 100%; width: 520px; }
+  .bolt path { fill: #d4ff3a; }
+  .label { position: absolute; left: 96px; top: 34px; display: flex; align-items: center; gap: 16px; }
+  .label b { font-family: Anton, sans-serif; font-weight: 400; font-size: 46px; color: #fff; letter-spacing: .01em; text-transform: uppercase; }
+  .label i { width: 14px; height: 30px; background: #d4ff3a; transform: skewX(-18deg); }
+  .brand { position: absolute; right: 96px; top: 40px; font-family: "Hanken Grotesk"; font-weight: 900; font-size: 28px; color: #fff; letter-spacing: -.5px; }
+  .brand span { color: #d4ff3a; }
+  .hole { position: absolute; border-radius: 22px; box-shadow: 0 30px 80px rgba(8,4,30,.55), 0 0 0 3px rgba(255,255,255,.18); background: #000; }
+  .tag { position: absolute; left: 96px; bottom: 60px; padding: 14px 24px; background: #d4ff3a; color: #160f35; font-family: Anton, sans-serif; font-size: 40px; text-transform: uppercase; transform: skewX(-8deg); }
+</style></head><body>
+<div class="shard"></div>
+<svg class="bolt" viewBox="0 0 520 1080" preserveAspectRatio="none"><path d="M360 0 h120 L360 470 h90 L190 1080 h-110 L230 600 h-90 Z"/></svg>
+<div class="label"><i></i><b id="label">Plays</b></div>
+
+<div class="hole" id="hole"></div>
+<div class="tag" id="tag" style="display:none">Hanson Qin</div>
+<script>
+  const q = new URLSearchParams(location.search);
+  document.getElementById("label").textContent = q.get("label") || "";
+  const face = q.get("kind") === "face";
+  // The video window: 16:9, centred under the label. Exported for frame.py.
+  const W = face ? 1280 : 1632, H = W * 9 / 16, X = Math.round((1920 - W) / 2), Y = face ? 150 : 112;
+  Object.assign(document.getElementById("hole").style, { left: X + "px", top: Y + "px", width: W + "px", height: H + "px" });
+  if (face) document.getElementById("tag").style.display = "block";
+  window.hole = { x: X, y: Y, w: W, h: Math.round(H) };
+</script>
+</body></html>
