@@ -3434,3 +3434,6 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 /* Story nav: static, scrolls away with the page instead of riding along */
 .story-page .sp-top { position: static !important; }
 .story-page .sp-visual { top: 24px !important; height: calc(100vh - 48px) !important; }
+/* Snap steps to the board's centre: no nav to clear any more, and the dots under the board
+   lift its centre by half their height plus the gap */
+html:has(.story-page) { scroll-padding-top: 0 !important; scroll-padding-bottom: 30px !important; }
