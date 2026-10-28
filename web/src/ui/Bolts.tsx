@@ -46,13 +46,14 @@ export function Bands({ className = "", fill = "#d4ff3a", w = 1200, h = 500, cor
  *  stopping at an edge. */
 export function Stripes({ className = "", fill = "#d4ff3a", w = 600, h = 200 }: { className?: string; fill?: string; w?: number; h?: number }) {
   // x of each stripe's top edge, and its thickness (left ones thin, right ones thick)
-  const bands: [number, number][] = [[150, 10], [205, 20], [275, 34], [360, 52], [455, 44], [545, 62], [640, 40]];
+  const bands: [number, number][] = [[230, 10], [290, 20], [365, 34], [455, 52], [555, 44], [650, 62], [750, 40]];
   const stripe = (x: number, t: number) => {
     // A swept band: both edges are the same smooth S-curve, offset by the thickness, with a
     // single clean step at mid-height (the "kink" of the bolt).
-    const lean = h * 0.62, ny = h * 0.52, step = t * 0.5;
+    // More lean and a stronger bend so the bolts read as moving up and to the right.
+    const lean = h * 1.05, ny = h * 0.5, step = t * 0.55;
     const top = (dx: number) => `${x + dx} 0`;
-    const midL = x - lean * 0.48, bot = x - lean;
+    const midL = x - lean * 0.38, bot = x - lean;  // bowed: steeper at the top, flatter below
     return `M ${top(0)} L ${top(t)}
       C ${x + t - 6} ${ny * 0.5}, ${midL + t + 8} ${ny * 0.8}, ${midL + t} ${ny}
       L ${midL + t + step} ${ny}

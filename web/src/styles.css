@@ -3103,3 +3103,9 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 @media (max-width: 1100px) { .cc-grid { grid-template-columns: 1fr 1fr; } }
 .ccr-score { white-space: nowrap; }
 .l-band > .nav-stripes { width: 46% !important; }
+/* The stripes in the slim headers too (Analyse, story pages) */
+.al .top, .story-page .sp-top { position: relative; overflow: hidden; isolation: isolate; }
+.al .top > .nav-stripes, .story-page .sp-top > .nav-stripes { position: absolute; z-index: 0; right: 0; top: 0; height: 100%; width: 34%; pointer-events: none; }
+.al .top > :not(.nav-stripes), .story-page .sp-top > :not(.nav-stripes) { position: relative; z-index: 1; }
+.al .top .an-exit, .al .top .hood-btn { background: rgba(13,10,36,.78) !important; color: #fff !important; }
+.story-page .sp-link { background: rgba(13,10,36,.78); padding: 6px 12px; border-radius: 8px; }

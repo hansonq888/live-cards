@@ -7,6 +7,7 @@ import { stepCaption, stepMeaning } from "../i18n";
 import { ScaledStage } from "../ui/ScaledStage";
 import { ScoreBug } from "../ui/Overlays";
 import { Wordmark } from "../ui/Wordmark";
+import { Stripes } from "../ui/Bolts";
 import { Viewer } from "../viewer/Viewer";
 import { TacticalBoard } from "../viewer/TacticalBoard";
 import { xgWords } from "./summary";
@@ -83,6 +84,7 @@ export function PlayStory() {
     // The page wears the attacking team's colours.
     <div className={`story-page ${team ? "themed" : ""}`} style={team ? { ["--team" as string]: team.color } : undefined}>
       <header className="sp-top">
+        <Stripes className="nav-stripes" />
         <a className="brand" href="/"><Wordmark /></a>
         <a className="sp-link" href={`/?page=analyse&play=${encodeURIComponent(playId)}`}>Open this play in Analyse</a>
       </header>

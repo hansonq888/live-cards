@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { matchId } from "./pages/summary";
+import { Stripes } from "./ui/Bolts";
 import { BoardSwitch } from "./viewer/BoardSwitch";
 import { Icon } from "./ui/Icon";
 import { clock, live, useLive } from "./live/store";
@@ -116,6 +117,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
   return (
     <div className="app al">
       <header className="top">
+        <Stripes className="nav-stripes" />
         <a className="brand" href="/"><Wordmark /></a>
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <span className="top-spacer" />
