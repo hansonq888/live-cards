@@ -9,18 +9,20 @@ break it down yourself → step out and explore the whole match.
 
 | # | Time | Source | Words | On screen |
 |---|---|---|---|---|
-| 1 | 0:00–0:10 | face-start | "Hi, I'm Hanson. I love sports, I love data, and I love building things. Today every top-flight match is tracked: every player, every touch. But fans get the numbers without the meaning." | You, framed, name tag |
-| 2 | 0:10–0:16 | card: before | "This is what most fans get: a table of numbers, with no explanation. So I built The Fifth Official, to give that data a use it never had." | Stats table → "Numbers. No meaning." |
-| 3 | 0:16–0:20 | card: hook | "It turns match data into a new kind of content." | Hook card |
-| 4 | 0:20–0:27 | card: three | "Interactive, like a video you can step inside. Walk through curated explanations, break down any play yourself, or just scroll through the match." | Three tiles light up |
-| 5 | 0:27–0:47 | take: journey (part 1) | "Start with a curated play-by-play. Every goal is told touch by touch: this pass was routine, this one split the defence, here's the space it opened. Then make your call: how good was this chance? The engine says 0.16." | Plays → Start the play-by-play → scroll bubbles → meter → Guess the xG |
-| 6 | 0:47–1:00 | take: journey (part 2) | "Want to see it for yourself? Open it in Analyse and break it down: step through every touch on the pitch, in the broadcast view or the tactics board." | Open in Analyse → breakdown bar → click touch chips → switch views |
-| 7 | 1:00–1:16 | take: journey (part 3) | "Then step out and explore the whole match. Click any player to follow them; their card explains every change. Colour the pitch by a stat to see who's doing the work. Analysts can even build their own rating model and watch every player re-score. And it all works in five languages." | Exit to analysis → click 2 players → Colour by → Engine → tactical view → Settings → Your model → change a weight → ratings update (flash ⚙ Español for 1 s) |
-| 8 | 1:16–1:24 | take: learn | "And every stat has its own lesson, so every new stat becomes a new chapter." | xG loop → quiz click |
-| 9 | 1:24–1:42 | take: agents (+ console) | "Teaching only works if it's right. Every number comes from the match engine. Specialist AI agents on Microsoft Foundry write the words: one writes, one checks every number, one reviews every claim, one translates. Plant a lie, and it's caught. And every card is also a timed overlay cue a broadcaster could put on their own feed, with a console to control what airs." | Agents tab → Plant a lie → red blocked row → console (3 s) |
-| 10 | 1:42–1:50 | card: numbers | "Zero of 275 planted lies aired. 98% fewer model calls for repeat viewers. Fifteen cents a match. Two hundred live viewers on one server." | Numbers count up, Microsoft strip |
-| 11 | 1:50–1:56 | face-end | "Football data shouldn't just be for clubs and pundits. It should be something every fan can explore, learn from, and trust." | You, framed |
-| 12 | 1:56–2:00 | card: end | "That's The Fifth Official." | End card (trimmed to 4 s) |
+| 1 | 0:00–0:10 | face-start | "Hi, I'm Hanson. I love sports, data, and building things. Every top-flight match is tracked now, but fans get the numbers without the meaning." | You, framed, name tag |
+| 2 | 0:10–0:16 | card: before | "Most fans get a table like this, with no explanation. So I built The Fifth Official." | Stats table → "Numbers. No meaning." |
+| 3 | 0:16–0:26 | cards: hook → three | "It turns match data into interactive content: walk through a curated play, break it down yourself, or explore the whole match." | Hook card (short) → three tiles |
+| 4 | 0:26–0:40 | journey 1 | "Start with a curated play-by-play: every goal, touch by touch. This pass was routine; this one split the defence. Then make your call: how good was this chance? The engine says 0.16." | Plays → play-by-play → bubbles → Guess the xG |
+| 5 | 0:40–0:47 | journey 2 | "Open it in Analyse to break it down yourself, on the broadcast view or the tactics board." | Open in Analyse → touch chips → switch view |
+| 6 | 0:47–0:56 | journey 3 | "Then explore the whole match: follow any player, colour the pitch by a stat, even build your own rating model." | Exit to analysis → click players → Colour by → Your model |
+| 7 | 0:56–1:01 | learn | "Lost on a stat? Every one links to a short lesson." | Click a "Learn" link → lesson loop → quiz |
+| 8 | 1:01–1:18 | agents | "And it has to be right. Numbers come from the match engine; words come from specialist agents built on Microsoft Agent Framework and Foundry. One writes, one checks every number, one reviews every claim. Plant a lie, and it's caught." | Agents tab → Plant a lie → red blocked row |
+| 9 | 1:18–1:29 | console | "It runs on Azure Container Apps with Event Hubs, and every card is a timed overlay cue a broadcaster could air, controlled from a console." | Console tab: kill switches, audit log |
+| 10 | 1:29–1:38 | card: numbers | "Zero of 275 planted lies aired. 98% fewer model calls for repeat viewers. Fifteen cents a match. Two hundred live viewers on one server." | Numbers + Microsoft strip |
+| 11 | 1:38–1:47 | face-end | "Football data shouldn't just be for clubs and pundits. It should be something every fan can explore, learn from, and trust." | You, framed |
+| 12 | 1:47–1:50 | card: end | "That's The Fifth Official." | End card |
+
+About 255 words: **~1:50** at a natural pace (156 words a minute), 10 s of headroom.
 
 ## What to film (⌘⇧5 → Record Selected Portion → the browser window). Save to `video/takes/`.
 
@@ -34,7 +36,7 @@ Move the mouse slowly; record a little long (it gets trimmed).
   3. Click **Exit to analysis** → click two players on the pitch (their card opens) → **Colour by →
      Engine** → switch to the tactics view so the rings show there too → **Settings → Your model** → change a
      weight → close and watch ratings change → (optional) ⚙ → Language → Español for one second.
-- **learn.mov (~12 s):** `/?page=learn#xg` → let the loop play → click a quiz answer.
+- **learn.mov (~12 s):** in the play-by-play, click a **"Learn: pass difficulty →"** link → let the loop play → click a quiz answer.
 - **agents.mov (~30 s):** `/?page=analyse&start=3900` → Agents tab → **Plant a lie** → red row →
   switch to a tab already open on `/?view=console` for 3 s.
 - **face-start.mov, face-end.mov:** landscape, eye level, light in front. 2–3 takes each.
