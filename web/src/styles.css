@@ -3010,3 +3010,19 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .mh-btn.primary { background: #3a1fd0 !important; color: #fff !important; }
 .mh-btn.primary:hover { background: #2a14a8 !important; }
 .mh-head h1 { font-family: var(--headline) !important; font-style: normal !important; text-transform: none !important; font-size: 48px !important; letter-spacing: -.04em !important; }
+/* Match cards: rounded, smaller, simpler */
+.mh-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important; gap: 18px !important; }
+.mh-card { border-radius: 16px !important; overflow: hidden; }
+.mh-strip { padding: 9px 14px; font-size: 12px; }
+.mh-comp, .mh-ft { border-radius: 6px; padding: 3px 7px; }
+.mh-body { padding: 16px 14px 12px !important; gap: 8px !important; }
+.mh-side .crest { width: 42px; height: 42px; }
+.mh-side b { font-size: 15px !important; }
+.mh-side ul { font-size: 12px; min-height: 0; }
+.mh-big { font-size: 44px !important; }
+.mh-actions { padding: 10px 12px 12px !important; gap: 8px !important; border-top: 0 !important; }
+.mh-btn { flex: 1; border-radius: 10px !important; padding: 9px 10px !important; border: 0 !important; background: #f1eff8 !important; text-transform: none !important; letter-spacing: 0 !important; font-size: 13.5px !important; font-weight: 700 !important; }
+.mh-btn.primary { background: #3a1fd0 !important; }
+.mh-chips button { border-radius: 8px; border-right: 0 !important; }
+.mh-chips { gap: 4px !important; }
+.mh-filters { border-radius: 12px; }

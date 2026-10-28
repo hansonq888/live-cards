@@ -50,7 +50,6 @@ export function Matches() {
         <div className="mh-grid">
           {shown.map((m) => {
             const home = CLUBS[m.home], away = CLUBS[m.away], w = winner(m);
-            const xgTotal = (m.team[m.home]?.xg ?? 0) + (m.team[m.away]?.xg ?? 0) || 1;
             return (
               <article key={m.match} className="mh-card" style={{ ["--home" as string]: home?.color, ["--away" as string]: away?.color }}>
                 <div className="mh-strip">
@@ -62,32 +61,20 @@ export function Matches() {
                   <span className="mh-ghost h" aria-hidden="true"><Crest code={m.home} size={220} /></span>
                   <span className="mh-ghost a" aria-hidden="true"><Crest code={m.away} size={220} /></span>
                   <div className={`mh-side h ${w === m.home ? "won" : ""}`}>
-                    <Crest code={m.home} size={58} />
+                    <Crest code={m.home} size={42} />
                     <b>{home?.short ?? m.home}</b>
                     <ul>{m.goals.filter((g) => g.team === m.home).map((g, i) => <li key={i}>{g.name} {g.minute}′</li>)}</ul>
                   </div>
                   <div className="mh-big">{m.score[m.home]}<i>–</i>{m.score[m.away]}</div>
                   <div className={`mh-side a ${w === m.away ? "won" : ""}`}>
-                    <Crest code={m.away} size={58} />
+                    <Crest code={m.away} size={42} />
                     <b>{away?.short ?? m.away}</b>
                     <ul>{m.goals.filter((g) => g.team === m.away).map((g, i) => <li key={i}>{g.name} {g.minute}′</li>)}</ul>
                   </div>
                 </div>
-                <div className="mh-stats">
-                  <div className="mh-xg">
-                    <span>xG</span>
-                    <b>{m.team[m.home]?.xg.toFixed(2)}</b>
-                    <i><em style={{ width: `${(100 * (m.team[m.home]?.xg ?? 0)) / xgTotal}%` }} /></i>
-                    <b>{m.team[m.away]?.xg.toFixed(2)}</b>
-                  </div>
-                  <div><span>Shots</span><b>{m.team[m.home]?.shots}–{m.team[m.away]?.shots}</b></div>
-                  <div><span>Best player</span><b>{m.best.name} {m.best.rating.toFixed(1)}</b></div>
-                  <div><span>Plays</span><b>{m.plays}</b></div>
-                </div>
                 <div className="mh-actions">
                   <a className="mh-btn primary" href={go(m.match, "watch")}>Match centre →</a>
                   <a className="mh-btn" href={go(m.match, "analyse")}>Analyse</a>
-                  <a className="mh-btn" href={`/?page=watch&match=${m.match}&start=0`}>▶ Watch</a>
                 </div>
               </article>
             );
