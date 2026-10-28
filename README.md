@@ -5,7 +5,7 @@
 > In football, the fifth official is the VAR: the one who reviews every call. Here, it's the
 > layer that explains every moment and checks every claim before fans see it.
 
-[![ci](https://github.com/hansonq888/live-cards/actions/workflows/ci.yml/badge.svg)](https://github.com/hansonq888/live-cards/actions/workflows/ci.yml)
+[![ci](https://github.com/hansonq888/the-fifth-official/actions/workflows/ci.yml/badge.svg)](https://github.com/hansonq888/the-fifth-official/actions/workflows/ci.yml)
 ![tests](https://img.shields.io/badge/tests-197%20passing-2ea44f)
 ![planted lies aired](https://img.shields.io/badge/planted%20lies%20aired-0%20of%20275-2ea44f)
 ![Azure](https://img.shields.io/badge/runs%20on-Azure%20Container%20Apps-0078D4)
