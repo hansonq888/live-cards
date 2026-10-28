@@ -131,7 +131,7 @@ function Fans() {
  *  the player. Actions come from the tools the agent used, never from its wording. */
 function runAction(act: AnswerAction) {
   if (act.type === "play" && act.id) live.showMe(act.id);
-  else if (act.type === "moment" && act.minute !== undefined) live.send({ type: "seek", t: Math.max(0, act.minute * 60 - 5) });
+  else if (act.type === "moment" && act.minute !== undefined) live.seekTo(act.minute * 60 - 5);
   else if (act.type === "player" && act.id) live.send({ type: "select", player: act.id });
 }
 
@@ -296,7 +296,7 @@ export function Controls() {
       <span className="c-side" />
       <button className="play-main" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={20} /></button>
       <div className="c-side right">
-        <select className="ring-pick" value="" onChange={(e) => e.target.value && live.send({ type: "seek", t: Number(e.target.value) })} aria-label="Jump to">
+        <select className="ring-pick" value="" onChange={(e) => e.target.value && live.seekTo(Number(e.target.value))} aria-label="Jump to">
           <option value="">Jump to…</option>
           <option value="0">Kick-off (watch it unfold)</option>
           {goals.map((g) => <option key={g.id} value={Math.max(0, Math.round(g.t - 25))}>{Math.floor(g.t / 60) + 1}′ · {g.label}</option>)}

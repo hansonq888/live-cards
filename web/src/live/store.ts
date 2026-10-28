@@ -189,6 +189,10 @@ class LiveStore {
 
   /** Jump back to just before a key moment; the replay shows the ring and card as they were. */
   revisitMoment(k: KeyMoment) {
+    // Picking a different moment means you've moved on from the play you were breaking down.
+    // (A marker at the play's own moment, e.g. its goal, keeps it open.)
+    const b = this.state.buildup;
+    if (b && Math.abs(k.t - b.goalT) > 3) this.leaveBreakdown();
     this.set({ revisit: k, liveEdge: Math.max(this.state.liveEdge, this.state.t) });
     this.send({ type: "seek", t: Math.max(0, k.t - 8) });
   }
@@ -303,6 +307,31 @@ class LiveStore {
   private heldStep = -1;
   private holdTimer = 0;
   private buildArrived = false;
+
+  /** Jump to a match time from anywhere on the page (Jump to, momentum, an Ask answer):
+   *  it leaves any breakdown first, then plays on from there. */
+  seekTo(t: number) {
+    this.leaveBreakdown();
+    this.send({ type: "seek", t: Math.max(0, t) });
+  }
+
+  /** Close the breakdown without going anywhere: back to normal exploring at this point. */
+  leaveBreakdown() {
+    const b = this.state.buildup;
+    if (!b) return;
+    window.clearTimeout(this.holdTimer);
+    this.heldStep = -1;
+    this.lastBuildPlayer = null;
+    this.set({ buildup: null, ...(this.state.showMe ? { showMe: false, tactical: false } : {}) });
+    this.send({ type: "speed", value: b.resumeSpeed || 1 });
+    this.send({ type: "auto" });
+    this.send({ type: "play" });
+    const q = new URLSearchParams(location.search);
+    if (q.has("play") || q.has("showme")) {
+      q.delete("play"); q.delete("showme");
+      history.replaceState(null, "", `${location.pathname}?${q}`);
+    }
+  }
 
   /** Leave a revisit where it is: after full time there is no live edge to go back to. */
   closeRevisit() {

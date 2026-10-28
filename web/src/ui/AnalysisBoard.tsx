@@ -83,7 +83,7 @@ function Momentum({ s }: { s: Summary }) {
           const d = Math.max(-1, Math.min(1, (r.share - 0.5) * 5));
           return (
             <button key={r.m} className={`mo2-col ${hover === i ? "on" : ""}`} onMouseEnter={() => setHover(i)}
-              onClick={() => live.send({ type: "seek", t: r.m * 60 })} aria-label={`${r.m}–${r.m + 5} minutes`}>
+              onClick={() => live.seekTo(r.m * 60)} aria-label={`${r.m}–${r.m + 5} minutes`}>
               <span className="mo2-up">{d > 0 && <i style={{ height: `${d * 100}%`, background: home.color }} />}</span>
               <span className="mo2-down">{d < 0 && <i style={{ height: `${-d * 100}%`, background: away.color }} />}</span>
               {r.h.shots > 0 && <em className="mo2-shots up">{r.h.shots}</em>}
