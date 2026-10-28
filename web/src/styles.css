@@ -3456,3 +3456,8 @@ html:has(.story-page) { scroll-padding-top: 88px !important; scroll-padding-bott
 .ls-ch.on::before { content: ""; position: absolute; left: 0; top: -6px; width: 12px; height: calc(100% + 6px); background: var(--t1, #4b2bd6); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); }
 .ls-ch.on .ls-n { padding-left: 6px; }
 .ls-tick { margin-right: 14px; }
+/* Bookmark ribbon: hangs from the top edge of the open tab, inside it, and drops a little
+   below with a notched tail */
+.ls-ch.on::before { left: 12px !important; top: 0 !important; width: 12px !important; height: calc(100% + 10px) !important;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 6px), 0 100%) !important; border-radius: 0; }
+.ls-ch.on .ls-n { padding-left: 22px !important; }
