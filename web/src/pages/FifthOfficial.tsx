@@ -330,6 +330,31 @@ function Wordmark({ dark, v }: C & { v: number }) {
       <rect x="196" y="6" width="9" height="116" fill={L} transform="skewX(-8)" />
     </svg>
   );
+  if (v === 5) return (  // offside line on the left, tight to the type
+    <svg viewBox="0 0 340 124" className="lg">
+      <rect x="30" y="4" width="10" height="118" fill={L} transform="skewX(-8)" />
+      <text x="40" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="38" y="68" className="fo-stack" fill={t}>Fifth</text>
+      <text x="38" y="114" className="fo-stack" fill={t}>Official</text>
+    </svg>
+  );
+  if (v === 6) return (  // the same, a thicker bar
+    <svg viewBox="0 0 340 124" className="lg">
+      <rect x="28" y="4" width="16" height="118" fill={L} transform="skewX(-8)" />
+      <text x="46" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="44" y="68" className="fo-stack" fill={t}>Fifth</text>
+      <text x="44" y="114" className="fo-stack" fill={t}>Official</text>
+    </svg>
+  );
+  if (v === 7) return (  // a thin white line beside the lime one, like a drawn offside pair
+    <svg viewBox="0 0 340 124" className="lg">
+      <rect x="22" y="4" width="3" height="118" fill={dark ? "rgba(255,255,255,.55)" : "rgba(42,10,74,.35)"} transform="skewX(-8)" />
+      <rect x="32" y="4" width="10" height="118" fill={L} transform="skewX(-8)" />
+      <text x="44" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="42" y="68" className="fo-stack" fill={t}>Fifth</text>
+      <text x="42" y="114" className="fo-stack" fill={t}>Official</text>
+    </svg>
+  );
   if (v === 2) return (
     <svg viewBox="0 0 340 124" className="lg">
       <text x="14" y="58" className="fo-poster big" fill={acc}>THE FIFTH</text>
@@ -352,10 +377,12 @@ function Wordmark({ dark, v }: C & { v: number }) {
 }
 
 export function FifthWordmarks() {
-  const names = ["Plain stack", "Offside line", "Poster italic", "Spaced caps + lime rule", "Two-tone with a lime full stop"];
+  const names = ["Plain stack", "Offside line", "Poster italic", "Spaced caps + lime rule", "Two-tone with a lime full stop",
+    "Offside line, left and tight", "Offside line, left, thicker", "Offside pair, left"];
+  const order = [5, 6, 7, 0, 1, 2, 3, 4];
   return (
     <div className="lg-grid">
-      {names.map((n, i) => (
+      {order.map((i) => [names[i], i] as const).map(([n, i]) => (
         <figure key={i}>
           <div className="lg-pair"><div className="lg-light"><Wordmark dark={false} v={i} /></div><div className="lg-dark"><Wordmark dark v={i} /></div></div>
           <figcaption><b>W{i + 1} · {n}</b>No icon.</figcaption>
