@@ -3484,3 +3484,5 @@ html { font-synthesis: none; }
 .tl-track { cursor: pointer; }
 .tl-hover { position: absolute; bottom: calc(100% + 10px); transform: translateX(-50%); z-index: 4; pointer-events: none; padding: 3px 7px; border-radius: 5px; background: rgba(5,3,18,.9); color: #fff; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tl-hover::after { content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 8px; background: #fff; transform: translateX(-50%); }
+.hs-intro { margin: 0 0 14px; font-size: 13.5px; line-height: 1.5; color: var(--dim); }
+.metric-grid b.ok { color: #1f9d55 !important; }

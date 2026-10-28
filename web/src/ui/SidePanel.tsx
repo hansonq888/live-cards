@@ -5,11 +5,6 @@ import { isRtl, t as tr } from "../i18n";
 import { YourModelPanel } from "./YourModel";
 import type { AnswerAction } from "../live/protocol";
 
-const STAGE_LABEL: Record<string, string> = {
-  explainer: "Explainer", verifier: "Verifier", "template-check": "Verifier", reviewer: "Reviewer",
-  template: "Template", publish: "Publish",
-};
-const stageLabel = (s: string) => STAGE_LABEL[s] ?? (s.startsWith("personalizer:") ? `Personalizer ${s.split(":")[1].split(".").slice(0, 2).join(" ").toUpperCase()}` : s);
 
 export function Feed() {
   const feed = useLive((s) => s.feed);
@@ -37,62 +32,19 @@ export function Feed() {
   );
 }
 
-function Trace() {
-  const traces = useLive((s) => s.traces);
-  return (
-    <div className="trace">
-      <div className="trace-legend">Explainer → Verifier (code) → Reviewer (gpt-5-mini) → Publish, then Personalizer fan-out, each re-verified. Rejected lines never air.</div>
-      {traces.map((tr) => (
-        <div key={tr.moment} className="trace-row">
-          <div className="trace-title">{tr.type.replace(/_/g, " ")} <span className="dim">{tr.moment}</span></div>
-          <div className="trace-steps">
-            {tr.steps.map((s, i) => (
-              <span key={i} className={`step step-${s.outcome}`} title={s.detail}>
-                {stageLabel(s.stage)}
-                {s.attempt > 0 && s.stage !== "publish" ? ` #${s.attempt + 1}` : ""}
-                <em>{s.outcome}{s.stage === "verifier" || s.stage === "template-check" ? (s.ms < 1 ? " · <1ms" : ` · ${s.ms.toFixed(1)}ms`) : s.ms ? ` · ${Math.round(s.ms)}ms` : ""}</em>
-              </span>
-            ))}
-          </div>
-          {tr.steps.filter((s) => s.outcome === "rejected").map((s, i) => (
-            <div key={i} className="trace-reject">✕ {s.detail}</div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function Metrics() {
   const m = useLive((s) => s.metrics);
-  const team = useLive((s) => s.team);
-  const meta = useLive((s) => s.meta);
-  if (!m || !team || !meta) return <div className="empty">Waiting for data…</div>;
-  const h = meta.home.code, a = meta.away.code;
-  const mom = team.momentum;
+  if (!m) return <div className="empty">Waiting for data…</div>;
+  const secs = (ms: number | null | undefined) => (ms != null ? `${(ms / 1000).toFixed(1)} s` : "–");
   return (
     <div className="metrics">
       <div className="metric-grid">
         <div><b>{m.claims_checked}</b><span>lines checked</span></div>
         <div><b>{m.blocked}</b><span>lines blocked</span></div>
-        <div><b className={m.aired_unverified === 0 ? "ok" : "bad"}>{m.aired_unverified}</b><span>unverified aired</span></div>
-        <div><b>{m.latency_p50_ms != null ? `${(m.latency_p50_ms / 1000).toFixed(2)}s` : "–"}</b><span>explain p50</span></div>
-        <div><b>{m.latency_p95_ms != null ? `${(m.latency_p95_ms / 1000).toFixed(2)}s` : "–"}</b><span>explain p95</span></div>
-        <div><b>{m.model_lines}/{m.template_lines}</b><span>AI / template</span></div>
-      </div>
-      <div className="team-bars">
-        <div className="tb-label">Possession (last 5′)</div>
-        <div className="split">
-          <i style={{ width: `${team.possession_5m[h] ?? 50}%`, background: meta.home.color }} />
-          <i style={{ width: `${team.possession_5m[a] ?? 50}%`, background: meta.away.color }} />
-        </div>
-        <div className="tb-label">Momentum</div>
-        <div className="momentum">
-          <i style={{ left: `${50 + mom * 50}%` }} />
-        </div>
-        <div className="tb-ends"><span>{a}</span><span>{h}</span></div>
-        <div className="tb-label">Control ↔ chaos: <b>{team.chaos}</b>/100</div>
-        <div className="chaos"><i style={{ width: `${team.chaos}%` }} /></div>
+        <div><b className={m.aired_unverified === 0 ? "ok" : "bad"}>{m.aired_unverified}</b><span>unchecked lines shown</span></div>
+        <div><b>{secs(m.latency_p50_ms)}</b><span>typical time to explain</span></div>
+        <div><b>{secs(m.latency_p95_ms)}</b><span>slowest 1 in 20</span></div>
+        <div><b>{m.model_lines} · {m.template_lines}</b><span>AI lines · stats lines</span></div>
       </div>
     </div>
   );
@@ -223,20 +175,23 @@ export function StatChips() {
 
 /** "Under the hood": how it works, for judges and power users. A drawer from the header. */
 export function UnderTheHood({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<"fans" | "trace" | "metrics" | "model" | "settings">("settings");
+  const [tab, setTab] = useState<"fans" | "metrics" | "model" | "settings">("settings");
   return (
     <div className="hood-scrim" onClick={onClose}>
       <aside className="hood" onClick={(e) => e.stopPropagation()}>
         <header className="hood-head"><b>Settings</b><button onClick={onClose} aria-label="Close">✕</button></header>
         <nav className="tabs">
-          {(["settings", "trace", "fans", "metrics", "model"] as const).map((t) => (
+          {(["settings", "model", "fans", "metrics"] as const).map((t) => (
             <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
-              {{ trace: "Agents", fans: "Fans", metrics: "Metrics", model: "Your model", settings: "General" }[t]}
+              {{ fans: "One moment, four fans", metrics: "Checks & speed", model: "Your model", settings: "General" }[t]}
             </button>
           ))}
         </nav>
         <div className="hood-body">
-          {tab === "fans" ? <Fans /> : tab === "trace" ? <Trace /> : tab === "model" ? <YourModelPanel /> : tab === "metrics" ? <Metrics /> : <HoodSettings />}
+          {tab === "fans" ? <><p className="hs-intro">The same verified moment, written for four different fans: plain or analytical, in their language, from their club's side. Every version is checked again before it airs.</p><Fans /></>
+            : tab === "model" ? <YourModelPanel />
+            : tab === "metrics" ? <><p className="hs-intro">How the checks are doing right now: lines checked and blocked, unverified lines that reached the screen (should always be 0), and how fast explanations arrive.</p><Metrics /></>
+            : <HoodSettings />}
         </div>
       </aside>
     </div>
@@ -260,10 +215,9 @@ function HoodSettings() {
       <div className="hs-row"><div><b>Voice</b><span>Neutral, or as a supporter of one club</span></div>
         <select value={voice} onChange={(e) => set(aud, lg, e.target.value)}><option value="neutral">Neutral</option>{meta && <><option value="home">{meta.home.name} fan</option><option value="away">{meta.away.name} fan</option></>}</select></div>
       <span className="hs-h">AI</span>
+      <p className="hs-note">To watch the agents work, or plant a false claim and see it blocked, open the Agents tab under the video.</p>
       <div className="hs-row"><div><b>AI explanations</b><span>Off: only the engine's checked stats lines air</span></div>
         <button className={modelEnabled ? "on" : ""} onClick={() => live.send({ type: "model", enabled: !modelEnabled })}>{modelEnabled ? "On" : "Off"}</button></div>
-      <div className="hs-row"><div><b>Red team</b><span>Plant a false claim and watch the checks block it</span></div>
-        <button className="danger" onClick={() => live.send({ type: "redteam" })}>Run</button></div>
     </div>
   );
 }
