@@ -11,7 +11,7 @@ import { AskFloat, Controls, StatChips, UnderTheHood } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
 import { Players } from "./pages/Players";
-import { AnalysisBoard } from "./ui/AnalysisBoard";
+import { AnalysisBoard, LeadersPanel } from "./ui/AnalysisBoard";
 import { FollowCard } from "./ui/FocusPanel";
 import { LiveStats } from "./ui/LiveStats";
 import { PlayStory } from "./pages/PlayStory";
@@ -172,6 +172,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
               {/* Following someone turns the live card into one taller card with their numbers. */}
               <div className="card-dock"><PlayerCard />{following && <FollowCard />}</div>
               {!following && <LiveStats />}
+              <LeadersPanel />
             </div>
           </div>
           {breakdown && <div className="an-panel an-break"><BuildUpPanel docked /></div>}

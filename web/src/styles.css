@@ -3134,3 +3134,48 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
   font-family: var(--headline); font-weight: 900; font-size: 38px; letter-spacing: -1px; line-height: 1; box-shadow: 0 8px 20px rgba(13,10,36,.25); }
 .gc-score i { font-style: normal; color: #b4afc9; padding: 0 6px; font-weight: 700; }
 .gc-score em { position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%); font-style: normal; font-size: 9.5px; font-weight: 900; letter-spacing: 1px; background: #3ddc97; color: #08261a; padding: 2px 6px; border-radius: 3px; }
+/* Momentum, interactive */
+.mo2 { gap: 10px; }
+.mo2-sum { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+.mo2-sum b { font-family: var(--headline); font-weight: 900; font-size: 22px; } .mo2-mid { color: #6c668a; font-size: 12px; }
+.mo2-chart { position: relative; display: grid; grid-template-columns: repeat(18, 1fr); gap: 3px; height: 230px; padding: 0 0 0 36px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--mo-h, #d3302a) 4%, transparent) 0 50%, transparent 50%); }
+.mo2-team { position: absolute; left: 0; font-family: var(--headline); font-weight: 900; font-size: 13px; }
+.mo2-team.top { top: 6px; } .mo2-team.bot { bottom: 22px; }
+.mo2-now { position: absolute; top: 0; bottom: 18px; width: 2px; background: #160f35; opacity: .35; margin-left: 36px; pointer-events: none; z-index: 2; }
+.mo2-col { position: relative; display: grid; grid-template-rows: 1fr 1fr 18px; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 4px; }
+.mo2-col:hover, .mo2-col.on { background: rgba(75,43,214,.08); }
+.mo2-up, .mo2-down { position: relative; }
+.mo2-up { box-shadow: inset 0 -1.5px 0 #d9d5ea; }
+.mo2-up i, .mo2-down i { position: absolute; left: 2px; right: 2px; border-radius: 3px; opacity: .9; transition: opacity .15s; }
+.mo2-up i { bottom: 0; } .mo2-down i { top: 0; }
+.mo2-col.on i { opacity: 1; }
+.mo2-shots { position: absolute; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 10.5px; font-weight: 800; color: #fff; background: #160f35; border-radius: 999px; min-width: 16px; padding: 1px 4px; z-index: 1; }
+.mo2-shots.up { top: 4px; } .mo2-shots.down { bottom: 24px; }
+.mo2-goal { position: absolute; left: 50%; transform: translateX(-50%); font-size: 14px; z-index: 2; }
+.mo2-goal.up { top: 22px; } .mo2-goal.down { bottom: 42px; }
+.mo2-col small { font-size: 11px; color: #6c668a; text-align: left; padding-top: 3px; }
+.mo2-detail { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; min-height: 26px; font-size: 13px; padding: 8px 12px; background: #f6f5fb; border-radius: 8px; }
+.mo2-detail b { font-family: var(--headline); font-weight: 900; } .mo2-detail span { font-weight: 700; } .mo2-gl { color: #160f35; }
+.mo2-hint { color: #6c668a; font-weight: 500 !important; }
+/* Momentum: give the bars real height inside their grid cells */
+.mo2-col { height: 100%; align-items: stretch; }
+.mo2-up, .mo2-down { display: block; height: 100%; }
+.mo2-col small { display: block; }
+.mo2-sum { gap: 12px; } .mo2-mid { text-align: center; flex: 1; }
+/* Leaders in the right column: a compact vertical list */
+.an-right .lp-side { background: #fff; border-radius: var(--r-lg); padding: 14px 14px 10px; box-shadow: 0 0 0 1px rgba(22,15,53,.06), 0 8px 24px rgba(22,15,53,.05); }
+.an-right .lp-side .bd-h { font-size: 18px; margin-bottom: 8px; }
+.lp-side .ld-picks { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.lp-side .ld-picks button { font-size: 11.5px; padding: 4px 8px; }
+.lp-side .ld-row { grid-template-columns: 18px minmax(0, 1fr) 54px auto !important; gap: 8px; padding: 3px 0; }
+.lp-side .ld-bust { width: 30px; height: 30px; } .lp-side .ld-bust .avatar { width: 30px; height: 30px; }
+.lp-side .ld-name { font-size: 13px; }
+.lp-side .ld-row:nth-child(n+9) { display: none; }
+.mo2-team.home { top: 6px; } .mo2-team.away { bottom: 22px; }
+.an-left .bd-row.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+.bd-row.two .sma-wrap.halves { grid-template-columns: 1fr 1fr; gap: 8px; }
+.bd-row.two .mo2-chart { height: 200px; padding-left: 30px; }
+.bd-row.two .mo2-sum { flex-wrap: wrap; } .bd-row.two .mo2-mid { order: 3; flex-basis: 100%; text-align: left; }
+.bd-row.two .mo2-col small { font-size: 10px; }
+@media (max-width: 1100px) { .an-left .bd-row.two { grid-template-columns: 1fr; } }

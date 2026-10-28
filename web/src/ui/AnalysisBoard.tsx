@@ -14,14 +14,14 @@ function Block({ title, children, className = "" }: { title: string; children: R
   return <section className={`bd-block ${className}`}><h3 className="bd-h">{title}</h3>{children}</section>;
 }
 
-type Tab = "chances" | "flow" | "box" | "feed" | "agents";
-const TABS: [Tab, string][] = [["chances", "Chances"], ["flow", "Flow & leaders"], ["box", "Box score"], ["feed", "Live feed"], ["agents", "Agents"]];
+type Tab = "overview" | "box" | "feed" | "agents";
+const TABS: [Tab, string][] = [["overview", "Overview"], ["box", "Box score"], ["feed", "Live feed"], ["agents", "Agents"]];
 
 export function AnalysisBoard() {
   const s = useSummary();
   const feed = useLive((x) => x.feed.length);
   const [tab, setTab] = useState<Tab>(() => {
-    try { return (localStorage.getItem("fn.boardTab") as Tab) || "chances"; } catch { return "chances"; }
+    try { const v = localStorage.getItem("fn.boardTab") as Tab; return TABS.some(([k]) => k === v) ? v : "overview"; } catch { return "overview"; }
   });
   const go = (t: Tab) => { setTab(t); try { localStorage.setItem("fn.boardTab", t); } catch { /* storage may be blocked */ } };
   return (
@@ -34,16 +34,14 @@ export function AnalysisBoard() {
         ))}
       </nav>
       {!s ? <div className="board-empty">Loading the match…</div>
-        : tab === "chances" ? (
-          <div className="bd-row xm">
+        : tab === "overview" ? (
+          <>
             <Block title="xG race"><XgRace /></Block>
-            <Block title="Shot map"><ShotMapAll s={s} /></Block>
-          </div>
-        ) : tab === "flow" ? (
-          <div className="bd-row">
-            <Block title="Momentum"><Momentum s={s} /></Block>
-            <Block title="Leaders"><Leaders s={s} /></Block>
-          </div>
+            <div className="bd-row two">
+              <Block title="Shot map"><ShotMapAll s={s} /></Block>
+              <Block title="Momentum"><Momentum s={s} /></Block>
+            </div>
+          </>
         ) : tab === "box" ? <BoxScore s={s} />
         : tab === "agents" ? <Block title="Agents, live"><AgentTrace /></Block>
         : (
@@ -57,22 +55,53 @@ export function AnalysisBoard() {
 
 function Momentum({ s }: { s: Summary }) {
   const { home, away } = s.meta;
+  const t = useLive((st) => st.t);
+  const [hover, setHover] = useState<number | null>(null);
   const get = (b: Summary["flow"][number], c: string) => b[c] as { passes: number; shots: number };
+  const goals = s.events.filter((e) => e.type === "goal");
+  const rows = s.flow.map((b) => {
+    const m = b.minute as number, h = get(b, home.code), a = get(b, away.code), tot = h.passes + a.passes || 1;
+    return { m, h, a, share: h.passes / tot, g: goals.filter((e) => e.minute >= m && e.minute < m + 5) };
+  });
+  const won = { h: rows.filter((r) => r.share > 0.55).length, a: rows.filter((r) => r.share < 0.45).length };
+  const name = (id: string) => s.players.find((p) => p.id === id)?.short ?? "";
+  const cur = hover === null ? null : rows[hover];
   return (
-    <div className="bd">
-      <p className="bd-note">Share of passes in each 5-minute window. A bar above the line means {home.name} had more of the ball; below, {away.name}. Dots are shots.</p>
-      <div className="mo">
-        {s.flow.map((b) => {
-          const h = get(b, home.code), a = get(b, away.code), tot = h.passes + a.passes || 1;
-          const hs = (h.passes / tot - 0.5) * 2;
+    <div className="bd mo2">
+      <div className="mo2-sum">
+        <span style={{ color: home.color }}><b>{won.h}</b> windows on top</span>
+        <span className="mo2-mid">Who had the ball, every 5 minutes · click to jump there</span>
+        <span style={{ color: away.color }}><b>{won.a}</b> windows on top</span>
+      </div>
+      <div className="mo2-chart" onMouseLeave={() => setHover(null)}>
+        <span className="mo2-team home" style={{ color: home.color }}>{home.code}</span>
+        <span className="mo2-team away" style={{ color: away.color }}>{away.code}</span>
+        <div className="mo2-now" style={{ left: `${Math.min(100, (t / 5400) * 100)}%` }} />
+        {rows.map((r, i) => {
+          // Possession rarely strays far from 50%, so scale the lead: a 70/30 window fills the half.
+          const d = Math.max(-1, Math.min(1, (r.share - 0.5) * 5));
           return (
-            <div key={b.minute as number} className="mo-col" title={`${b.minute}–${(b.minute as number) + 5}′: ${home.code} ${h.passes} passes, ${away.code} ${a.passes}`}>
-              <div className="mo-top">{hs > 0 && <i style={{ height: `${hs * 100}%`, background: home.color }} />}{Array.from({ length: h.shots }, (_, k) => <em key={k} style={{ background: home.color }} />)}</div>
-              <div className="mo-bot">{hs < 0 && <i style={{ height: `${-hs * 100}%`, background: away.color }} />}{Array.from({ length: a.shots }, (_, k) => <em key={k} style={{ background: away.color }} />)}</div>
-              <span>{(b.minute as number) % 15 === 0 ? `${b.minute}′` : ""}</span>
-            </div>
+            <button key={r.m} className={`mo2-col ${hover === i ? "on" : ""}`} onMouseEnter={() => setHover(i)}
+              onClick={() => live.send({ type: "seek", t: r.m * 60 })} aria-label={`${r.m}–${r.m + 5} minutes`}>
+              <span className="mo2-up">{d > 0 && <i style={{ height: `${d * 100}%`, background: home.color }} />}</span>
+              <span className="mo2-down">{d < 0 && <i style={{ height: `${-d * 100}%`, background: away.color }} />}</span>
+              {r.h.shots > 0 && <em className="mo2-shots up">{r.h.shots}</em>}
+              {r.a.shots > 0 && <em className="mo2-shots down">{r.a.shots}</em>}
+              {r.g.map((g, k) => <b key={k} className={`mo2-goal ${g.team === home.code ? "up" : "down"}`}>⚽</b>)}
+              <small>{r.m % 15 === 0 ? `${r.m}′` : ""}</small>
+            </button>
           );
         })}
+      </div>
+      <div className="mo2-detail">
+        {cur ? (
+          <>
+            <b>{cur.m}–{cur.m + 5}′</b>
+            <span style={{ color: home.color }}>{home.code} {Math.round(cur.share * 100)}% · {cur.h.passes} passes · {cur.h.shots} shots</span>
+            <span style={{ color: away.color }}>{away.code} {100 - Math.round(cur.share * 100)}% · {cur.a.passes} passes · {cur.a.shots} shots</span>
+            {cur.g.map((g, k) => <span key={k} className="mo2-gl">⚽ {name(g.player)} {g.minute}′</span>)}
+          </>
+        ) : <span className="mo2-hint">Hover a bar for the detail. Taller means one team had more of the ball.</span>}
       </div>
     </div>
   );
@@ -156,6 +185,13 @@ const STATS: [string, string, (v: number) => string][] = [
   ["xg", "xG", (v) => v.toFixed(2)], ["shots", "Shots", String], ["tackles_won", "Tackles won", String],
   ["interceptions", "Interceptions", String], ["hi_runs", "High-intensity runs", String],
 ];
+
+/** Leaders for the right-hand column of Analyse. */
+export function LeadersPanel() {
+  const s = useSummary();
+  if (!s) return null;
+  return <section className="lp-side"><h3 className="bd-h">Leaders</h3><Leaders s={s} /></section>;
+}
 
 function Leaders({ s }: { s: Summary }) {
   const [stat, setStat] = useState("distance_km");
