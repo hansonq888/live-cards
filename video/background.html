@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- A textured 1920x1080 background to sit under a screen recording: the brand gradient, fine
+     pitch-mow stripes, a soft dot grain, and the lime bolt on the right. -->
+<html><head><meta charset="utf-8"><style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  body { position: relative; background: linear-gradient(125deg, #4527dc 0%, #3a1fd0 50%, #2a24b4 100%); }
+  .mow { position: absolute; inset: 0; background: repeating-linear-gradient(100deg, rgba(255,255,255,.045) 0 90px, rgba(255,255,255,0) 90px 180px); }
+  .grain { position: absolute; inset: 0; opacity: .5; background-image: radial-gradient(rgba(255,255,255,.12) 1px, transparent 1.2px); background-size: 6px 6px; }
+  .lines { position: absolute; inset: 0; }
+  .lines * { fill: none; stroke: rgba(255,255,255,.08); stroke-width: 3; }
+  .shard { position: absolute; top: -10%; bottom: -10%; left: 80%; width: 700px; background: #1c0733; transform: skewX(-18deg); }
+  .bolt { position: absolute; right: -60px; top: 0; height: 100%; width: 520px; }
+  .bolt path { fill: #d4ff3a; }
+</style></head><body>
+<div class="mow"></div><div class="grain"></div>
+<svg class="lines" viewBox="0 0 1920 1080"><circle cx="760" cy="540" r="220"/><line x1="760" y1="0" x2="760" y2="1080"/><rect x="-40" y="250" width="300" height="580"/></svg>
+<div class="shard"></div>
+<svg class="bolt" viewBox="0 0 520 1080" preserveAspectRatio="none"><path d="M360 0 h120 L360 470 h90 L190 1080 h-110 L230 600 h-90 Z"/></svg>
+</body></html>
