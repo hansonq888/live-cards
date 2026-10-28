@@ -341,9 +341,9 @@ function Wordmark({ dark, v }: C & { v: number }) {
   if (v === 6) return (  // the same, a thicker bar
     <svg viewBox="0 0 340 124" className="lg">
       <rect x="28" y="4" width="16" height="118" fill={L} transform="skewX(-8)" />
-      <text x="46" y="26" className="fo-the3" fill={acc}>THE</text>
-      <text x="44" y="68" className="fo-stack" fill={t}>Fifth</text>
-      <text x="44" y="114" className="fo-stack" fill={t}>Official</text>
+      <text x="58" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="56" y="68" className="fo-stack" fill={t}>Fifth</text>
+      <text x="56" y="114" className="fo-stack" fill={t}>Official</text>
     </svg>
   );
   if (v === 7) return (  // a thin white line beside the lime one, like a drawn offside pair
