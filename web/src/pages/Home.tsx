@@ -37,7 +37,7 @@ export function Home() {
         <CurvedBolts className="hero-bolts" />
         <div className="hc-text">
           <p className="hc-eyebrow">Match analysis, explained</p>
-          <h1>Understand every <span>moment</span><span className="hc-dot">.</span></h1>
+          <h1>Understand every <span>moment.</span></h1>
           <p className="hc-lede">Every attack replayed from tracking data. Every stat explained in plain words. Every claim checked by AI agents before you see it.</p>
           <div className="hc-cta">
             <a className="hc-btn" href="/?page=watch">Watch the match</a>
