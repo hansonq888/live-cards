@@ -322,6 +322,21 @@ function Wordmark({ dark, v }: C & { v: number }) {
       <text x="14" y="114" className="fo-stack" fill={t}>Official</text>
     </svg>
   );
+  if (v === 8) return (  // W1 with a lime full stop
+    <svg viewBox="0 0 340 124" className="lg">
+      <text x="16" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="14" y="68" className="fo-stack" fill={t}>Fifth</text>
+      <text x="14" y="114" className="fo-stack" fill={t}>Official<tspan fill={L}>.</tspan></text>
+    </svg>
+  );
+  if (v === 9) return (  // W7 with a lime full stop
+    <svg viewBox="0 0 340 124" className="lg">
+      <rect x="28" y="4" width="16" height="118" fill={L} transform="skewX(-8)" />
+      <text x="58" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="56" y="68" className="fo-stack" fill={t}>Fifth</text>
+      <text x="56" y="114" className="fo-stack" fill={t}>Official<tspan fill={L}>.</tspan></text>
+    </svg>
+  );
   if (v === 1) return (  // the offside line: a lime bar runs through the stack
     <svg viewBox="0 0 340 124" className="lg">
       <text x="16" y="26" className="fo-the3" fill={acc}>THE</text>
@@ -378,8 +393,9 @@ function Wordmark({ dark, v }: C & { v: number }) {
 
 export function FifthWordmarks() {
   const names = ["Plain stack", "Offside line", "Poster italic", "Spaced caps + lime rule", "Two-tone with a lime full stop",
-    "Offside line, left and tight", "Offside line, left, thicker", "Offside pair, left"];
-  const order = [5, 6, 7, 0, 1, 2, 3, 4];
+    "Offside line, left and tight", "Offside line, left, thicker", "Offside pair, left",
+    "Plain stack with a lime full stop", "Offside line with a lime full stop"];
+  const order = [8, 0, 9, 6, 4, 5, 7, 1, 2, 3];
   return (
     <div className="lg-grid">
       {order.map((i) => [names[i], i] as const).map(([n, i]) => (
