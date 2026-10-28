@@ -1,0 +1,189 @@
+<!doctype html>
+<!-- Title cards for the demo video. One scene per ?s= (hook, three, numbers, end), 1920x1080.
+     Animations are CSS; record.py pauses them and seeks frame by frame, so the export is exact.
+     Open in a browser to preview in real time. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>The Fifth Official · video cards</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;700;800;900&family=Barlow+Condensed:ital,wght@0,800;0,900;1,800;1,900&family=Inter:wght@400;500;600;700&display=swap" />
+<style>
+  :root { --violet: #3a1fd0; --violet2: #4b2bd6; --lime: #d4ff3a; --plum: #1c0733; --ink: #160f35; --red: #d3302a; --blue: #2a5cb8; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--violet); }
+  body { font-family: Inter, sans-serif; color: #fff; }
+  .scene { position: absolute; inset: 0; display: none; overflow: hidden; background: linear-gradient(125deg, #4527dc 0%, #3a1fd0 50%, #2a24b4 100%); }
+  .scene.on { display: block; }
+  .poster { font-family: "Barlow Condensed", sans-serif; font-style: italic; font-weight: 900; text-transform: uppercase; line-height: .9; letter-spacing: -.01em; }
+  .head { font-family: "Hanken Grotesk", sans-serif; font-weight: 900; letter-spacing: -.02em; }
+  .lime { color: var(--lime); }
+  @keyframes up { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
+  @keyframes in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes pop { 0% { opacity: 0; transform: scale(.6); } 70% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: none; } }
+  @keyframes slideL { from { opacity: 0; transform: translateX(-120px); } to { opacity: 1; transform: none; } }
+  @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes sweep { from { transform: translateX(-30%) skewX(-18deg); } to { transform: translateX(0) skewX(-18deg); } }
+  .a { animation-fill-mode: both; animation-timing-function: cubic-bezier(.2,.8,.2,1); }
+
+  /* lime bolts, like the site's nav */
+  .bolts { position: absolute; right: -80px; top: 0; height: 100%; width: 760px; }
+  .bolts path { fill: var(--lime); }
+  .shard { position: absolute; top: -10%; bottom: -10%; background: var(--plum); transform: skewX(-18deg); }
+
+  /* ---- hook ---- */
+  #hook .l1 { position: absolute; left: 140px; top: 210px; font-size: 150px; }
+  #hook .score { position: absolute; left: 140px; top: 400px; font-size: 380px; }
+  #hook .score i { font-style: normal; color: var(--lime); padding: 0 20px; }
+  #hook .gone { animation: out .5s 3.4s both; }
+  #hook .bits { position: absolute; inset: 0; }
+  .chip { position: absolute; padding: 22px 30px; border-radius: 14px; background: #fff; color: var(--ink); box-shadow: 0 30px 60px rgba(13,8,40,.35); }
+  .chip b { display: block; font-family: "Hanken Grotesk"; font-weight: 900; font-size: 64px; line-height: 1; }
+  .chip span { font-size: 24px; font-weight: 600; color: #6c668a; }
+  .chip.dark { background: var(--plum); color: #fff; } .chip.dark span { color: rgba(255,255,255,.7); }
+  .chip.lime { background: var(--lime); } .chip.lime b { color: var(--ink); }
+  #hook .pitch { position: absolute; left: 140px; top: 330px; width: 720px; height: 470px; border-radius: 20px; background: #1f7a45; overflow: hidden; box-shadow: 0 40px 80px rgba(13,8,40,.4); }
+  #hook .tag { position: absolute; left: 140px; top: 860px; font-size: 92px; }
+
+  /* ---- three ways in ---- */
+  #three h2 { position: absolute; left: 140px; top: 120px; margin: 0; font-size: 120px; }
+  .tiles { position: absolute; left: 140px; right: 140px; top: 360px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .tile { height: 520px; border-radius: 22px; padding: 44px; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(13,8,40,.35); box-shadow: inset 0 0 0 2px rgba(255,255,255,.15); position: relative; overflow: hidden; }
+  .tile .n { position: absolute; top: 30px; left: 44px; font-size: 140px; color: rgba(255,255,255,.12); }
+  .tile h3 { margin: 0 0 14px; font-size: 104px; }
+  .tile p { margin: 0; font-size: 34px; line-height: 1.3; font-weight: 500; color: rgba(255,255,255,.85); }
+  .tile .glow { position: absolute; inset: 0; background: var(--lime); opacity: 0; }
+  @keyframes lit { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes litText { 0% { color: #fff; } 15% { color: var(--ink); } 75% { color: var(--ink); } 100% { color: #fff; } }
+  .tile > *:not(.glow) { position: relative; }
+
+  /* ---- numbers ---- */
+  #numbers .grid { position: absolute; left: 140px; right: 140px; top: 90px; display: grid; grid-template-columns: 1fr 1fr; gap: 34px 60px; }
+  .stat { min-height: 330px; display: flex; flex-direction: column; justify-content: center; padding: 34px 48px; border-radius: 20px; background: rgba(13,8,40,.35); box-shadow: inset 0 0 0 2px rgba(255,255,255,.12); }
+  .stat b { display: block; font-size: 150px; color: var(--lime); }
+  .stat span { display: block; margin-top: 10px; font-size: 32px; font-weight: 600; color: rgba(255,255,255,.88); }
+  .stack { position: absolute; left: 0; right: 0; bottom: 0; height: 190px; background: var(--plum); display: flex; flex-direction: column; justify-content: center; padding: 0 140px; gap: 16px; }
+  .stack em { font-style: normal; font-size: 22px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--lime); }
+  .stack div { display: flex; gap: 18px; flex-wrap: nowrap; }
+  .stack span { font-family: "Hanken Grotesk"; font-weight: 800; font-size: 25px; padding: 9px 16px; border-radius: 10px; background: rgba(255,255,255,.1); white-space: nowrap; }
+  .stack div { gap: 12px !important; }
+
+  /* ---- end ---- */
+  #end .wm { position: absolute; left: 140px; top: 200px; }
+  #end .wm .the { font-family: "Hanken Grotesk"; font-weight: 900; font-size: 52px; letter-spacing: 12px; color: var(--lime); }
+  #end .wm .big { font-family: "Hanken Grotesk"; font-weight: 900; font-size: 200px; line-height: .92; letter-spacing: -8px; }
+  #end .tagline { position: absolute; left: 140px; top: 690px; font-size: 96px; }
+  #end .links { position: absolute; left: 140px; top: 830px; display: flex; flex-direction: column; gap: 12px; font-size: 30px; font-weight: 600; }
+  #end .links span { color: rgba(255,255,255,.65); font-weight: 500; margin-right: 14px; }
+  #end .note { position: absolute; left: 140px; bottom: 50px; font-size: 22px; color: rgba(255,255,255,.6); }
+</style>
+</head>
+<body>
+
+<!-- 1. HOOK (8 s) -->
+<section class="scene" id="hook">
+  <div class="shard a" style="left:62%; width:900px; animation: sweep 1s 0s both;"></div>
+  <svg class="bolts" viewBox="0 0 760 1080" preserveAspectRatio="none"><path d="M520 0 h160 L520 470 h120 L300 1080 h-150 L320 600 h-120 Z" /></svg>
+  <div class="gone">
+    <div class="l1 poster a" style="animation: up .7s .2s both">90 minutes.</div>
+    <div class="score poster a" style="animation: up .8s 1.1s both">2<i>–</i>1</div>
+  </div>
+  <div class="bits">
+    <div class="l1 poster a" style="top: 120px; animation: up .7s 3.9s both">Inside every scoreline…</div>
+    <div class="pitch a" style="animation: up .8s 4.1s both">
+      <svg viewBox="0 0 720 470" width="720" height="470">
+        <g fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="3">
+          <rect x="20" y="20" width="680" height="430" /><line x1="360" y1="20" x2="360" y2="450" /><circle cx="360" cy="235" r="60" />
+          <rect x="580" y="120" width="120" height="230" /><rect x="660" y="185" width="40" height="100" />
+        </g>
+        <path d="M 140 330 L 300 300 L 470 160 L 600 250 L 690 232" fill="none" stroke="#d4ff3a" stroke-width="7" stroke-linecap="round" stroke-dasharray="1" pathLength="1" class="a" style="animation: draw 2s 4.6s both linear" />
+        <g class="a" style="animation: pop .4s 4.6s both"><circle cx="140" cy="330" r="16" fill="#d3302a" stroke="#fff" stroke-width="4"/></g>
+        <g class="a" style="animation: pop .4s 5.0s both"><circle cx="300" cy="300" r="16" fill="#d3302a" stroke="#fff" stroke-width="4"/></g>
+        <g class="a" style="animation: pop .4s 5.4s both"><circle cx="470" cy="160" r="16" fill="#d3302a" stroke="#fff" stroke-width="4"/></g>
+        <g class="a" style="animation: pop .4s 5.9s both"><circle cx="600" cy="250" r="16" fill="#d3302a" stroke="#fff" stroke-width="4"/></g>
+      </svg>
+    </div>
+    <div class="chip a" style="left: 960px; top: 300px; animation: pop .5s 5.0s both"><b>22 m</b><span>long ball, past the press</span></div>
+    <div class="chip dark a" style="left: 1100px; top: 500px; animation: pop .5s 5.6s both"><b>+28 m²</b><span>of space won</span></div>
+    <div class="chip lime a" style="left: 990px; top: 700px; animation: pop .5s 6.2s both"><b>xG 0.16</b><span>a 1-in-6 chance, finished</span></div>
+    <div class="tag poster a" style="animation: up .6s 6.8s both">…a story. <span class="lime">Explore it.</span></div>
+  </div>
+</section>
+
+<!-- 2. THREE WAYS IN (6 s) -->
+<section class="scene" id="three">
+  <h2 class="poster a" style="animation: up .6s .1s both">Three ways in</h2>
+  <div class="tiles">
+    <div class="tile a" style="animation: up .6s .5s both"><span class="n poster">01</span><div class="glow" style="animation: lit 1.4s 1.4s both"></div>
+      <h3 class="poster" style="animation: litText 1.4s 1.4s both">Matches</h3><p style="animation: litText 1.4s 1.4s both">Follow a full match, moment by moment.</p></div>
+    <div class="tile a" style="animation: up .6s .7s both"><span class="n poster">02</span><div class="glow" style="animation: lit 1.4s 2.7s both"></div>
+      <h3 class="poster" style="animation: litText 1.4s 2.7s both">Plays</h3><p style="animation: litText 1.4s 2.7s both">Learn from curated play-by-plays.</p></div>
+    <div class="tile a" style="animation: up .6s .9s both"><span class="n poster">03</span><div class="glow" style="animation: lit 1.6s 4.0s both"></div>
+      <h3 class="poster" style="animation: litText 1.6s 4.0s both">Analyse</h3><p style="animation: litText 1.6s 4.0s both">Take the whole game apart yourself.</p></div>
+  </div>
+</section>
+
+<!-- 3. NUMBERS + STACK (10 s) -->
+<section class="scene" id="numbers">
+  <div class="grid">
+    <div class="stat a" style="animation: up .6s .2s both"><b class="poster" data-count="0" data-from="275" data-at="0.4" data-dur="1.4" data-fmt="{} of 275">0 of 275</b><span>planted lies aired. The checks blocked every one.</span></div>
+    <div class="stat a" style="animation: up .6s .6s both"><b class="poster" data-count="98" data-at="0.8" data-dur="1.4" data-fmt="{}% fewer">98% fewer</b><span>model calls for repeat viewers, thanks to the verified-line cache</span></div>
+    <div class="stat a" style="animation: up .6s 1.0s both"><b class="poster" data-count="0.15" data-at="1.2" data-dur="1.4" data-fmt="${}" data-dec="2">$0.15</b><span>in model costs for a whole match</span></div>
+    <div class="stat a" style="animation: up .6s 1.4s both"><b class="poster" data-count="200" data-at="1.6" data-dur="1.4" data-fmt="{}">200</b><span>live viewers in real time, on one server process</span></div>
+  </div>
+  <div class="stack a" style="animation: up .7s 4.2s both">
+    <em>Built on Microsoft</em>
+    <div>
+      <span class="a" style="animation: pop .4s 4.6s both">Microsoft Foundry</span>
+      <span class="a" style="animation: pop .4s 4.8s both">Agent Framework</span>
+      <span class="a" style="animation: pop .4s 5.0s both">Container Apps</span>
+      <span class="a" style="animation: pop .4s 5.2s both">Event Hubs</span>
+      <span class="a" style="animation: pop .4s 5.4s both">Web PubSub</span>
+      <span class="a" style="animation: pop .4s 5.6s both">Cosmos DB</span>
+      <span class="a" style="animation: pop .4s 5.8s both">Application Insights</span>
+    </div>
+  </div>
+</section>
+
+<!-- 4. END (6 s) -->
+<section class="scene" id="end">
+  <div class="shard a" style="left:66%; width:900px; animation: sweep 1s 0s both;"></div>
+  <svg class="bolts" viewBox="0 0 760 1080" preserveAspectRatio="none"><path d="M520 0 h160 L520 470 h120 L300 1080 h-150 L320 600 h-120 Z" /></svg>
+  <div class="wm a" style="animation: up .8s .2s both">
+    <div class="the">THE</div>
+    <div class="big">Fifth</div>
+    <div class="big">Official<span class="lime">.</span></div>
+  </div>
+  <div class="tagline poster a" style="animation: up .7s 1.2s both">Understand every <span class="lime">moment.</span></div>
+  <div class="links a" style="animation: in .7s 2.0s both">
+    <div><span>Try it</span>livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io</div>
+    <div><span>Code</span>github.com/hansonq888/the-fifth-official</div>
+  </div>
+  <div class="note a" style="animation: in .7s 2.4s both">Synthetic matches · fictional clubs and players</div>
+</section>
+
+<script>
+  const q = new URLSearchParams(location.search);
+  const scene = q.get("s") || "hook";
+  document.getElementById(scene).classList.add("on");
+  const counters = [...document.querySelectorAll("#" + scene + " [data-count]")];
+  const ease = (x) => 1 - Math.pow(1 - x, 3);
+  // Seek every CSS animation and counter to time t (seconds). record.py calls this per frame.
+  window.seek = (t) => {
+    for (const a of document.getAnimations()) { a.pause(); a.currentTime = t * 1000; }
+    for (const el of counters) {
+      const to = Number(el.dataset.count), from = Number(el.dataset.from ?? 0);
+      const p = Math.max(0, Math.min(1, (t - Number(el.dataset.at)) / Number(el.dataset.dur)));
+      const v = from + (to - from) * ease(p);
+      const dec = Number(el.dataset.dec ?? 0);
+      el.textContent = el.dataset.fmt.replace("{}", v.toFixed(dec));
+    }
+  };
+  if (!q.has("capture")) {
+    const t0 = performance.now();
+    const tick = () => { window.seek((performance.now() - t0) / 1000); requestAnimationFrame(tick); };
+    tick();
+  }
+</script>
+</body>
+</html>
