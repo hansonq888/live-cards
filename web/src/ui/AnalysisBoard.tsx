@@ -84,8 +84,6 @@ function ShotMapAll({ s }: { s: Summary }) {
   const current = useLive((st) => st.buildup?.goal);
   const [hover, setHover] = useState<string | null>(null);
   const name = (id: string) => s.players.find((p) => p.id === id)?.short ?? "";
-  // Both halves: home attacks right, away attacks left (pitch metres, x to the right).
-  const X = (x: number) => 52.5 + x, Y = (y: number) => 34 - y;
   const shown = plays.find((p) => p.id === (hover ?? current));
   const tally = (code: string) => {
     const ps = plays.filter((p) => p.team === code);
@@ -94,7 +92,7 @@ function ShotMapAll({ s }: { s: Summary }) {
   return (
     <div className="bd sma">
       <div className="sma-teams">
-        {[away, home].map((t) => {
+        {[home, away].map((t) => {
           const k = tally(t.code);
           return (
             <span key={t.code} className="sma-team" style={{ ["--team" as string]: t.color }}>
@@ -103,29 +101,42 @@ function ShotMapAll({ s }: { s: Summary }) {
           );
         })}
       </div>
-      <div className="sma-wrap">
-        <svg viewBox="-2 -2 109 72" className="sm-all">
-          <rect x="0" y="0" width="105" height="68" className="sma-pitch" />
-          <line x1="52.5" y1="0" x2="52.5" y2="68" className="sma-line" />
-          <circle cx="52.5" cy="34" r="9.15" className="sma-line" />
-          <rect x="0" y="13.84" width="16.5" height="40.32" className="sma-line" /><rect x="88.5" y="13.84" width="16.5" height="40.32" className="sma-line" />
-          <rect x="0" y="24.84" width="5.5" height="18.32" className="sma-line" /><rect x="99.5" y="24.84" width="5.5" height="18.32" className="sma-line" />
-          {plays.map((p) => {
-            const team = p.team === home.code ? home : away;
-            const dir = p.team === home.code ? 1 : -1;
-            const cx = X(p.ax * dir), cy = Y(p.ay * dir);
-            const goal = p.outcome === "goal", on = p.id === hover || p.id === current;
-            const r = 1.2 + p.xg * 7;
-            return (
-              <g key={p.id} data-id={p.id} data-who={name(p.player)} className={`sma-shot ${on ? "on" : ""}`} onClick={() => live.showMe(p.id)}
-                onMouseEnter={() => setHover(p.id)} onMouseLeave={() => setHover(null)}>
-                {on && <line x1={cx} y1={cy} x2={dir > 0 ? 105 : 0} y2={34} className="sma-path" stroke={team.color} />}
-                <circle cx={cx} cy={cy} r={r} fill={goal ? team.color : "#fff"} fillOpacity={goal ? 1 : 0.9} stroke={team.color} strokeWidth={on ? 1 : 0.6} />
-                {goal && <circle cx={cx} cy={cy} r={r + 1.1} fill="none" stroke="#fff" strokeWidth={0.45} />}
-              </g>
-            );
-          })}
-        </svg>
+      <div className="sma-wrap halves">
+        {[home, away].map((team) => {
+          const mine = plays.filter((p) => p.team === team.code);
+          // Half-pitch, attacking up: goal line at the top. Pitch x (toward goal) -> up, y -> left/right.
+          const PX = (y: number) => 34 - y, PY = (x: number) => 52.5 - x;
+          return (
+            <div key={team.code} className="sma-half" style={{ ["--team" as string]: team.color }}>
+              <svg viewBox="-2 -4 72 40" className="sm-half">
+                <defs>
+                  <linearGradient id={`smg-${team.code}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor={team.color} stopOpacity=".35" /><stop offset="1" stopColor={team.color} stopOpacity=".06" />
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="68" height="36" className="smh-grass" />
+                <rect x="0" y="0" width="68" height="36" fill={`url(#smg-${team.code})`} />
+                <rect x="13.84" y="0" width="40.32" height="16.5" className="sma-line" />
+                <rect x="24.84" y="0" width="18.32" height="5.5" className="sma-line" />
+                <path d="M 26.7 16.5 A 9.15 9.15 0 0 0 41.3 16.5" className="sma-line" />
+                <rect x="30.34" y="-1.6" width="7.32" height="1.6" className="smh-goal" />
+                {mine.map((p) => {
+                  const cx = PX(p.ay), cy = PY(p.ax);  // ax/ay are already in the attacker's frame
+                  const goal = p.outcome === "goal", on = p.id === hover || p.id === current;
+                  const r = 0.9 + p.xg * 5;
+                  return (
+                    <g key={p.id} className={`sma-shot ${on ? "on" : ""}`} onClick={() => live.showMe(p.id)}
+                      onMouseEnter={() => setHover(p.id)} onMouseLeave={() => setHover(null)}>
+                      {on && <line x1={cx} y1={cy} x2="34" y2="0" className="sma-path" stroke="#fff" />}
+                      {goal && <circle cx={cx} cy={cy} r={r + 1.6} className="smh-glow" />}
+                      <circle cx={cx} cy={cy} r={r} fill={goal ? team.color : "#fff"} stroke={goal ? "#fff" : team.color} strokeWidth={on ? 0.7 : 0.45} />
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
+          );
+        })}
         {shown && (
           <div className="sma-tip">
             <b>{name(shown.player)} {shown.minute}′</b>

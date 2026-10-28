@@ -3109,3 +3109,14 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .al .top > :not(.nav-stripes), .story-page .sp-top > :not(.nav-stripes) { position: relative; z-index: 1; }
 .al .top .an-exit, .al .top .hood-btn { background: rgba(13,10,36,.78) !important; color: #fff !important; }
 .story-page .sp-link { background: rgba(13,10,36,.78); padding: 6px 12px; border-radius: 8px; }
+/* Shot map: two compact half-pitches, one per team, attacking up */
+.sma-wrap.halves { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 640px; margin: 0 auto; }
+.sma-half { background: #0f3d22; border-radius: 10px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+.sm-half { display: block; width: 100%; }
+.smh-grass { fill: #1d6b3a; }
+.smh-goal { fill: #fff; }
+.smh-glow { fill: var(--team); opacity: .35; }
+.sma-half .sma-line { stroke: rgba(255,255,255,.55); stroke-width: .25; }
+.sma-teams { max-width: 640px; margin: 0 auto; width: 100%; }
+.sma-key { max-width: 640px; margin: 0 auto; }
+.sma-team + .sma-team { flex-direction: row-reverse; } .sma-tip { top: auto; bottom: 8px; }
