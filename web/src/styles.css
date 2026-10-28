@@ -2892,3 +2892,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .lb-tabs .lb-note { margin-left: auto; align-self: center; margin-bottom: 10px; }
 .l-band .lb-row { padding-top: 18px !important; padding-bottom: 14px !important; }
 .l-band a.lb-cta, .l-band .lb-cta { color: #160f35 !important; } .brand-bar .bb-the { color: #d4ff3a !important; }
+.l-band .brand-bar .mini-mark { display: none; }
