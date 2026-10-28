@@ -1,6 +1,6 @@
 // Watch: a match page before the match. Pick how to watch (from kick-off, or straight to a
 // goal) instead of being dropped into the broadcast.
-import { Bands } from "../ui/Bolts";
+import { CurvedBolts } from "../ui/Bolts";
 import { Shell } from "./Shell";
 import { formLevel } from "../ui/Overlays";
 import { PlayCard } from "./PlayCard";
@@ -37,7 +37,7 @@ export function WatchHome() {
     <Shell page="watch">
       {meta && s && (
         <section className="hero-card w-match">
-          <Bands className="hero-bands" corners="right" />
+          <CurvedBolts className="hero-bolts" />
           <div className="wm-board">
             <span className="wm-status">Full time · {meta.venue}</span>
             <div className="wm-score">
