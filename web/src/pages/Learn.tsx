@@ -18,6 +18,14 @@ const BOARDS: Record<string, Board> = {
   sprints: { label: "top speed", get: (p) => p.stats.top_speed_kmh, show: (v) => `${v.toFixed(1)} km/h` },
   rating: { label: "rating", get: (p) => p.rating, show: (v) => v.toFixed(1) },
 };
+// A short loop of a real play for each lesson (recorded from the tactics board by
+// scripts/record_gif.py), with what to watch for.
+const CLIPS: Record<string, [string, string]> = {
+  xg: ["/learn/xg.mp4", "Watch where the shot comes from. Distance and angle to goal are most of what xG weighs."],
+  pass_difficulty: ["/learn/pass.mp4", "Two passes: a short one under pressure, then a long ball over the top. The short one rates harder: less time, a defender closer."],
+  space_control: ["/learn/space_control.mp4", "Watch the shading. As the move goes forward, red ground spreads into the final third: that's the space being won."],
+  sprints: ["/learn/sprints.mp4", "Watch the winger burst down the right before the cross: the fastest run of the match, at top speed when the ball arrives."],
+};
 const seen = (): string[] => { try { return JSON.parse(localStorage.getItem("learn-seen") ?? "[]"); } catch { return []; } };
 
 const fmt = (v: number) => (Number.isInteger(v) ? String(v) : String(Number(v.toFixed(3))));
@@ -77,6 +85,15 @@ export function Learn() {
               <div className="ls-visual"><StatVisual id={st.id} big /></div>
             </div>
             <div className="ls-body">
+              {CLIPS[st.id] && (
+                <figure className="ls-clip">
+                  <video key={st.id} autoPlay muted loop playsInline aria-label={`A replay showing ${st.name}`}>
+                    <source src={CLIPS[st.id][0].replace(".mp4", ".webm")} type="video/webm" />
+                    <source src={CLIPS[st.id][0]} type="video/mp4" />
+                  </video>
+                  <figcaption><em>Watch it</em>{CLIPS[st.id][1]}</figcaption>
+                </figure>
+              )}
               {st.id === "xg" && <XgTry />}
               {exPlay && exPlayer && (
                 <a className="ls-example" href={playHref(exPlay.id)} style={{ ["--club" as string]: exClub }}>

@@ -3405,3 +3405,11 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .story-page .sp-poster h1 { font-family: var(--poster) !important; font-weight: 900 !important; font-style: italic !important; }
 .pl-grid { margin-top: 8px; }
 .ls-leaders li:first-child { box-shadow: none !important; }
+/* Learn: a looping clip of a real play per lesson */
+.ls-clip { margin: 0; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: center; padding: 14px; border-radius: 14px; background: #160f35; color: #fff; }
+.ls-clip video { width: 100%; display: block; border-radius: 10px; aspect-ratio: 16 / 9; object-fit: cover; background: #0f2a1b; }
+.ls-clip figcaption { font-size: 15px; line-height: 1.55; color: rgba(255,255,255,.88); }
+.ls-clip em { display: block; font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #d4ff3a; margin-bottom: 6px; }
+@media (max-width: 800px) { .ls-clip { grid-template-columns: 1fr; } }
+/* Hero: an even gradient, no bright corner glow */
+.hero-card { background: linear-gradient(125deg, #4527dc 0%, #3a1fd0 50%, #2a24b4 100%) !important; }

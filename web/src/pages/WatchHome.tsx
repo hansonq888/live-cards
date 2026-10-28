@@ -195,7 +195,6 @@ function Clubs({ s }: { s: Summary }) {
       {[s.meta.home, s.meta.away].map((t, i) => {
         const c = club(t.code);
         const ts = s.team[t.code];
-        const best = s.players.filter((p) => p.team === t.code).sort((a, b) => b.rating - a.rating)[0];
         return (
           <article key={t.code} className="cb" style={{ ["--club" as string]: t.color }}>
             <div className="cb-top">
@@ -216,13 +215,6 @@ function Clubs({ s }: { s: Summary }) {
               <div><dt>Shots</dt><dd>{ts.shots} <small>({ts.shots_on_target} on target)</small></dd></div>
               <div><dt>Pass accuracy</dt><dd>{Math.round(ts.pass_pct)}%</dd></div>
             </dl>
-            {best && (
-              <a className="cb-best" href={`/?page=players&id=${best.id}`}>
-                <span className="cb-face"><Avatar player={best} color={t.color} size={44} bare /></span>
-                <span><em>Best on the day</em><b>{best.short}</b></span>
-                <strong>{best.rating.toFixed(1)}</strong>
-              </a>
-            )}
           </article>
         );
       })}

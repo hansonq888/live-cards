@@ -500,6 +500,8 @@ class LiveStore {
 }
 
 export const live = new LiveStore();
+// Exposed for the recording scripts (scripts/record_gif.py --after), e.g. to slow the replay.
+(window as unknown as { fifthLive?: typeof live }).fifthLive = live;
 
 export function useLive<T>(select: (s: LiveState) => T): T {
   return useSyncExternalStore(live.subscribe, () => select(live.get()));

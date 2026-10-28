@@ -1,4 +1,5 @@
-"""Record a GIF of the live app for the README (headless Chromium + ffmpeg).
+"""Record a GIF (or, with an .mp4 --out, a small looping video) of the live app for the README
+and the Learn lessons (headless Chromium + ffmpeg).
 
     uv run --with playwright==1.48.0 python scripts/record_gif.py \
         --url "$BASE/?page=analyse&showme=e-1666" --wait .sm-hud --clip .an-stage \
@@ -30,6 +31,10 @@ def main() -> None:
     ap.add_argument("--js", default="", help="script to run after warm-up (e.g. set a language)")
     ap.add_argument("--wait", default=".card, .acard", help="selector to wait for before warm-up")
     ap.add_argument("--clip", default="", help="only record this element (CSS selector)")
+    ap.add_argument("--click", default="", help="click this element after warm-up (e.g. a breakdown touch)")
+    ap.add_argument("--css", default="", help="extra CSS for the recording (e.g. hide controls)")
+    ap.add_argument("--after", default="", help="script to run after the click (e.g. slow the replay)")
+    ap.add_argument("--out-fps", type=float, default=0, help="encode at this rate (time-lapse/slow-mo)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     tmp = Path(tempfile.mkdtemp())
@@ -40,7 +45,14 @@ def main() -> None:
         page.wait_for_selector(a.wait, timeout=90_000)
         if a.js:
             page.evaluate(a.js)
+        if a.css:
+            page.add_style_tag(content=a.css)
         time.sleep(a.warmup)
+        if a.click:
+            page.locator(a.click).first.click(force=True)
+        if a.after:
+            time.sleep(0.3)
+            page.evaluate(a.after)
         n, t0 = 0, time.monotonic()
         while time.monotonic() - t0 < a.seconds:
             due = t0 + n / a.fps
@@ -52,8 +64,15 @@ def main() -> None:
         browser.close()
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    fps = n / a.seconds
-    vf = f"fps={fps:.2f},scale={a.width}:-1:flags=lanczos"
+    fps = a.out_fps or n / a.seconds
+    vf = f"fps={fps:.2f},scale={a.width}:-2:flags=lanczos"
+    if out.suffix == ".mp4":  # small, loopable, plays inline in a <video muted loop>
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", f"{fps:.2f}", "-i",
+                        str(tmp / "%04d.png"), "-vf", vf, "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                        "-crf", "26", "-movflags", "+faststart", "-an", str(out)], check=True)
+        shutil.rmtree(tmp)
+        print(f"{n} frames, {out.stat().st_size / 1e6:.1f} MB -> {out}")
+        return
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", f"{fps:.2f}", "-i",
                     str(tmp / "%04d.png"), "-vf", f"{vf},palettegen=stats_mode=diff",
                     str(tmp / "palette.png")], check=True)
