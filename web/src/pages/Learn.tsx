@@ -6,6 +6,7 @@ import { useRegistry } from "../live/stats";
 import { Shell } from "./Shell";
 import { Avatar } from "../ui/Avatar";
 import { Formula } from "./Formula";
+import { Concept } from "../ui/Concept";
 import { XgTry } from "./XgTry";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { playHref, useSummary, type Summary } from "./summary";
@@ -17,14 +18,6 @@ const BOARDS: Record<string, Board> = {
   pass_difficulty: { label: "average pass difficulty", get: (p) => p.stats.avg_difficulty, show: (v) => `${v.toFixed(1)}/10`, min: (p) => p.stats.passes >= 15 },
   sprints: { label: "top speed", get: (p) => p.stats.top_speed_kmh, show: (v) => `${v.toFixed(1)} km/h` },
   rating: { label: "rating", get: (p) => p.rating, show: (v) => v.toFixed(1) },
-};
-// A short loop of a real play for each lesson (recorded from the tactics board by
-// scripts/record_gif.py), with what to watch for.
-const CLIPS: Record<string, [string, string]> = {
-  xg: ["/learn/xg.mp4", "Watch where the shot comes from. Distance and angle to goal are most of what xG weighs."],
-  pass_difficulty: ["/learn/pass.mp4", "Two passes: a short one under pressure, then a long ball over the top. The short one rates harder: less time, a defender closer."],
-  space_control: ["/learn/space_control.mp4", "Watch the shading. As the move goes forward, red ground spreads into the final third: that's the space being won."],
-  sprints: ["/learn/sprints.mp4", "Watch the winger burst down the right before the cross: the fastest run of the match, at top speed when the ball arrives."],
 };
 const seen = (): string[] => { try { return JSON.parse(localStorage.getItem("learn-seen") ?? "[]"); } catch { return []; } };
 
@@ -63,8 +56,9 @@ export function Learn() {
       <div className="lesson">
         <nav className="ls-chapters" aria-label="Stats">
           <span className="ls-kicker">Learn the numbers</span>
-          <div className="ls-progress" aria-label={`${done.filter((d) => stats.some((x) => x.id === d)).length} of ${stats.length} lessons opened`}>
-            {stats.map((x) => <i key={x.id} className={done.includes(x.id) ? "on" : ""} />)}
+          <span className="ls-where">Lesson {i + 1} of {stats.length}</span>
+          <div className="ls-progress" aria-label={`Lesson ${i + 1} of ${stats.length}`}>
+            {stats.map((x, n) => <i key={x.id} className={n <= i ? "on" : ""} />)}
           </div>
           {stats.map((x, n) => (
             <button key={x.id} className={`ls-ch t-${STAT_LOOK[x.id]?.tint ?? "xg"} ${x.id === id ? "on" : ""}`} onClick={() => go(x.id)}>
@@ -85,15 +79,7 @@ export function Learn() {
               <div className="ls-visual"><StatVisual id={st.id} big /></div>
             </div>
             <div className="ls-body">
-              {CLIPS[st.id] && (
-                <figure className="ls-clip">
-                  <video key={st.id} autoPlay muted loop playsInline aria-label={`A replay showing ${st.name}`}>
-                    <source src={CLIPS[st.id][0].replace(".mp4", ".webm")} type="video/webm" />
-                    <source src={CLIPS[st.id][0]} type="video/mp4" />
-                  </video>
-                  <figcaption><em>Watch it</em>{CLIPS[st.id][1]}</figcaption>
-                </figure>
-              )}
+              <Concept id={st.id} />
               {st.id === "xg" && <XgTry />}
               {exPlay && exPlayer && (
                 <a className="ls-example" href={playHref(exPlay.id)} style={{ ["--club" as string]: exClub }}>
