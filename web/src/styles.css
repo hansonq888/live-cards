@@ -3404,3 +3404,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .story-page .sp-step:not(.on) .sp-meter i { width: 0 !important; } .sp-meter i { transition: width .8s ease-out .2s; }
 .story-page .sp-poster h1 { font-family: var(--poster) !important; font-weight: 900 !important; font-style: italic !important; }
 .pl-grid { margin-top: 8px; }
+.ls-leaders li:first-child { box-shadow: none !important; }

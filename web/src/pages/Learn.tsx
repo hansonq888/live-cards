@@ -10,7 +10,7 @@ import { XgTry } from "./XgTry";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
 import { playHref, useSummary, type Summary } from "./summary";
 
-// Each lesson's "who led it today": the stat it maps to on the player summaries.
+// Each lesson's leaderboard: the stat it maps to on the player summaries.
 type Board = { label: string; get: (p: Summary["players"][number]) => number; show: (v: number) => string; min?: (p: Summary["players"][number]) => boolean };
 const BOARDS: Record<string, Board> = {
   xg: { label: "xG", get: (p) => p.stats.xg, show: (v) => v.toFixed(2) },
@@ -82,7 +82,7 @@ export function Learn() {
                 <a className="ls-example" href={playHref(exPlay.id)} style={{ ["--club" as string]: exClub }}>
                   <span className="lse-bust"><Avatar player={exPlayer} color={exClub} size={110} bare /></span>
                   <span className="lse-text">
-                    <em>Seen in this match</em>
+                    <em>See it in a real play</em>
                     <b>{exPlayer.short}'s {exPlay.outcome === "goal" ? "goal" : "chance"}, {exPlay.minute}′</b>
                     <span>xG {exPlay.xg.toFixed(2)} · walk through it touch by touch</span>
                   </span>
@@ -116,13 +116,13 @@ function ranked(s: Summary, b: Board) {
   return s.players.filter((p) => p.stats.minutes >= 20 && (b.min?.(p) ?? true)).sort((x, y) => b.get(y) - b.get(x));
 }
 
-/** Who led this match on the lesson's stat: the number made concrete with real players. */
+/** The top five on the lesson's stat: the number made concrete with real players. */
 function Leaders({ s, board }: { s: Summary; board: Board }) {
   const top = ranked(s, board).slice(0, 5);
   const max = top.length ? board.get(top[0]) || 1 : 1;
   return (
     <section className="ls-leaders">
-      <h3>Who led this match on {board.label}</h3>
+      <h3>Top five on {board.label}</h3>
       <ol>
         {top.map((p, n) => {
           const color = p.team === s.meta.home.code ? s.meta.home.color : s.meta.away.color;
@@ -141,7 +141,7 @@ function Leaders({ s, board }: { s: Summary; board: Board }) {
   );
 }
 
-/** One question to check it landed: pick the match leader from three names. */
+/** One question to check it landed: pick the leader from three names. */
 function Quiz({ s, board }: { s: Summary; board: Board }) {
   const all = ranked(s, board).filter((p) => board.get(p) > 0);  // no "0.00" give-aways
   const [pick, setPick] = useState<string | null>(null);
@@ -154,7 +154,7 @@ function Quiz({ s, board }: { s: Summary; board: Board }) {
   return (
     <section className="ls-quiz">
       <span className="lsq-kicker">Quick check</span>
-      <h3>Who do you think led this match on {board.label}?</h3>
+      <h3>Which of these players had the highest {board.label}?</h3>
       <div className="lsq-opts">
         {opts.map((p) => (
           <button key={p.id} disabled={pick !== null}
@@ -166,7 +166,7 @@ function Quiz({ s, board }: { s: Summary; board: Board }) {
         ))}
       </div>
       {pick !== null && (
-        <p className="lsq-ans">{pick === right ? "Right. " : "Not quite. "}{all[0].short} led the match with {board.show(board.get(all[0]))}.
+        <p className="lsq-ans">{pick === right ? "Right. " : "Not quite. "}{all[0].short} had the highest, at {board.show(board.get(all[0]))}.
           <button onClick={() => setPick(null)}>Try again</button></p>
       )}
     </section>
