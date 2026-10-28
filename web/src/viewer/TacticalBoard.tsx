@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { live, useLive } from "../live/store";
 import type { BuildStep } from "../live/protocol";
 import { interpolate } from "./Viewer";
+import { statScale, type StatScale } from "./statRings";
 
 const L = 105, W = 68, M = 3;  // pitch metres and margin
 
@@ -63,6 +64,9 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
     let spaceKey = -1, spaceAt = 0;   // crossfade from the previous touch's map to this one
     let stepKey = -1, stepAt = 0;     // draw each touch's arrow in over a moment
     const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    // "Colour by" a stat: the same ring colours as the broadcast view, recomputed only when
+    // the stat or the board numbers change.
+    let ringKey: unknown = null, ringStat: string | null = null, rings: StatScale | null = null;
     let raf = 0;
     const draw = (now: number) => {
       const dpr = Math.min(window.devicePixelRatio, 2);
@@ -155,11 +159,20 @@ export function TacticalBoard({ mini = false }: { mini?: boolean }) {
       const st = interpolate(now);
       if (st) {
         const target = s.director?.target;
+        if (s.board !== ringKey || s.statRing !== ringStat) {
+          ringKey = s.board; ringStat = s.statRing;
+          rings = s.statRing ? statScale(s.board, s.statRing, team) : null;
+        }
         for (const p of st.poses) {
           const r = (mini ? 1.5 : 1.25) * k;
+          const heatRing = rings?.colors.get(p.id);
+          if (heatRing) {
+            g.strokeStyle = heatRing; g.lineWidth = 0.55 * k;
+            g.beginPath(); g.arc(X(p.x), Y(p.y), r + 0.55 * k, 0, Math.PI * 2); g.stroke();
+          }
           if (p.id === target) {
             g.strokeStyle = "#d4ff3a"; g.lineWidth = 0.4 * k;
-            g.beginPath(); g.arc(X(p.x), Y(p.y), r + 0.9 * k, 0, Math.PI * 2); g.stroke();
+            g.beginPath(); g.arc(X(p.x), Y(p.y), r + (heatRing ? 1.3 : 0.9) * k, 0, Math.PI * 2); g.stroke();
           }
           g.fillStyle = team.get(p.id)?.role === "GK" ? "#f5c518" : colour(p.id);
           g.beginPath(); g.arc(X(p.x), Y(p.y), r, 0, Math.PI * 2); g.fill();
