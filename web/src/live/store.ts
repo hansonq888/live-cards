@@ -286,9 +286,13 @@ class LiveStore {
       return;
     }
     const step = [...b.steps].reverse().find((s) => s.t <= t);
-    if (step && step.player !== this.lastBuildPlayer) {
-      this.lastBuildPlayer = step.player;
-      this.send({ type: "select", player: step.player, reason: stepCaption(this.lang(), step) });
+    // The ring is on whoever has the ball: once a pass is played it moves to the receiver
+    // while the ball travels, instead of waiting for the receiver's next touch.
+    const receiver = step?.kind === "pass" && typeof step.args?.receiver === "string" && t > step.t + 0.15 ? step.args.receiver : null;
+    const target = receiver ?? step?.player;
+    if (step && target && target !== this.lastBuildPlayer) {
+      this.lastBuildPlayer = target;
+      this.send({ type: "select", player: target, reason: stepCaption(this.lang(), step) });
     }
     // Hold on each drawn touch (a pass or a shot) so its marking can be read, then carry on;
     // the board fades the marking out once the play moves past it.

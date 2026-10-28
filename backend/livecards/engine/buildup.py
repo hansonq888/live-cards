@@ -90,7 +90,7 @@ def build_up(events: list[Event], goal: Event, meta: MatchMeta,
             speed = f" at {e.speed_kmh:.0f} km/h" if e.kind in ("long", "cross") and e.speed_kmh else ""
             steps.append(Step(e.t, "pass", e.player,
                               f"{who} → {short[e.receiver]}: {dist:.0f} m {label}{speed}", [e.id],
-                              {"from": who, "to": short[e.receiver], "m": round(dist),
+                              {"from": who, "to": short[e.receiver], "receiver": e.receiver, "m": round(dist),
                                "kind": e.kind or "ground",
                                "kmh": round(e.speed_kmh) if speed else None,
                                "difficulty": mx.pass_difficulty(e.x, e.y, e.end_x, e.end_y, d,
