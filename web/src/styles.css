@@ -3467,3 +3467,12 @@ html:has(.story-page) { scroll-padding-top: 88px !important; scroll-padding-bott
 .ls-ch.on .ls-n { padding-left: 0 !important; }
 .ls-ch.on .ls-t { padding-right: 36px; }
 .ls-ch.on::before { right: 10px !important; }
+/* Open lesson, simpler: a white row inside the panel, its number in a filled lesson-colour badge */
+.ls-chapters { padding: 18px 14px 14px !important; }
+.ls-ch { border-radius: 10px !important; }
+.ls-ch.on { margin-right: 0 !important; box-shadow: 0 4px 14px rgba(22,15,53,.06) !important; }
+.ls-ch.on::before { content: none !important; }
+.ls-ch.on .ls-t { padding-right: 0 !important; font-weight: 700; }
+.ls-ch .ls-n { min-width: 34px; height: 30px; display: inline-grid; place-items: center; border-radius: 8px; font-size: 15px !important; transition: background .2s, color .2s; }
+.ls-ch.on .ls-n { background: var(--t1, #4b2bd6); color: #fff !important; }
+.ls-progress { margin: 0 10px 14px 10px !important; }
