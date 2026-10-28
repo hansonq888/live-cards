@@ -76,10 +76,13 @@ def full_engine(seed: int):
 def load_match(seed: int = 7) -> Match:
     """The match feed: ingested from Azure Event Hubs when configured, else simulated here."""
     from livecards.feed import load_via_event_hubs
+    from livecards.sim.storylines import MATCHES, default_storylines
 
-    match = load_via_event_hubs(seed, simulate)
+    story = MATCHES.get(seed, ("", "", default_storylines))[2]
+    sim = lambda s: simulate(s, story())
+    match = load_via_event_hubs(seed, sim)
     FEED_SOURCE[seed] = "Azure Event Hubs" if match is not None else "local simulator"
-    return match or simulate(seed)
+    return match or sim(seed)
 
 
 FEED_SOURCE: dict[int, str] = {}

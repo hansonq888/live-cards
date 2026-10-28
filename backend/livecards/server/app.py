@@ -88,10 +88,34 @@ async def meta() -> dict:
     return {"match": load_match(7).meta.model_dump(), "rating_weights": WEIGHTS}
 
 
+def _seed(match: int) -> int:
+    """Only matches in the registry; anything else falls back to the default match."""
+    from livecards.sim.storylines import MATCHES
+
+    return match if match in MATCHES else 7
+
+
+@app.get("/api/matches")
+async def matches() -> list[dict]:
+    """Every match the app can analyse, with its result, for the Analyse hub."""
+    from livecards.sim.storylines import MATCHES
+
+    def one(seed: int) -> dict:
+        s = summary(seed)
+        title, date, _ = MATCHES[seed]
+        short = {p["id"]: p["short"] for p in s["players"]}
+        goals = [{"player": p["player"], "name": short.get(p["player"], p["player"]), "team": p["team"],
+                  "minute": p["minute"]} for p in s["plays"] if p["outcome"] == "goal"]
+        return {"match": seed, "title": title, "date": date, "venue": s["meta"]["venue"],
+                "home": s["meta"]["home"]["code"], "away": s["meta"]["away"]["code"],
+                "score": s["score"], "goals": goals, "plays": len(s["plays"])}
+    return await asyncio.to_thread(lambda: [one(k) for k in MATCHES])
+
+
 @app.get("/api/summary")
-async def match_summary() -> dict:
+async def match_summary(match: int = 7) -> dict:
     """The finished match for the platform's pages: final cards, player stats, every play."""
-    return await asyncio.to_thread(summary, 7)
+    return await asyncio.to_thread(summary, _seed(match))
 
 
 @app.get("/api/stats")
@@ -122,7 +146,7 @@ async def cue_schema() -> dict:
 
 
 @app.websocket("/ws/live")
-async def live(ws: WebSocket, speed: float = 1.0, start: float = 0.0) -> None:
+async def live(ws: WebSocket, speed: float = 1.0, start: float = 0.0, match: int = 7) -> None:
     await ws.accept()
     lock = asyncio.Lock()
 
@@ -130,7 +154,7 @@ async def live(ws: WebSocket, speed: float = 1.0, start: float = 0.0) -> None:
         async with lock:
             await ws.send_json(msg)
 
-    session = LiveSession(send, speed=speed, start=start)
+    session = LiveSession(send, seed=_seed(match), speed=speed, start=start)
     runner = asyncio.create_task(session.run())
     try:
         while True:

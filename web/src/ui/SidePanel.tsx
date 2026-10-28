@@ -373,6 +373,8 @@ export function Controls() {
   const modelEnabled = useLive((s) => s.modelEnabled);
   const director = useLive((s) => s.director);
   const connected = useLive((s) => s.connected);
+  const keys = useLive((s) => s.keyMoments);
+  const goals = keys.filter((k) => k.type === "goal");  // this match's goals, whichever match it is
   const [settings, setSettings] = useState(false);
   return (
     <div className="controls">
@@ -382,9 +384,7 @@ export function Controls() {
         <select className="ring-pick" value="" onChange={(e) => e.target.value && live.send({ type: "seek", t: Number(e.target.value) })} aria-label="Jump to">
           <option value="">Jump to…</option>
           <option value="0">Kick-off (watch it unfold)</option>
-          <option value="1780">30′ · first goal</option>
-          <option value="3915">65′ · sprint and equaliser</option>
-          <option value="5210">87′ · late winner</option>
+          {goals.map((g) => <option key={g.id} value={Math.max(0, Math.round(g.t - 25))}>{Math.floor(g.t / 60) + 1}′ · {g.label}</option>)}
         </select>
         <span className={`conn ${connected ? "up" : "down"}`} title={connected ? "connected" : "offline"} />
       </div>

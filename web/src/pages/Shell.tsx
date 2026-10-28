@@ -5,7 +5,7 @@ import { Crest } from "../ui/Crest";
 import { useSummary } from "./summary";
 import { Bands } from "../ui/Bolts";
 
-const LINKS = [["home", "Home"], ["watch", "Match"], ["learn", "Learn"], ["players", "Players"]] as const;
+const LINKS = [["home", "Home"], ["watch", "Match"], ["analyse", "Analyse"], ["learn", "Learn"], ["players", "Players"]] as const;
 
 export function Shell({ page, children }: { page: string; children: ReactNode }) {
   const s = useSummary();

@@ -268,3 +268,21 @@ def test_summary_has_formation_spots_for_every_starter():
     from livecards.server.summary import summary
     starters = [p for p in summary()["players"] if p["starter"]]
     assert len(starters) == 22 and all(p["spot"] for p in starters)
+
+
+def test_second_match_is_its_own_story():
+    """Match 2 (seed 11) plays its own script: Riverside lead, Northgate come back to win 2-1."""
+    from livecards.server.summary import summary
+    s = summary(11)
+    goals = [(p["player"], p["minute"]) for p in s["plays"] if p["outcome"] == "goal"]
+    assert s["score"] == {"RIV": 1, "NGT": 2}
+    assert [g[0] for g in goals] == ["RIV-10", "NGT-10", "NGT-19"]
+    assert summary(7)["score"] == {"RIV": 2, "NGT": 1}  # match 1 unchanged
+
+
+def test_matches_endpoint_lists_both():
+    from fastapi.testclient import TestClient
+
+    from livecards.server.app import app
+    ms = TestClient(app).get("/api/matches").json()
+    assert [m["match"] for m in ms] == [7, 11] and ms[1]["score"] == {"RIV": 1, "NGT": 2}

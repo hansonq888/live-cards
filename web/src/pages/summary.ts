@@ -15,15 +15,31 @@ export interface Summary {
   events: { minute: number; t: number; type: string; team: string; player: string; off?: string }[];
 }
 
-let cached: Promise<Summary> | null = null;
+/** The match being looked at: ?match= in the URL (remembered), else the last one picked. */
+export function matchId(): number {
+  const q = new URLSearchParams(location.search).get("match");
+  if (q) {
+    try { localStorage.setItem("fo.match", q); } catch { /* storage may be blocked */ }
+    return Number(q) || 7;
+  }
+  try { return Number(localStorage.getItem("fo.match")) || 7; } catch { return 7; }
+}
+
+const cached: Record<number, Promise<Summary>> = {};
 
 export function useSummary(): Summary | null {
   const [s, set] = useState<Summary | null>(null);
   useEffect(() => {
-    cached ??= fetch("/api/summary").then((r) => r.json());
-    cached.then(set).catch(() => { cached = null; });
+    const id = matchId();
+    cached[id] ??= fetch(`/api/summary?match=${id}`).then((r) => r.json());
+    cached[id].then(set).catch(() => { delete cached[id]; });
   }, []);
   return s;
+}
+
+export interface MatchListing {
+  match: number; title: string; date: string; venue: string; home: string; away: string;
+  score: Record<string, number>; goals: { player: string; name: string; team: string; minute: number }[]; plays: number;
 }
 
 export const playHref = (id: string) => `/?page=play&play=${encodeURIComponent(id)}`;

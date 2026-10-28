@@ -1,5 +1,6 @@
 // Live state: a tiny external store fed by the WebSocket. Frames go to a ring buffer
 // read by the render loop (no React re-render per frame); everything else is React state.
+import { matchId } from "../pages/summary";
 import { useSyncExternalStore } from "react";
 import { stepCaption, type Lang } from "../i18n";
 import type { AnalystView, AnswerAction, AnswerTable, BuildStep, Heat, Play, CardState, ModelSpec, ClientMsg, Frame, MatchMeta, Metrics, Moment, ServerMsg, TraceStep, Variant } from "./protocol";
@@ -161,7 +162,7 @@ class LiveStore {
     this.frames = [];
     this.state = { ...initial, statRing: savedStatRing() };
     const proto = location.protocol === "https:" ? "wss" : "ws";
-    const ws = new WebSocket(`${proto}://${location.host}/ws/live?speed=${speed}&start=${start}`);
+    const ws = new WebSocket(`${proto}://${location.host}/ws/live?speed=${speed}&start=${start}&match=${matchId()}`);
     this.ws = ws;
     ws.onopen = () => this.set({ connected: true });
     ws.onclose = () => this.ws === ws && this.set({ connected: false });

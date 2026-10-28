@@ -16,6 +16,7 @@ import { PlayStory } from "./pages/PlayStory";
 import { AvatarSheet } from "./pages/AvatarSheet";
 import { Mock } from "./pages/Mock";
 import { Thumb } from "./pages/Thumb";
+import { Matches } from "./pages/Matches";
 import { WatchHome } from "./pages/WatchHome";
 import { ScaledStage } from "./ui/ScaledStage";
 import { Timeline } from "./ui/Timeline";
@@ -42,6 +43,8 @@ export default function App() {
   if (page === "thumb") return <Thumb />;
   // Watch starts on a match page; the broadcast opens once you pick how to watch (?start=).
   if (page === "watch" && !q.has("start") && !q.has("play") && view !== "fan") return <WatchHome />;
+  // Analyse with nothing picked is the hub: every match you can break down.
+  if (page === "analyse" && !q.has("match") && !q.has("start") && !q.has("play") && !q.has("showme")) return <Matches />;
   if (page === "watch" || page === "analyse") return <Live initial={page === "analyse" ? "studio" : "fan"} />;
   return <Home />;
 }
@@ -117,6 +120,7 @@ function Analyse({ onFan }: { onFan: () => void }) {
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <span className="top-spacer" />
         <button className="hood-btn" onClick={() => setHood(true)}>⚙ Settings</button>
+        <a className="an-exit" href="/?page=analyse" title="Pick another match">All matches</a>
         <a className="an-exit" href="/?page=watch">← Back to the match</a>
       </header>
       <main className="main analyse">

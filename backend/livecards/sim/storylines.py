@@ -160,3 +160,60 @@ def default_storylines() -> Storylines:
             ], near=40, deadline=90),
         ],
     )
+
+
+def cup_storylines() -> Storylines:
+    """Match 2, the reverse story: Riverside's early lead, Northgate's comeback.
+
+      0'-50'   Northgate's Halden is starved of service.
+      ~14'     Riverside score early: Whitcombe from the edge after a Dravet through ball.
+      40'-55'  Riverside's dominant spell, but no second goal.
+      55'      Riverside's Calderinha fades.
+      60'      Northgate substitution: Benedetti on for Penberthy.
+      ~63'     Castagne equalises after Pilar's run down the right.
+      70'      Riverside substitution: Treharne on for Dravet.
+      ~84'     Benedetti wins it: Calderinha dispossessed, Benedetti finishes.
+    """
+    m = 60.0
+    return Storylines(
+        modifiers=[
+            TeamModifier("RIV", 40 * m, 55 * m, pass_bonus=0.07, shot_mult=1.5,
+                         forward_mult=1.4, pressers=1, tackle_mult=1.5),
+            TeamModifier("NGT", 40 * m, 55 * m, pass_bonus=-0.06, forward_mult=0.8),
+        ],
+        substitutions=[(60 * m, "NGT-11", "NGT-19"), (70 * m, "RIV-08", "RIV-16")],
+        fades=[Fade("RIV-06", 55 * m)],
+        quiet=[Quiet("NGT-09", 0, 50 * m)],
+        beats=[
+            Beat("riv_opener", 13 * m + 40, [
+                Start("RIV-08"),
+                Carry("RIV-08", lambda p: (p[0] + 6, p[1] * 0.6), speed=5.5),
+                Pass("RIV-08", "RIV-10", to=lambda p: (max(p[0], 26.0), 6.0), kind="through", speed_kmh=58),
+                Carry("RIV-10", (33.0, 4.0), speed=6.8),
+                Shot("RIV-10", target_y=-2.6, speed_kmh=101, outcome="goal", height=1.4),
+            ]),
+            Beat("ngt_equaliser", 62 * m + 30, [
+                Start("NGT-06"),
+                Carry("NGT-06", lambda p: (p[0] + 5, p[1] * 0.8), speed=4.5),
+                Pass("NGT-06", "NGT-07", to=_rw_receive, kind="long", speed_kmh=64, arc=3.2),
+                Carry("NGT-07", (38.0, -22.0), speed=8.9, accel=5.2),
+                Pass("NGT-07", "NGT-10", to=(39.0, 2.0), kind="cross", speed_kmh=70, arc=1.8),
+                Shot("NGT-10", target_y=-2.2, speed_kmh=97, outcome="goal", height=0.9),
+            ], near=40),
+            Beat("ngt_winner", 83 * m + 40, [
+                Start("RIV-06"),
+                Carry("RIV-06", lambda p: (p[0] + 3, p[1] + 1), speed=2.2),
+                Tackle("NGT-10", "RIV-06"),
+                Pass("NGT-10", "NGT-19", to=lambda p: (max(p[0], 30.0), -10.0)),
+                Carry("NGT-19", (40.0, -6.0), speed=7.0),
+                Shot("NGT-19", target_y=2.5, speed_kmh=103, outcome="goal", height=0.6),
+            ], near=40, deadline=90),
+        ],
+    )
+
+
+# Every match the app can show: seed -> (title, date, script). Same clubs, different stories.
+MATCHES: dict[int, tuple[str, str, Callable[[], Storylines]]] = {
+    7: ("Matchweek 9", "Sat 24 Oct", default_storylines),
+    11: ("Cup, round 3", "Wed 21 Oct", cup_storylines),
+}

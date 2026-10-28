@@ -6,7 +6,7 @@ import { formLevel } from "../ui/Overlays";
 import { PlayCard } from "./PlayCard";
 import { Avatar } from "../ui/Avatar";
 import { useState } from "react";
-import { useSummary, type Summary } from "./summary";
+import { matchId, useSummary, type Summary } from "./summary";
 import { Crest } from "../ui/Crest";
 import { club } from "../clubs";
 
@@ -49,7 +49,7 @@ export function WatchHome() {
           <div className="wm-side">
             <div className="wm-cta">
               <a className="hc-btn primary wm-kick" href={at(0)}>▶ Watch from kick-off</a>
-              <a className="hc-btn wm-kick" href="/?page=analyse">Analyse</a>
+              <a className="hc-btn wm-kick" href={`/?page=analyse&match=${matchId()}`}>Analyse</a>
             </div>
             <span className="wm-label">Or jump to a goal</span>
             <div className="wm-goals">
@@ -76,7 +76,7 @@ function MatchCentre({ s }: { s: Summary }) {
   return (
     <div className="mc">
       <section className="mc-plays">
-        <div className="l-head"><h2>Key plays</h2><a href="/?page=analyse">All {s.plays.length} plays</a></div>
+        <div className="l-head"><h2>Key plays</h2><a href={`/?page=analyse&match=${matchId()}`}>All {s.plays.length} plays</a></div>
         <div className="plays-grid four">
           {keyPlays.map((p) => <PlayCard key={p.id} play={p} title={`${name(p.player)} · ${p.outcome === "goal" ? "goal" : "chance"}`} />)}
         </div>
