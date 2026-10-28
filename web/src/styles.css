@@ -3461,3 +3461,9 @@ html:has(.story-page) { scroll-padding-top: 88px !important; scroll-padding-bott
 .ls-ch.on::before { left: 12px !important; top: 0 !important; width: 12px !important; height: calc(100% + 10px) !important;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 6px), 0 100%) !important; border-radius: 0; }
 .ls-ch.on .ls-n { padding-left: 22px !important; }
+/* Bookmark, take three: a short ribbon clipped over the tab's top edge, beside the number */
+.ls-ch.on::before { left: auto !important; right: 44px !important; top: -3px !important; width: 14px !important; height: 22px !important;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%) !important; }
+.ls-ch.on .ls-n { padding-left: 0 !important; }
+.ls-ch.on .ls-t { padding-right: 36px; }
+.ls-ch.on::before { right: 10px !important; }
