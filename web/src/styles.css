@@ -3437,3 +3437,8 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 /* Snap steps to the board's centre: no nav to clear any more, and the dots under the board
    lift its centre by half their height plus the gap */
 html:has(.story-page) { scroll-padding-top: 0 !important; scroll-padding-bottom: 30px !important; }
+/* Story nav pinned after all: it stays put while the steps scroll under it. The board sits
+   below it, and the snap point is the board's centre (nav 88px; dots lift the board 15px). */
+.story-page .sp-top { position: sticky !important; top: 0; z-index: 10; height: 88px; box-sizing: border-box; }
+.story-page .sp-visual { top: 100px !important; height: calc(100vh - 112px) !important; }
+html:has(.story-page) { scroll-padding-top: 88px !important; scroll-padding-bottom: 30px !important; }
