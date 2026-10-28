@@ -3044,3 +3044,10 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .mh-select { font: inherit; font-size: 12.5px; font-weight: 700; padding: 6px 8px; border: 0; background: #ebe8f5; color: #160f35; cursor: pointer; }
 .mh-count { font-size: 12.5px !important; }
 .l-main:has(.mh-grid) { gap: 22px !important; }
+/* Nav bar stripes: the right end, fading in from the left so the logo and tabs stay clear */
+.l-band > .nav-stripes { position: absolute !important; z-index: 0 !important; left: auto; right: 0; top: 0; width: 44%; height: 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 45%); mask-image: linear-gradient(90deg, transparent 0%, #000 45%); opacity: .9; }
+.l-band > :not(.nav-stripes) { position: relative; z-index: 1; }
+.lb-result { background: rgba(13,10,36,.82) !important; }
+.lb-note { background: rgba(13,10,36,.82) !important; }
+.mh-filters { margin-top: 0 !important; }

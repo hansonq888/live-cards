@@ -40,3 +40,20 @@ export function Bands({ className = "", fill = "#d4ff3a", w = 1200, h = 500, cor
     </svg>
   );
 }
+
+/** Repeating diagonal stripes with a step notch in each, for the right end of the nav bar. */
+export function Stripes({ className = "", fill = "#d4ff3a", w = 600, h = 200 }: { className?: string; fill?: string; w?: number; h?: number }) {
+  const n = 7, gap = w / (n - 1.5), thick = gap * 0.42, lean = h * 0.55;
+  const stripe = (x0: number) => {
+    const ny = h * 0.52, step = thick * 0.38;  // where the notch sits, and how far it steps
+    return `M ${x0} 0 L ${x0 + thick} 0 L ${x0 + thick - lean * (ny / h)} ${ny}
+      L ${x0 + thick - lean * (ny / h) + step} ${ny} L ${x0 + thick - lean + step} ${h}
+      L ${x0 - lean + step} ${h} L ${x0 - lean * (ny / h) + step} ${ny + thick * 0.0}
+      L ${x0 - lean * (ny / h)} ${ny} Z`;
+  };
+  return (
+    <svg className={`stripes ${className}`} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
+      <g fill={fill}>{Array.from({ length: n }, (_, i) => <path key={i} d={stripe(i * gap + lean * 0.6)} />)}</g>
+    </svg>
+  );
+}

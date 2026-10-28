@@ -29,11 +29,6 @@ export function Matches() {
   const go = (id: number, page: string) => `/?page=${page}&match=${id}`;
   return (
     <Shell page="watch">
-      <section className="mh-head">
-        <span className="mh-kicker">Match centre</span>
-        <h1>Matches<i>.</i></h1>
-        <p>Replay any play touch by touch, follow any player, and see every stat explained.</p>
-      </section>
       <div className="mh-filters">
         <div className="mh-chips" role="group" aria-label="Competition">
           {COMPS.map((c) => <button key={c} className={comp === c ? "on" : ""} onClick={() => setComp(c)}>{c}</button>)}
