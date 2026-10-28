@@ -1,6 +1,5 @@
 // Home: the match at a glance, the plays worth studying, and the way in to each stat.
 import { CurvedBolts } from "../ui/Bolts";
-import { Wordmark } from "../ui/Wordmark";
 import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
@@ -37,8 +36,8 @@ export function Home() {
       <section className="hero-card">
         <CurvedBolts className="hero-bolts" />
         <div className="hc-text">
-          <h1 className="hc-logo"><Wordmark /></h1>
-          <p className="hc-title">Understand every moment<span className="hc-dot">.</span></p>
+          <p className="hc-eyebrow">Match analysis, explained</p>
+          <h1>Understand every <span>moment</span><span className="hc-dot">.</span></h1>
           <p className="hc-lede">Every attack replayed from tracking data. Every stat explained in plain words. Every claim checked by AI agents before you see it.</p>
           <div className="hc-cta">
             <a className="hc-btn" href="/?page=watch">Watch the match</a>
