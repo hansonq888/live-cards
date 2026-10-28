@@ -11,7 +11,7 @@ const COMPS = ["All", "League", "Cup"] as const;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 /** "Sat 24 Oct" -> a number that sorts by date (one season, so month and day are enough). */
 const day = (d: string) => { const m = d.match(/(\d+)\s+(\w{3})/); return m ? MONTHS.indexOf(m[2]) * 40 + Number(m[1]) : 0; };
-const RESULTS = [["any", "Any result"], ["RIV", "Riverside wins"], ["NGT", "Northgate wins"], ["draw", "Draws"]] as const;
+const RESULTS = [["any", "Any result"], ["RIV", "Riverside win"], ["NGT", "Northgate win"], ["draw", "Draw"]] as const;
 
 export function Matches() {
   const [ms, setMs] = useState<MatchListing[] | null>(null);
@@ -38,12 +38,12 @@ export function Matches() {
         <div className="mh-chips" role="group" aria-label="Competition">
           {COMPS.map((c) => <button key={c} className={comp === c ? "on" : ""} onClick={() => setComp(c)}>{c}</button>)}
         </div>
-        <div className="mh-chips" role="group" aria-label="Result">
-          {RESULTS.map(([k, label]) => <button key={k} className={result === k ? "on" : ""} onClick={() => setResult(k)}>{label}</button>)}
-        </div>
-        <label className="mh-sort">Sort
-          <select value={sort} onChange={(e) => setSort(e.target.value as "new" | "old")}><option value="new">Newest first</option><option value="old">Oldest first</option></select>
-        </label>
+        <select className="mh-select" value={result} onChange={(e) => setResult(e.target.value)} aria-label="Result">
+          {RESULTS.map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+        </select>
+        <select className="mh-select" value={sort} onChange={(e) => setSort(e.target.value as "new" | "old")} aria-label="Sort">
+          <option value="new">Newest</option><option value="old">Oldest</option>
+        </select>
         <span className="mh-count">{shown.length} match{shown.length === 1 ? "" : "es"}</span>
       </div>
       {!ms ? <p className="mh-wait">Loading matches…</p> : shown.length === 0 ? <p className="mh-wait">No matches for those filters.</p> : (

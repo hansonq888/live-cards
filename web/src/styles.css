@@ -3038,3 +3038,9 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .mh-btn.primary:hover { background: #2a1f5a !important; }
 .mh-chips button { border-radius: 0 !important; }
 .mh-filters { border-radius: 0 !important; }
+/* Filter bar: one slim row, no box */
+.mh-filters { padding: 0 !important; background: none !important; box-shadow: none !important; gap: 8px !important; margin-top: -8px; }
+.mh-chips button { padding: 6px 11px !important; font-size: 12px !important; }
+.mh-select { font: inherit; font-size: 12.5px; font-weight: 700; padding: 6px 8px; border: 0; background: #ebe8f5; color: #160f35; cursor: pointer; }
+.mh-count { font-size: 12.5px !important; }
+.l-main:has(.mh-grid) { gap: 22px !important; }
