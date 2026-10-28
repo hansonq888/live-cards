@@ -564,3 +564,41 @@ export function FifthOfficialConcepts() {
     </div>
   );
 }
+
+// ---- Mini logos: the brand at small sizes (header, favicon, watermark) ----
+const MINIS: [string, string, (dark: boolean) => JSX.Element][] = [
+  ["Mini 1 · 5.", "The number and the full stop. Favicon, app icon, watermark.", (dark) => (
+    <svg viewBox="0 0 120 120" width="96" height="96"><rect width="120" height="120" rx="26" fill={dark ? "#fff" : V} />
+      <text x="54" y="92" textAnchor="middle" className="mini-5" fill={dark ? V : "#fff"}>5</text><rect x="82" y="76" width="16" height="16" fill={L} /></svg>
+  )],
+  ["Mini 2 · Fifth Official.", "One line, no THE: for tight headers and the video lower third.", (dark) => (
+    <svg viewBox="0 0 300 60" width="260" height="52"><text x="4" y="44" className="mini-line" fill={ink(dark)}>Fifth Official<tspan fill={L}>.</tspan></text></svg>
+  )],
+  ["Mini 3 · F.O.", "Initials with the lime full stop, like a referee's badge.", (dark) => (
+    <svg viewBox="0 0 120 120" width="96" height="96"><rect width="120" height="120" rx="26" fill={dark ? "#fff" : P} />
+      <text x="58" y="78" textAnchor="middle" className="mini-fo" fill={dark ? P : "#fff"}>FO<tspan fill={L}>.</tspan></text></svg>
+  )],
+  ["Mini 4 · THE 5th.", "THE over a big 5, matching the full logo's stack.", (dark) => (
+    <svg viewBox="0 0 120 120" width="96" height="96"><rect width="120" height="120" rx="26" fill={dark ? L : V} />
+      <text x="60" y="36" textAnchor="middle" className="mini-the" fill={dark ? V : L}>THE</text>
+      <text x="56" y="100" textAnchor="middle" className="mini-5 sm" fill={dark ? P : "#fff"}>5</text>
+      <text x="86" y="64" className="mini-th" fill={dark ? P : "#fff"}>th</text></svg>
+  )],
+  ["Mini 5 · Full stop", "Just the lime full stop on violet: the smallest possible mark.", (dark) => (
+    <svg viewBox="0 0 120 120" width="96" height="96"><rect width="120" height="120" rx="26" fill={dark ? "#160f35" : V} />
+      <rect x="40" y="40" width="40" height="40" fill={L} /></svg>
+  )],
+];
+
+export function FifthMinis() {
+  return (
+    <div className="lg-grid">
+      {MINIS.map(([title, note, M]) => (
+        <figure key={title}>
+          <div className="lg-pair mini"><div className="lg-light">{M(false)}</div><div className="lg-dark">{M(true)}</div></div>
+          <figcaption><b>{title}</b>{note}</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}

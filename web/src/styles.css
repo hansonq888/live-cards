@@ -2862,3 +2862,20 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .hero-card > .hero-bolts { position: absolute !important; z-index: 0 !important; }
 .lb-note { background: rgba(13,10,36,.7) !important; }
 .w-match .hero-bolts path:nth-child(2) { display: none; } .w-match .hero-bolts path:nth-child(1) { opacity: .55; }
+/* Home hero title in the logo's type: heavy Hanken Grotesk, sentence case, lime full stop */
+.hero-card .hc-text h1 { font-family: var(--headline) !important; font-style: normal !important; text-transform: none !important; font-weight: 900 !important; font-size: 72px !important; letter-spacing: -.045em !important; line-height: .98 !important; }
+.hero-card .hc-text h1 span { color: #fff !important; }
+.hero-card .hc-text h1 .hc-dot { color: #d4ff3a !important; }
+/* Home hero: the full logo, then the line */
+.hc-logo { margin: 0 0 6px; font-size: 64px; color: #fff; line-height: 0; }
+.hc-logo .wm-stack { height: 2.5em; }
+.hc-title { margin: 0; font-family: var(--headline); font-weight: 800; font-size: 34px; letter-spacing: -.03em; color: #fff; }
+.hc-title .hc-dot { color: #d4ff3a; }
+/* mini logos */
+.lg-pair.mini > div { display: flex; align-items: center; justify-content: center; min-height: 140px; }
+.mini-5 { font-family: var(--headline); font-weight: 900; font-size: 92px; letter-spacing: -4px; }
+.mini-5.sm { font-size: 70px; }
+.mini-line { font-family: var(--headline); font-weight: 900; font-size: 40px; letter-spacing: -1.6px; }
+.mini-fo { font-family: var(--headline); font-weight: 900; font-size: 50px; letter-spacing: -2px; }
+.mini-the { font-family: var(--headline); font-weight: 900; font-size: 17px; letter-spacing: 3px; }
+.mini-th { font-family: var(--headline); font-weight: 900; font-size: 18px; }
