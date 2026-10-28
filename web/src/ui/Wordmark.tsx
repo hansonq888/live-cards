@@ -1,16 +1,16 @@
 // The product name, in one place: change BRAND to rename the whole interface.
-export const BRAND = "Footnote";
+export const BRAND = "The Fifth Official";
 
-/** The logo (concept 22): a round mark with the footnote asterisk drawn like football seams,
- *  then the name in one colour on one line. */
+/** The logo (W9): THE over Fifth / Official, with a lime full stop. The big words take the
+ *  current text colour, so it works on any header. */
 export function Wordmark({ suffix }: { suffix?: string }) {
   return (
     <span className="wordmark" aria-label={BRAND}>
-      <svg className="wm-mark" viewBox="-30 -30 60 60" aria-hidden="true">
-        <circle r="30" />
-        <g>{[0, 60, 120].map((a) => <line key={a} x1="0" y1="-16" x2="0" y2="16" transform={`rotate(${a})`} />)}</g>
+      <svg className="wm-stack" viewBox="10 0 204 124" aria-hidden="true">
+        <text x="16" y="26" className="fo-the3" fill="#d4ff3a">THE</text>
+        <text x="14" y="68" className="fo-stack" fill="currentColor">Fifth</text>
+        <text x="14" y="114" className="fo-stack" fill="currentColor">Official<tspan fill="#d4ff3a">.</tspan></text>
       </svg>
-      <span aria-hidden="true">{BRAND}</span>
       {suffix && <em>{suffix}</em>}
     </span>
   );

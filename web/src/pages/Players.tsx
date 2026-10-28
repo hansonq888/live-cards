@@ -1,6 +1,7 @@
 import { useState } from "react";
 // Players: everyone who played, their form in words, and (on a player's page) their numbers
 // explained and the plays they were part of.
+import { CurvedBolts } from "../ui/Bolts";
 import { formLevel } from "../ui/Overlays";
 import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
@@ -62,6 +63,7 @@ function Directory({ s }: { s: Summary }) {
         ))}
       </div>
       <section className="sq-head" style={{ ["--club" as string]: team.color }}>
+        <CurvedBolts className="sq-bolts" plum="rgba(8,5,25,.28)" lime="rgba(255,255,255,.2)" line="rgba(255,255,255,.25)" />
         <Crest code={club} size={96} />
         <div className="sq-id">
           <h2>{team.name}</h2>
@@ -160,6 +162,7 @@ function PlayerPage({ p, s }: { p: PlayerSummary; s: Summary }) {
     <div className="pp-grid">
       <aside className="pp-side">
         <section className="l-phead pp-hero" style={{ ["--team" as string]: team.color }}>
+          <CurvedBolts className="pp-bolts" plum="rgba(8,5,25,.25)" lime="rgba(255,255,255,.2)" line="rgba(255,255,255,.22)" />
           <div className="pp-id">
             <span className="pp-bust"><Avatar player={p} color={team.color} size={200} bare /></span>
             <div>

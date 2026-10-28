@@ -55,9 +55,13 @@ function boardTexture(home: string): THREE.CanvasTexture {
   const x = c.getContext("2d")!;
   x.fillStyle = "#121a2a"; x.fillRect(0, 0, 2048, 64);
   x.font = "bold 40px Arial";
-  for (let i = 0; i < 6; i++) {
+  // Alternate the home club and our name, each spaced by its own width so nothing overlaps.
+  let px = 40;
+  for (let i = 0; px < 2048; i++) {
+    const text = i % 2 ? "THE FIFTH OFFICIAL" : home.toUpperCase();
     x.fillStyle = i % 2 ? ringColour() : "#ffffff";
-    x.fillText(i % 2 ? "FOOTNOTE" : home.toUpperCase(), 40 + i * 340, 46);
+    x.fillText(text, px, 46);
+    px += x.measureText(text).width + 120;
   }
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;

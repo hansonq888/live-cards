@@ -1,6 +1,7 @@
 // Light pages share this frame: a gradient brand band with tabs, then generous space.
 import type { ReactNode } from "react";
 import { Wordmark } from "../ui/Wordmark";
+import { CurvedBolts } from "../ui/Bolts";
 
 const LINKS = [["home", "Home"], ["watch", "Match"], ["learn", "Learn"], ["players", "Players"]] as const;
 
@@ -8,6 +9,7 @@ export function Shell({ page, children }: { page: string; children: ReactNode })
   return (
     <div className="light">
       <header className="l-band">
+        <CurvedBolts className="band-bolts" />
         <div className="lb-row">
           <a className="lb-brand" href="/"><Wordmark /></a>
           <span className="lb-note">Synthetic match · fictional clubs</span>

@@ -1,6 +1,9 @@
-# Footnote
+# The Fifth Official
 
-*Take a second look at every moment.*
+*Every moment explained. Every claim checked.*
+
+> In football, the fifth official is the VAR: the one who reviews every call. Here, it's the
+> layer that explains every moment and checks every claim before fans see it.
 
 [![ci](https://github.com/hansonq888/live-cards/actions/workflows/ci.yml/badge.svg)](https://github.com/hansonq888/live-cards/actions/workflows/ci.yml)
 ![tests](https://img.shields.io/badge/tests-197%20passing-2ea44f)
@@ -8,13 +11,13 @@
 ![Azure](https://img.shields.io/badge/runs%20on-Azure%20Container%20Apps-0078D4)
 
 **Football analytics that explains itself.** The league already publishes xG, pass maps and
-dozens of advanced stats, and most fans can't read them. Footnote turns a match into moments you
+dozens of advanced stats, and most fans can't read them. The Fifth Official turns a match into moments you
 can *understand*: ask why a goal happened and watch it replayed touch by touch on a tactics
 board, with the space each pass opened; follow any player and see every number change, with its
 reason; learn what each stat means from the match in front of you. **Numbers come from code,
 words from AI agents, and nothing reaches the screen until two independent checks pass.**
 
-![Footnote: Show me replays the 65' goal touch by touch on the tactics board, with each pass drawn, the space it opened and the checked story](docs/media/hero.gif)
+![The Fifth Official: Show me replays the 65' goal touch by touch on the tactics board, with each pass drawn, the space it opened and the checked story](docs/media/hero.gif)
 
 **[Live demo](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/)** ·
 **[Show me a goal](https://livecards.mangorock-d6a7d3f2.northcentralus.azurecontainerapps.io/?page=analyse&showme=e-1666)** ·
@@ -66,7 +69,7 @@ words from AI agents, and nothing reaches the screen until two independent check
 
 ## The brief's pipeline, end to end
 
-| Stage | How Footnote does it | Where |
+| Stage | How The Fifth Official does it | Where |
 |---|---|---|
 | **Ingest** | A 90-minute simulation: positions at 10 fps (54,000 frames), plus passes, shots, tackles, interceptions, pressures, fouls, cards, substitutions. It's published to **Azure Event Hubs** and ingested back by the engine. | [`sim/`](backend/livecards/sim), [`feed.py`](backend/livecards/feed.py) |
 | **Interpret** | Deterministic code turns events and tracking into stats, a 0–10 rating, five attributes, sprints and alerts, momentum, control vs. chaos, and *moments* scored for importance. **No model ever computes a number.** | [`engine/`](backend/livecards/engine) |
@@ -116,7 +119,7 @@ Identity is keyless in code: a service principal with narrowly scoped roles. See
 
 ## Vision layer: no tracking system needed
 
-Footnote runs on position data. To show it could also run from a broadcast picture, a
+The Fifth Official runs on position data. To show it could also run from a broadcast picture, a
 pretrained YOLO model (no training) finds players and splits teams by shirt colour, and a
 pitch homography places them in metres. We measured it against the simulator's ground truth on
 54 rendered frames ([docs/vision.md](docs/vision.md)):
