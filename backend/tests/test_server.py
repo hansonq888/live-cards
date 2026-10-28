@@ -322,3 +322,14 @@ def test_viewer_ai_switch_is_per_session():
             if ws.receive_json().get("type") == "model":
                 break
     assert plane().controls.feature("ai_lines") == before
+
+
+def test_pass_network():
+    """Both teams get nodes on the pitch and pass links between real teammates."""
+    r = TestClient(app).get("/api/passnet").json()
+    assert set(r) == {"RIV", "NGT"}
+    for code, net in r.items():
+        ids = {n["id"] for n in net["nodes"]}
+        assert len(ids) >= 11 and all(i.startswith(code) for i in ids)
+        assert all(-52.5 <= n["x"] <= 52.5 and -34 <= n["y"] <= 34 for n in net["nodes"])
+        assert net["edges"] and all(e["a"] in ids and e["b"] in ids and e["n"] >= 3 for e in net["edges"])

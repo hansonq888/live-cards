@@ -123,6 +123,15 @@ async def match_summary(match: int = 7) -> dict:
     return await asyncio.to_thread(summary, _seed(match))
 
 
+@app.get("/api/passnet")
+async def passnet(match: int = 7) -> dict:
+    """Pass network per team: average positions and completed passes between each pair."""
+    from livecards.engine.passnet import pass_network
+    from livecards.server.session import load_match
+
+    return await asyncio.to_thread(pass_network, load_match(_seed(match)))
+
+
 @app.get("/api/stats")
 async def stats_registry() -> dict:
     """Every stat, defined once: meaning, formula, calibratable settings, fan wording."""

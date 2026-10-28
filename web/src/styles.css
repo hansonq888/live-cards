@@ -3496,3 +3496,19 @@ html { font-synthesis: none; }
 .pxg-now { stroke: #d4ff3a; stroke-width: 1.4; stroke-dasharray: 3 3; }
 .pxg-shot { cursor: pointer; transition: r .15s; } .pxg-shot:hover { stroke-width: 2.6; }
 .pxg-empty { margin: 4px 0 0; font-size: 12px; color: var(--dim); }
+/* Pass network */
+.pn-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+.pn-tabs { display: flex; gap: 4px; padding: 3px; border-radius: 8px; background: #f1f0f7; }
+.pn-tabs button { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; color: #6c668a; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+.pn-tabs button.on { background: #fff; color: #160f35; box-shadow: 0 1px 3px rgba(22,15,53,.12); }
+.pn-note { font-size: 12px; color: #6c668a; }
+.pn-pitch { width: 100%; display: block; border-radius: 10px; }
+.pn-grass { fill: #1f6b3e; }
+.pn-lines rect, .pn-lines line, .pn-lines circle { fill: none; stroke: rgba(255,255,255,.35); stroke-width: .3; }
+.pn-edge { stroke: #fff; stroke-linecap: round; transition: opacity .15s; }
+.pn-node { cursor: pointer; transition: opacity .15s; }
+.pn-node circle { fill: var(--team); stroke: #fff; stroke-width: .35; }
+.pn-node.on circle { stroke: #d4ff3a; stroke-width: .7; }
+.pn-node text { fill: #fff; font-size: 2.4px; font-weight: 800; text-anchor: middle; pointer-events: none; }
+.pn-node .pn-name { font-size: 2px; font-weight: 600; fill: rgba(255,255,255,.85); }
+.pn .mo2-detail { margin-top: 12px; }

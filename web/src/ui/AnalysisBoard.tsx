@@ -9,6 +9,7 @@ import { XgRace } from "./XgRace";
 import { Avatar } from "./Avatar";
 import { Feed } from "./SidePanel";
 import { AgentTrace } from "./AgentTrace";
+import { PassNetwork } from "./PassNetwork";
 
 function Block({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
   return <section className={`bd-block ${className}`}><h3 className="bd-h">{title}</h3>{children}</section>;
@@ -41,6 +42,7 @@ export function AnalysisBoard() {
               <Block title="Shot map"><ShotMapAll s={s} /></Block>
               <Block title="Momentum"><Momentum s={s} /></Block>
             </div>
+            <Block title="Pass network"><PassNetwork s={s} /></Block>
           </>
         ) : tab === "box" ? <BoxScore s={s} />
         : tab === "agents" ? <Block title="Agents, live"><AgentTrace /></Block>
