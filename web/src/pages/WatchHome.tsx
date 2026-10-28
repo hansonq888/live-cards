@@ -191,31 +191,41 @@ export function BoxScore({ s }: { s: Summary }) {
 /** Who's playing: each club's crest, nickname, ground and a line of history. */
 function Clubs({ s }: { s: Summary }) {
   return (
-    <section className="l-card mc-clubs">
-      <h2 className="mc-h">The clubs</h2>
-      <div className="cl-grid">
-        {[s.meta.home, s.meta.away].map((t, i) => {
-          const c = club(t.code);
-          return (
-            <div key={t.code} className="cl-club" style={{ ["--club" as string]: t.color }}>
-              <Crest code={t.code} size={88} />
-              <div className="cl-text">
-                <span className="cl-side">{i === 0 ? "Home" : "Away"}</span>
+    <section className="clubs2">
+      {[s.meta.home, s.meta.away].map((t, i) => {
+        const c = club(t.code);
+        const ts = s.team[t.code];
+        const best = s.players.filter((p) => p.team === t.code).sort((a, b) => b.rating - a.rating)[0];
+        return (
+          <article key={t.code} className="cb" style={{ ["--club" as string]: t.color }}>
+            <div className="cb-top">
+              <Crest code={t.code} size={96} />
+              <div className="cb-id">
+                <span className="cb-side">{i === 0 ? "Home" : "Away"}{c && ` · Est. ${c.founded}`}</span>
                 <h3>{t.name}</h3>
-                {c && <>
-                  <p className="cl-nick">“{c.nickname}” · {c.city}, {c.region}</p>
-                  <dl>
-                    <div><dt>Founded</dt><dd>{c.founded}</dd></div>
-                    <div><dt>Ground</dt><dd>{c.stadium}</dd></div>
-                    <div><dt>Capacity</dt><dd>{c.capacity.toLocaleString("en-GB")}</dd></div>
-                  </dl>
-                  <p className="cl-hist">{c.history}</p>
-                </>}
+                {c && <p>“{c.nickname}” · {c.city}</p>}
               </div>
+              <b className="cb-goals">{s.score[t.code]}</b>
             </div>
-          );
-        })}
-      </div>
+            {c && <p className="cb-hist">{c.history}</p>}
+            <dl className="cb-facts">
+              {c && <div><dt>Ground</dt><dd>{c.stadium}</dd></div>}
+              {c && <div><dt>Capacity</dt><dd>{c.capacity.toLocaleString("en-GB")}</dd></div>}
+              <div><dt>Possession</dt><dd>{Math.round(ts.possession)}%</dd></div>
+              <div><dt>xG</dt><dd>{ts.xg.toFixed(2)}</dd></div>
+              <div><dt>Shots</dt><dd>{ts.shots} <small>({ts.shots_on_target} on target)</small></dd></div>
+              <div><dt>Pass accuracy</dt><dd>{Math.round(ts.pass_pct)}%</dd></div>
+            </dl>
+            {best && (
+              <a className="cb-best" href={`/?page=players&id=${best.id}`}>
+                <span className="cb-face"><Avatar player={best} color={t.color} size={44} bare /></span>
+                <span><em>Best on the day</em><b>{best.short}</b></span>
+                <strong>{best.rating.toFixed(1)}</strong>
+              </a>
+            )}
+          </article>
+        );
+      })}
     </section>
   );
 }
