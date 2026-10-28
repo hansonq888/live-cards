@@ -107,7 +107,7 @@ const ICONS: Record<string, (dark: boolean) => JSX.Element> = {
   card: (dark) => (
     <g>
       <rect x="20" y="10" width="52" height="78" rx="7" fill={L} />
-      <path d="M31 50 l10 11 l21 -24" fill="none" stroke={P} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M31 50 l10 11 l21 -24" fill="none" stroke={P} strokeWidth="7" strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit="10" />
       {dark ? null : <rect x="20" y="10" width="52" height="78" rx="7" fill="none" stroke={P} strokeWidth="2" opacity=".15" />}
     </g>
   ),
