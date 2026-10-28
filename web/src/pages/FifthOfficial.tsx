@@ -224,6 +224,38 @@ function Lockup3({ dark, icon }: C & { icon: string }) {
   );
 }
 
+/** One line: the mark, then "THE" small and "Fifth Official" in the heavy wordmark. */
+function LockupLine({ dark, icon, the = true }: C & { icon: string; the?: boolean }) {
+  return (
+    <svg viewBox="0 0 380 80" className="lg">
+      <Mark icon={icon} dark={dark} x={6} y={10} w={60} h={60} />
+      <text x="78" y="53" className="fo-line" fill={ink(dark)}>
+        {the && <tspan className="fo-line-the" fill={dark ? L : V} dy="-2">THE </tspan>}
+        <tspan dy={the ? 2 : 0}>Fifth Official</tspan>
+      </text>
+    </svg>
+  );
+}
+
+const LINE: [string, string, boolean][] = [
+  ["card", "A · Checked card", true], ["card", "A · Checked card, no THE", false],
+  ["card5", "F · Card with 5", true], ["board", "H · +5 board", true],
+  ["shieldcheck", "K · Shield check", true], ["asterisk", "B · Asterisk", true],
+];
+
+export function FifthLineConcepts() {
+  return (
+    <div className="lg-grid">
+      {LINE.map(([icon, title, the], i) => (
+        <figure key={i}>
+          <div className="lg-pair"><div className="lg-light"><LockupLine dark={false} icon={icon} the={the} /></div><div className="lg-dark"><LockupLine dark icon={icon} the={the} /></div></div>
+          <figcaption><b>{title}</b>One line.</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
 const MORE: [string, string, string][] = [
   ["card5", "F · Card with 5", "The lime card carries the 5 instead of a tick."],
   ["cards", "G · Two cards", "A violet card and the lime checked card, fanned."],
