@@ -3512,3 +3512,15 @@ html { font-synthesis: none; }
 .pn-node text { fill: #fff; font-size: 2.4px; font-weight: 800; text-anchor: middle; pointer-events: none; }
 .pn-node .pn-name { font-size: 2px; font-weight: 600; fill: rgba(255,255,255,.85); }
 .pn .mo2-detail { margin-top: 12px; }
+/* Chance quality scatter, and the pass network at half width */
+.cq-chart { width: 100%; display: block; background: #f6f5fb; border-radius: 10px; }
+.cq-axis { stroke: #c9c4de; stroke-width: .35; }
+.cq-q { font-size: 2.3px; font-weight: 700; fill: #8a85a3; text-transform: uppercase; letter-spacing: .1px; }
+.cq-q.end { text-anchor: end; }
+.cq-lab { font-size: 2.3px; fill: #8a85a3; text-anchor: middle; }
+.cq-dot { cursor: pointer; } .cq-dot circle { stroke: #fff; stroke-width: .4; }
+.cq-dot.on circle { stroke: #160f35; stroke-width: .7; }
+.cq-dot text { font-size: 2.3px; font-weight: 700; fill: #160f35; pointer-events: none; }
+.cq .mo2-detail { margin-top: 12px; }
+.bd-row.two .pn-note { display: none; }
+.bd-row.two .pn-node .pn-name { font-size: 2.6px; }
