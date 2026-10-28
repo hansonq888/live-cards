@@ -3275,3 +3275,24 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .vset-row em { font-size: 12px; }
 .vset-back { padding-bottom: 7px !important; margin-bottom: 2px; }
 .vset-switch { width: 26px; height: 14px; } .vset-switch i { width: 10px; height: 10px; } .vset-switch.on i { left: 14px; }
+/* Fan view controls, YouTube-style: a full-width strip over a bottom gradient, no box */
+.fan-bar { left: 0 !important; right: 0; bottom: 0 !important; width: auto !important; transform: translateY(8px) !important; border-radius: 0 !important; box-shadow: none !important; backdrop-filter: none !important;
+  background: linear-gradient(transparent, rgba(5,3,18,.6) 40%, rgba(5,3,18,.88)) !important; padding: 48px 24px 14px !important; gap: 4px !important; transition: opacity .2s, transform .2s !important; }
+.fan-view.awake .fan-bar { transform: none !important; }
+.fan-bar .timeline { padding: 0 !important; }
+.fan-bar .fb-row { gap: 12px; }
+.fb-play { width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: #fff; cursor: pointer; }
+.fb-play:hover { background: rgba(255,255,255,.12); }
+.fb-clock { font-size: 14px !important; color: #fff; } .fb-clock em { font-style: normal; color: rgba(255,255,255,.6); }
+.fb-link { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: #fff; font: inherit; font-size: 13px; font-weight: 600; padding: 7px 10px; border-radius: 8px; cursor: pointer; text-decoration: none; }
+.fb-link:hover { background: rgba(255,255,255,.12); }
+.fan-bar .vset-menu { right: 16px; bottom: 60px; }
+.fan-view:has(.vset-menu) .fan-bar { opacity: 1; transform: none !important; pointer-events: auto; }
+/* Shot map detail under the legend (replaces the floating tip) */
+.sma-detail { margin-top: 12px; text-transform: none; }
+.sma-detail span:not(.mo2-hint) { text-transform: capitalize; font-weight: 600 !important; color: #4a4466; }
+.sma-show { margin-left: auto; border: 0; background: #160f35; color: #fff; font: inherit; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+.sma-show:hover { background: #4b2bd6; }
+/* Settings gear: spin the icon only, no rotated box */
+.vset-gear.open { transform: none; background: rgba(255,255,255,.12); } .vset-gear svg { transition: transform .25s; } .vset-gear.open svg { transform: rotate(45deg); }
+.sma-detail span:not(.mo2-hint) { text-transform: none !important; }

@@ -167,15 +167,20 @@ function ShotMapAll({ s }: { s: Summary }) {
             </div>
           );
         })}
-        {shown && (
-          <div className="sma-tip">
-            <b>{name(shown.player)} {shown.minute}′</b>
-            <span>{shown.outcome === "goal" ? "Goal" : shown.outcome.replace("_", " ")} · xG {shown.xg.toFixed(2)}</span>
-            <em>▶ Click to show me</em>
-          </div>
-        )}
       </div>
       <div className="sma-key"><span><i className="k-big" />bigger = better chance</span><span><i className="k-goal" />goal</span></div>
+      {/* The hovered (or open) shot, in the space under the pitches */}
+      <div className="mo2-detail sma-detail">
+        {shown ? (
+          <>
+            <b style={{ color: shown.team === home.code ? home.color : away.color }}>{name(shown.player)} {shown.minute}′</b>
+            <span>{shown.outcome === "goal" ? "Goal" : shown.outcome[0].toUpperCase() + shown.outcome.slice(1).replace("_", " ")}</span>
+            <span>xG {shown.xg.toFixed(2)}</span>
+            <span>{Math.round(Math.hypot(52.5 - shown.ax, shown.ay))} m out</span>
+            <button className="sma-show" onClick={() => live.showMe(shown.id)}>▶ Show me</button>
+          </>
+        ) : <span className="mo2-hint">Hover a shot for the detail. Click one to replay it.</span>}
+      </div>
     </div>
   );
 }

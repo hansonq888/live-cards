@@ -1,15 +1,15 @@
-// Fan view: the broadcast, full screen, nothing else. Controls appear when you move the mouse.
+// Fan view: the broadcast, full screen, nothing else. Controls appear, YouTube-style, when the
+// mouse is near the bottom of the screen (or the match is paused) and fade soon after it leaves.
 import { matchId } from "../pages/summary";
 import { BoardSwitch } from "../viewer/BoardSwitch";
 import { Icon } from "./Icon";
-import { Wordmark } from "./Wordmark";
 import { useEffect, useRef, useState } from "react";
 import { clock, live, useLang, useLive } from "../live/store";
 import { t as tr } from "../i18n";
 import { Viewer } from "../viewer/Viewer";
 import { BuildUpPanel, DirectorTicker, ExplainGoalButton, GoalBanner, PlayerCard, RedTeamPanel, RevisitBadge, ScoreBug } from "./Overlays";
 import { ScaledStage } from "./ScaledStage";
-import { Ask, ProfilePicker, StatRingPicker } from "./SidePanel";
+import { Ask, ViewerSettings } from "./SidePanel";
 import { Timeline } from "./Timeline";
 
 export function FanView({ onStudio }: { onStudio: () => void }) {
@@ -17,17 +17,16 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
   const lang = useLang();
   const [active, setActive] = useState(true);
   const [askOpen, setAskOpen] = useState(false);
-  const [viewOpen, setViewOpen] = useState(false);
   const t = useLive((s) => s.t);
   const timer = useRef<number>();
-  const wake = () => {
-    setActive(true);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setActive(false), 2800);
+  const sleepSoon = (ms = 1200) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => setActive(false), ms); };
+  // Only the bottom of the screen wakes the controls, so watching (or pointing at a player) doesn't.
+  const onMove = (e: React.MouseEvent) => {
+    if (window.innerHeight - e.clientY < 160) { setActive(true); sleepSoon(); }
   };
-  useEffect(() => { wake(); return () => window.clearTimeout(timer.current); }, []);
+  useEffect(() => { sleepSoon(2500); return () => window.clearTimeout(timer.current); }, []);
   return (
-    <div className={`fan-view ${active || askOpen || viewOpen ? "awake" : ""}`} onMouseMove={wake}>
+    <div className={`fan-view ${active || askOpen || paused ? "awake" : ""}`} onMouseMove={onMove}>
       <ScaledStage fit="contain">
         <Viewer />
         <BoardSwitch />
@@ -39,21 +38,18 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
         <RevisitBadge />
         <BuildUpPanel />
       </ScaledStage>
-      <a className="fan-back" href={`/?page=watch&match=${matchId()}`} onMouseMove={(e) => e.stopPropagation()}><Icon name="chevron" size={16} /> Back to the match</a>
-      <div className="fan-bar" onMouseMove={(e) => e.stopPropagation()} onMouseEnter={() => { window.clearTimeout(timer.current); setActive(true); }}>
+      <div className="fan-bar" onMouseMove={(e) => e.stopPropagation()}
+        onMouseEnter={() => { window.clearTimeout(timer.current); setActive(true); }} onMouseLeave={() => sleepSoon()}>
         <Timeline />
         <div className="fb-row">
-          <button className="round" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={18} /></button>
-          <span className="fb-clock">{clock(t)}</span>
+          <button className="fb-play" onClick={() => live.send({ type: paused ? "play" : "pause" })} aria-label={paused ? "Play" : "Pause"}><Icon name={paused ? "play" : "pause"} size={20} /></button>
+          <span className="fb-clock">{clock(t)} <em>/ 90:00</em></span>
           <ExplainGoalButton />
           <span className="fb-spacer" />
-          <a className="fb-home" href="/" aria-label="Home"><Wordmark /></a>
-          <div className="fb-menu">
-            <button className={`ghost ${viewOpen ? "on" : ""}`} onClick={() => setViewOpen((o) => !o)} aria-expanded={viewOpen}>{tr(lang, "view")} <Icon name="chevron" size={14} /></button>
-            {viewOpen && <div className="fb-pop"><ProfilePicker /><StatRingPicker /></div>}
-          </div>
-          <button className="ghost" onClick={onStudio}>{tr(lang, "analyse")}</button>
+          <a className="fb-link" href={`/?page=watch&match=${matchId()}`}><Icon name="back" size={14} /> Match centre</a>
+          <button className="fb-link" onClick={onStudio}>{tr(lang, "analyse")}</button>
           <button className={`ask-btn ${askOpen ? "open" : ""}`} onClick={() => setAskOpen((o) => !o)} aria-expanded={askOpen}>{askOpen ? <Icon name="close" /> : <><Icon name="chat" /> {tr(lang, "ask")}</>}</button>
+          <ViewerSettings />
         </div>
       </div>
       {askOpen && <div className="ask-drawer"><Ask /></div>}
