@@ -35,7 +35,7 @@ Move the mouse slowly; record a little long (it gets trimmed).
      click the corner view to switch broadcast ↔ tactics once.
   3. Click **Exit to analysis** → click two players on the pitch (their card opens) → **Colour by →
      Engine** → switch to the tactics view so the rings show there too → **Settings → Your model** → change a
-     weight → close and watch ratings change → (optional) ⚙ → Language → Español for one second.
+     weight → close and watch ratings change. That ends the take.
 - **learn.mov (~12 s):** in the play-by-play, click a **"Learn: pass difficulty →"** link → let the loop play → click a quiz answer.
 - **agents.mov (~30 s):** `/?page=analyse&start=3900` → Agents tab → **Plant a lie** → red row →
   switch to a tab already open on `/?view=console` for 3 s.
