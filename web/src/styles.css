@@ -3413,3 +3413,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 @media (max-width: 800px) { .ls-clip { grid-template-columns: 1fr; } }
 /* Hero: an even gradient, no bright corner glow */
 .hero-card { background: linear-gradient(125deg, #4527dc 0%, #3a1fd0 50%, #2a24b4 100%) !important; }
+.story-page .sp-step.on { box-shadow: 0 18px 44px rgba(22,15,53,.12) !important; }
