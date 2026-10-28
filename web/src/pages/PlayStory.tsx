@@ -129,11 +129,9 @@ export function PlayStory() {
           {b && (
             <div className="sp-chips" role="tablist" aria-label="Touches">
               {b.steps.map((st, i) => (
-                <button key={i} className={`${i < active ? "done" : ""} ${i === active ? "on" : ""}`} onClick={() => jump(i)} title={stepCaption("en", st)}>
-                  <span>{String(i + 1).padStart(2, "0")}</span><em>{KIND[st.kind]?.[0] ?? st.kind}</em>
-                </button>
+                <button key={i} className={`${i < active ? "done" : ""} ${i === active ? "on" : ""}`} onClick={() => jump(i)}
+                  title={stepCaption("en", st)} aria-label={`Touch ${i + 1}: ${KIND[st.kind]?.[0] ?? st.kind}`} />
               ))}
-              <span className="sp-keys">← → to step</span>
             </div>
           )}
         </div>

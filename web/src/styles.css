@@ -3414,3 +3414,23 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 /* Hero: an even gradient, no bright corner glow */
 .hero-card { background: linear-gradient(125deg, #4527dc 0%, #3a1fd0 50%, #2a24b4 100%) !important; }
 .story-page .sp-step.on { box-shadow: 0 18px 44px rgba(22,15,53,.12) !important; }
+/* Story: touches as simple dots under the board */
+.sp-chips { gap: 10px; }
+.sp-chips button { width: 12px; height: 12px; padding: 0; border-radius: 50% !important; background: #dcd8ec !important; box-shadow: none !important; transition: transform .2s, background .2s; }
+.sp-chips button:hover { transform: scale(1.3); }
+.sp-chips button.done { background: color-mix(in srgb, var(--team, #4b2bd6) 45%, #fff) !important; }
+.sp-chips button.on { background: var(--team, #4b2bd6) !important; transform: scale(1.45); }
+/* Story steps as message bubbles: rounded, a tail at the bottom left */
+.story-page .sp-step { position: relative; border-radius: 26px 26px 26px 6px !important; overflow: visible; }
+.story-page .sp-step::after { content: ""; position: absolute; left: -9px; bottom: 0; width: 20px; height: 18px; background: #fff; clip-path: polygon(100% 0, 100% 100%, 0 100%); border-bottom-left-radius: 4px; }
+.story-page .sp-step .sp-stats div, .story-page .sp-step .sp-spacebar { border-radius: 16px !important; }
+.story-page .sp-step.on { background: #fff; }
+.story-page .sp-intro .sp-poster { border-radius: 26px 26px 26px 6px; }
+/* Bubble tail on the bottom right, under the player's portrait */
+.story-page .sp-step { border-radius: 26px 26px 6px 26px !important; }
+.story-page .sp-step::after { left: auto; right: -9px; clip-path: polygon(0 0, 100% 100%, 0 100%); border-bottom-left-radius: 0; border-bottom-right-radius: 4px; }
+.story-page .sp-intro .sp-poster { border-radius: 26px 26px 6px 26px; }
+.story-page .sp-step::after { width: 26px; height: 24px; right: -14px; }
+/* Story nav: static, scrolls away with the page instead of riding along */
+.story-page .sp-top { position: static !important; }
+.story-page .sp-visual { top: 24px !important; height: calc(100vh - 48px) !important; }
