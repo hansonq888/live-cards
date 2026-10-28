@@ -1,4 +1,5 @@
 // Home: the match at a glance, the plays worth studying, and the way in to each stat.
+import { matchId } from "./summary";
 import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
@@ -38,7 +39,7 @@ export function Home() {
           <h1>Understand every <span>moment.</span></h1>
           <p className="hc-lede">Every attack replayed from tracking data. Every stat explained in plain words. Every claim checked by AI agents before you see it.</p>
           <div className="hc-cta">
-            <a className="hc-btn" href="/?page=watch">Watch the match</a>
+            <a className="hc-btn" href="/?page=watch">Browse matches</a>
             <a className="hc-btn primary" href="/?page=analyse">Analyse the plays</a>
           </div>
         </div>
@@ -46,7 +47,7 @@ export function Home() {
           <div className="vs2">
             {[meta.home, meta.away].map((t, side) => {
               return (
-                <a key={t.code} className={`vs2-team ${side ? "away" : "home"}`} href="/?page=watch" style={{ ["--club" as string]: t.color }}>
+                <a key={t.code} className={`vs2-team ${side ? "away" : "home"}`} href={`/?page=watch&match=${matchId()}`} style={{ ["--club" as string]: t.color }}>
                   <Bolt />
                   <span className="vs2-crest"><Crest code={t.code} size={96} /></span>
                   <span className="vs2-name">{t.name}</span>

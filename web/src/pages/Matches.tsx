@@ -1,6 +1,6 @@
-// The Analyse hub (?page=analyse with no match picked): every match the app can break down,
-// filterable by competition and result. Picking one opens Analyse on it; the choice is
-// remembered, so the Match, Players and story pages follow it.
+// Matches (?page=watch with no game picked): every game, filterable by competition and result.
+// Picking one opens its match centre; the choice is remembered, so Analyse, Players and the
+// story pages follow it.
 import { useEffect, useMemo, useState } from "react";
 import { Shell } from "./Shell";
 import { Crest } from "../ui/Crest";
@@ -28,10 +28,10 @@ export function Matches() {
     .sort((a, b) => (sort === "new" ? 1 : -1) * (day(b.date) - day(a.date) || b.match - a.match)), [ms, comp, result, sort]);
   const go = (id: number, page: string) => `/?page=${page}&match=${id}`;
   return (
-    <Shell page="analyse">
+    <Shell page="watch">
       <section className="mh-head">
-        <span className="mh-kicker">Match analysis</span>
-        <h1>Pick a match<i>.</i></h1>
+        <span className="mh-kicker">Match centre</span>
+        <h1>Matches<i>.</i></h1>
         <p>Replay any play touch by touch, follow any player, and see every stat explained.</p>
       </section>
       <div className="mh-filters">
@@ -85,8 +85,8 @@ export function Matches() {
                   <div><span>Plays</span><b>{m.plays}</b></div>
                 </div>
                 <div className="mh-actions">
-                  <a className="mh-btn primary" href={go(m.match, "analyse")}>Analyse →</a>
-                  <a className="mh-btn" href={go(m.match, "watch")}>Match centre</a>
+                  <a className="mh-btn primary" href={go(m.match, "watch")}>Match centre →</a>
+                  <a className="mh-btn" href={go(m.match, "analyse")}>Analyse</a>
                   <a className="mh-btn" href={`/?page=watch&match=${m.match}&start=0`}>▶ Watch</a>
                 </div>
               </article>

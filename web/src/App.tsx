@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { matchId } from "./pages/summary";
 import { BoardSwitch } from "./viewer/BoardSwitch";
 import { Icon } from "./ui/Icon";
 import { clock, live, useLive } from "./live/store";
@@ -42,9 +43,8 @@ export default function App() {
   if (page === "mock") return <Mock />;
   if (page === "thumb") return <Thumb />;
   // Watch starts on a match page; the broadcast opens once you pick how to watch (?start=).
-  if (page === "watch" && !q.has("start") && !q.has("play") && view !== "fan") return <WatchHome />;
-  // Analyse with nothing picked is the hub: every match you can break down.
-  if (page === "analyse" && !q.has("match") && !q.has("start") && !q.has("play") && !q.has("showme")) return <Matches />;
+  // Match with no game picked lists every game; with ?match= it's that game's match centre.
+  if (page === "watch" && !q.has("start") && !q.has("play") && view !== "fan") return q.has("match") ? <WatchHome /> : <Matches />;
   if (page === "watch" || page === "analyse") return <Live initial={page === "analyse" ? "studio" : "fan"} />;
   return <Home />;
 }
@@ -120,8 +120,8 @@ function Analyse({ onFan }: { onFan: () => void }) {
         <div className="fixture">{meta ? `${meta.home.name} v ${meta.away.name} · ${meta.venue}` : "Connecting…"}</div>
         <span className="top-spacer" />
         <button className="hood-btn" onClick={() => setHood(true)}>⚙ Settings</button>
-        <a className="an-exit" href="/?page=analyse" title="Pick another match">All matches</a>
-        <a className="an-exit" href="/?page=watch">← Back to the match</a>
+        <a className="an-exit" href="/?page=watch" title="Pick another match">All matches</a>
+        <a className="an-exit" href={`/?page=watch&match=${matchId()}`}>← Back to the match</a>
       </header>
       <main className="main analyse">
         <section className="broadcast">

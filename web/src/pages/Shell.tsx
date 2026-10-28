@@ -2,9 +2,9 @@
 import type { ReactNode } from "react";
 import { Wordmark } from "../ui/Wordmark";
 import { Crest } from "../ui/Crest";
-import { useSummary } from "./summary";
+import { matchId, useSummary } from "./summary";
 
-const LINKS = [["home", "Home"], ["watch", "Match"], ["analyse", "Analyse"], ["learn", "Learn"], ["players", "Players"]] as const;
+const LINKS = [["home", "Home"], ["watch", "Matches"], ["learn", "Learn"], ["players", "Players"]] as const;
 
 export function Shell({ page, children }: { page: string; children: ReactNode }) {
   const s = useSummary();
@@ -16,7 +16,7 @@ export function Shell({ page, children }: { page: string; children: ReactNode })
           <a className="lb-brand" href="/"><Wordmark /></a>
           <div className="lb-right">
             {m && s && (
-              <a className="lb-result" href="/?page=watch" title="Latest result">
+              <a className="lb-result" href={`/?page=watch&match=${matchId()}`} title="This match">
                 <span className="lbr-tag">FT</span>
                 <Crest code={m.home.code} size={20} /><b>{m.home.code}</b>
                 <b className="lbr-score">{s.score[m.home.code]}–{s.score[m.away.code]}</b>

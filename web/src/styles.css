@@ -2934,7 +2934,6 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .mh-btn { background: rgba(8,5,25,.32); }
 /* Nav bar: plain violet, square buttons */
 .l-band { background: linear-gradient(100deg, #3a1fd0 0%, #4526e0 100%) !important; }
-.lb-result, .lb-cta, .lbr-tag, .lb-note, .lb-tabs a, .lb-tabs a.on { border-radius: 0 !important; }
 /* ===== Analyse hub, sportier ===== */
 .mh-head { margin-bottom: 4px; }
 .mh-kicker { font-size: 12px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: #4b2bd6; }
@@ -2984,3 +2983,30 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .mh-top, .mh-score, .mh-goals, .mh-team, .mh-num, .mh-tag { display: none; }
 @media (max-width: 600px) { .mh-grid { grid-template-columns: 1fr !important; } .mh-big { font-size: 64px; } .mh-stats { grid-template-columns: 1fr 1fr; } }
 .mh-big i { padding: 0 14px !important; opacity: .45 !important; font-size: .8em; vertical-align: .08em; }
+/* Nav bar spacing: less above the logo, more between the logo and the tabs */
+.l-band { padding-top: 0 !important; }
+.l-band .lb-row { padding-top: 16px !important; padding-bottom: 18px !important; }
+.l-band .lb-row { padding-top: 14px !important; padding-bottom: 28px !important; align-items: center; }
+/* Match cards, simpler and lighter: white card, club colours as a thin accent */
+.mh-card { background: #fff !important; box-shadow: 0 0 0 1px rgba(22,15,53,.08), 0 10px 26px rgba(30,20,90,.08) !important; }
+.mh-card:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(22,15,53,.12), 0 16px 34px rgba(30,20,90,.14) !important; }
+.mh-strip { background: transparent; color: #6c668a; border-bottom: 1px solid #eeecf6; }
+.mh-comp { background: #ece9f8 !important; color: #3a1fd0 !important; }
+.mh-ft { background: #e8fbf1; color: #0f8a55; }
+.mh-body { background: #fff !important; padding: 22px 20px 18px !important; }
+.mh-body::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: linear-gradient(90deg, var(--home) 50%, var(--away) 50%); }
+.mh-body::after, .mh-ghost { display: none !important; }
+.mh-side { color: #160f35 !important; }
+.mh-side .crest { filter: none !important; }
+.mh-side b { font-family: var(--headline) !important; font-style: normal !important; font-weight: 800 !important; text-transform: none !important; font-size: 18px !important; }
+.mh-side ul { color: #6c668a !important; }
+.mh-big { background: transparent !important; box-shadow: none !important; color: #160f35 !important; font-family: var(--headline) !important; font-style: normal !important; font-weight: 900 !important; font-size: 60px !important; letter-spacing: -2px; padding: 0 !important; }
+.mh-stats { background: #f7f6fc !important; color: #160f35 !important; }
+.mh-stats > div { border-right-color: #eeecf6 !important; }
+.mh-stats span { color: #8a85a6 !important; }
+.mh-actions { background: #fff !important; border-top: 1px solid #eeecf6; }
+.mh-btn { color: #3a3358 !important; border-right-color: #eeecf6 !important; font-size: 12.5px !important; }
+.mh-btn:hover { background: #f4f2fb !important; }
+.mh-btn.primary { background: #3a1fd0 !important; color: #fff !important; }
+.mh-btn.primary:hover { background: #2a14a8 !important; }
+.mh-head h1 { font-family: var(--headline) !important; font-style: normal !important; text-transform: none !important; font-size: 48px !important; letter-spacing: -.04em !important; }

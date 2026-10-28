@@ -18,7 +18,7 @@ const STATS: [string, string, (v: number) => string][] = [
 const FORM = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
 const ICON: Record<string, string> = { goal: "⚽", yellow: "▮", red: "▮", sub: "⇄" };
 
-const at = (t: number) => `/?page=watch&start=${Math.max(0, Math.round(t))}`;
+const at = (t: number) => `/?page=watch&match=${matchId()}&start=${Math.max(0, Math.round(t))}`;
 
 // The few numbers that most explain a rating, in words.
 function why(st: Record<string, number>) {

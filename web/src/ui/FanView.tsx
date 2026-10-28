@@ -1,4 +1,5 @@
 // Fan view: the broadcast, full screen, nothing else. Controls appear when you move the mouse.
+import { matchId } from "../pages/summary";
 import { BoardSwitch } from "../viewer/BoardSwitch";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
@@ -38,7 +39,7 @@ export function FanView({ onStudio }: { onStudio: () => void }) {
         <RevisitBadge />
         <BuildUpPanel />
       </ScaledStage>
-      <a className="fan-back" href="/?page=watch" onMouseMove={(e) => e.stopPropagation()}><Icon name="chevron" size={16} /> Back to the match</a>
+      <a className="fan-back" href={`/?page=watch&match=${matchId()}`} onMouseMove={(e) => e.stopPropagation()}><Icon name="chevron" size={16} /> Back to the match</a>
       <div className="fan-bar" onMouseMove={(e) => e.stopPropagation()} onMouseEnter={() => { window.clearTimeout(timer.current); setActive(true); }}>
         <Timeline />
         <div className="fb-row">
