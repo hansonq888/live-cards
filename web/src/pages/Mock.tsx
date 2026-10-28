@@ -3,7 +3,7 @@ import { useSummary, type PlayerSummary } from "./summary";
 import { Avatar, type AvatarLook } from "../ui/Avatar";
 import { Doodle, type DoodleLook } from "../ui/Doodle";
 import { LogoConcepts } from "./LogoConcepts";
-import { FifthLineConcepts, FifthStackVariants, FifthMoreConcepts, FifthOfficialConcepts, FifthStackedConcepts, FifthThreeConcepts } from "./FifthOfficial";
+import { FifthAssets, FifthLineConcepts, FifthNewIcons, FifthStackVariants, FifthWordmarks, FifthMoreConcepts, FifthOfficialConcepts, FifthStackedConcepts, FifthThreeConcepts } from "./FifthOfficial";
 
 const WORDS = ["Struggling", "Quiet", "Steady", "Playing well", "On fire"];
 
@@ -60,6 +60,12 @@ export function Mock() {
   const picks = [hearne, ...s.players.filter((x) => x.id !== hearne.id).filter((_, i) => i % 5 === 0).slice(0, 4)];
   return (
     <div className="mk">
+      <h1 id="assets">The Fifth Official · design assets (U)</h1>
+      <FifthAssets />
+      <h1 id="words">The Fifth Official · wordmarks, no icon</h1>
+      <FifthWordmarks />
+      <h1 id="newicons">The Fifth Official · new icons</h1>
+      <FifthNewIcons />
       <h1 id="stackv">The Fifth Official · stacked, checked card</h1>
       <FifthStackVariants />
       <h1 id="line">The Fifth Official · one line</h1>

@@ -177,6 +177,38 @@ const ICONS: Record<string, (dark: boolean) => JSX.Element> = {
       <path d="M28 52 l12 12 l24 -27" fill="none" stroke={dark ? P : L} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
     </g>
   ),
+  cardstar: (dark) => (
+    <g>
+      <rect x="20" y="10" width="52" height="78" rx="7" fill={L} />
+      <g stroke={P} strokeWidth="6.5" strokeLinecap="butt">{[0, 60, 120].map((a) => <line key={a} x1="46" y1="34" x2="46" y2="64" transform={`rotate(${a} 46 49)`} />)}</g>
+    </g>
+  ),
+  splitcard: (dark) => (
+    <g>
+      <clipPath id={`sc${dark ? "d" : "l"}`}><rect x="20" y="10" width="52" height="78" rx="7" /></clipPath>
+      <g clipPath={`url(#sc${dark ? "d" : "l"})`}>
+        <rect x="20" y="10" width="52" height="78" fill={dark ? "#fff" : V} />
+        <path d="M20 88 L72 30 L72 88 Z" fill={L} />
+      </g>
+      <path d="M31 50 l10 11 l21 -24" fill="none" stroke={P} strokeWidth="7" strokeLinecap="butt" strokeLinejoin="miter" />
+    </g>
+  ),
+  varline: (dark) => (
+    <g>
+      <rect x="6" y="10" width="84" height="80" rx="10" fill={dark ? "#160f35" : "#1f6b35"} />
+      <line x1="30" y1="10" x2="18" y2="90" stroke="rgba(255,255,255,.55)" strokeWidth="3" />
+      <line x1="72" y1="10" x2="60" y2="90" stroke="rgba(255,255,255,.55)" strokeWidth="3" />
+      <line x1="54" y1="10" x2="42" y2="90" stroke={L} strokeWidth="7" />
+      <circle cx="40" cy="62" r="7" fill="#fff" />
+    </g>
+  ),
+  whistletick: (dark) => (
+    <g>
+      <path d="M4 44 h34 a25 25 0 1 1 -3 28 h-31 z" fill={dark ? L : V} />
+      <circle cx="55" cy="58" r="7.5" fill={dark ? P : "#fff"} />
+      <path d="M62 22 l8 9 l18 -21" fill="none" stroke={dark ? "#fff" : L} strokeWidth="6" strokeLinecap="butt" strokeLinejoin="miter" />
+    </g>
+  ),
   flag: (dark) => (
     <g>
       <line x1="16" y1="8" x2="16" y2="94" stroke={dark ? "#fff" : P} strokeWidth="7" strokeLinecap="round" />
@@ -190,7 +222,8 @@ const ICONS: Record<string, (dark: boolean) => JSX.Element> = {
 const BOUNDS: Record<string, string> = {
   card: "18 8 56 82", card5: "18 8 56 82", cards: "2 2 88 92", asterisk: "4 8 84 84", whistle: "2 0 92 82",
   badge: "4 4 84 97", shieldcheck: "4 4 84 97", flag: "10 4 78 94", board: "3 19 90 75", screen: "4 14 88 78",
-  bubble: "2 12 92 78", ballcheck: "4 8 84 84",
+  bubble: "2 12 92 78", ballcheck: "4 8 84 84", cardstar: "18 8 56 82", splitcard: "18 8 56 82",
+  varline: "4 8 88 84", whistletick: "2 6 90 76",
 };
 
 /** The icon fitted into a fixed box: same height for every mark, centred. */
@@ -255,7 +288,14 @@ function StackVariant({ dark, v }: C & { v: number }) {
       <text x="100" y="94" className="fo-stack" fill={ink(dark)}>Official</text>
     </svg>
   );
-  return <Lockup3 dark={dark} icon="card" />;  // small THE / Fifth / Official
+  return (  // small THE / Fifth / Official, the card as tall as all three lines
+    <svg viewBox="0 0 340 124" className="lg">
+      <Mark icon="card" dark={dark} x={14} y={6} w={86} h={112} />
+      <text x="112" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="110" y="68" className="fo-stack" fill={ink(dark)}>Fifth</text>
+      <text x="110" y="114" className="fo-stack" fill={ink(dark)}>Official</text>
+    </svg>
+  );
 }
 
 export function FifthStackVariants() {
@@ -268,6 +308,130 @@ export function FifthStackVariants() {
           <figcaption><b>{String.fromCharCode(83 + i)} · {n}</b>Checked card.</figcaption>
         </figure>
       ))}
+    </div>
+  );
+}
+
+// ---- Wordmarks with no icon ----
+function Wordmark({ dark, v }: C & { v: number }) {
+  const acc = dark ? L : V, t = ink(dark);
+  if (v === 0) return (
+    <svg viewBox="0 0 340 124" className="lg">
+      <text x="16" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="14" y="68" className="fo-stack" fill={t}>Fifth</text>
+      <text x="14" y="114" className="fo-stack" fill={t}>Official</text>
+    </svg>
+  );
+  if (v === 1) return (  // the offside line: a lime bar runs through the stack
+    <svg viewBox="0 0 340 124" className="lg">
+      <text x="16" y="26" className="fo-the3" fill={acc}>THE</text>
+      <text x="14" y="68" className="fo-stack" fill={t}>Fifth</text>
+      <text x="14" y="114" className="fo-stack" fill={t}>Official</text>
+      <rect x="196" y="6" width="9" height="116" fill={L} transform="skewX(-8)" />
+    </svg>
+  );
+  if (v === 2) return (
+    <svg viewBox="0 0 340 124" className="lg">
+      <text x="14" y="58" className="fo-poster big" fill={acc}>THE FIFTH</text>
+      <text x="14" y="112" className="fo-poster big" fill={t}>OFFICIAL</text>
+    </svg>
+  );
+  if (v === 3) return (
+    <svg viewBox="0 0 340 124" className="lg">
+      <text x="16" y="56" className="fo-caps" fill={t}>THE FIFTH</text>
+      <rect x="16" y="68" width="206" height="6" fill={L} />
+      <text x="16" y="108" className="fo-caps" fill={t}>OFFICIAL</text>
+    </svg>
+  );
+  return (
+    <svg viewBox="0 0 340 124" className="lg">
+      <text x="14" y="68" className="fo-stack" fill={acc}>The Fifth</text>
+      <text x="14" y="114" className="fo-stack" fill={t}>Official<tspan fill={L}>.</tspan></text>
+    </svg>
+  );
+}
+
+export function FifthWordmarks() {
+  const names = ["Plain stack", "Offside line", "Poster italic", "Spaced caps + lime rule", "Two-tone with a lime full stop"];
+  return (
+    <div className="lg-grid">
+      {names.map((n, i) => (
+        <figure key={i}>
+          <div className="lg-pair"><div className="lg-light"><Wordmark dark={false} v={i} /></div><div className="lg-dark"><Wordmark dark v={i} /></div></div>
+          <figcaption><b>W{i + 1} · {n}</b>No icon.</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+const NEW: [string, string, string][] = [
+  ["cardstar", "M · Card with asterisk", "The lime card with your current asterisk on it."],
+  ["splitcard", "N · Split card", "One card, violet and lime on a diagonal, with a sharp tick."],
+  ["varline", "O · VAR line", "The offside line drawn on a replay, in lime."],
+  ["whistletick", "P · Whistle + tick", "The whistle, with a tick for its sound."],
+];
+
+export function FifthNewIcons() {
+  return (
+    <div className="lg-grid">
+      {NEW.map(([icon, title, note]) => (
+        <figure key={icon}>
+          <div className="lg-pair"><div className="lg-light"><Lockup3 dark={false} icon={icon} /></div><div className="lg-dark"><Lockup3 dark icon={icon} /></div></div>
+          <figcaption><b>{title}</b>{note}</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+// ---- Design assets, at their real proportions ----
+function StackU({ dark, scale = 1 }: C & { scale?: number }) {
+  return (
+    <svg viewBox="0 0 340 124" width={340 * scale} height={124 * scale}>
+      <Mark icon="card" dark={dark} x={14} y={6} w={86} h={112} />
+      <text x="112" y="26" className="fo-the3" fill={dark ? L : V}>THE</text>
+      <text x="110" y="68" className="fo-stack" fill={ink(dark)}>Fifth</text>
+      <text x="110" y="114" className="fo-stack" fill={ink(dark)}>Official</text>
+    </svg>
+  );
+}
+
+export function FifthAssets() {
+  return (
+    <div className="fa">
+      <figure>
+        <div className="fa-social">
+          <StackU dark scale={1.25} />
+          <p>Every moment explained. Every claim checked.</p>
+          <span>Microsoft × Premier League · Inside the Game</span>
+        </div>
+        <figcaption><b>Social / GitHub preview · 1200 × 630</b>For the repo's social preview and link unfurls.</figcaption>
+      </figure>
+      <figure>
+        <div className="fa-end">
+          <StackU dark scale={1.5} />
+          <p>Every moment explained. Every claim checked.</p>
+          <em>github.com/hansonq888/live-cards</em>
+        </div>
+        <figcaption><b>Video end card · 1920 × 1080</b>The last 5 seconds of the demo video.</figcaption>
+      </figure>
+      <figure>
+        <div className="fa-banner"><StackU dark={false} scale={0.9} /><p>Football analytics that explains itself, and checks itself.</p></div>
+        <figcaption><b>README banner · 1280 × 320</b>The top of the GitHub page.</figcaption>
+      </figure>
+      <figure>
+        <div className="fa-icons">
+          {[180, 64, 32, 16].map((n) => (
+            <div key={n} className="fa-icon" style={{ width: Math.max(n, 40), height: Math.max(n, 40) }}>
+              <svg width={n} height={n} viewBox="0 0 96 96"><rect width="96" height="96" rx="22" fill={V} /><g transform="translate(14 6) scale(.86)"><Mark icon="card" dark={false} x={6} y={6} w={84} h={84} /></g></svg>
+              <span>{n}px</span>
+            </div>
+          ))}
+          <div className="fa-icon"><svg width="64" height="64" viewBox="0 0 96 96"><rect width="96" height="96" rx="22" fill="#160f35" /><g transform="translate(14 6) scale(.86)"><Mark icon="card" dark x={6} y={6} w={84} h={84} /></g></svg><span>dark</span></div>
+        </div>
+        <figcaption><b>App icon and favicon sizes</b>The card on a violet tile, checked at 180, 64, 32 and 16 px.</figcaption>
+      </figure>
     </div>
   );
 }
