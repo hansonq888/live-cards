@@ -1,45 +1,93 @@
 // The Analyse hub (?page=analyse with no match picked): every match the app can break down,
-// with its result and scorers. Picking one opens Analyse on it; the choice is remembered, so
-// the Match, Players and story pages follow it.
-import { useEffect, useState } from "react";
+// filterable by competition and result. Picking one opens Analyse on it; the choice is
+// remembered, so the Match, Players and story pages follow it.
+import { useEffect, useMemo, useState } from "react";
 import { Shell } from "./Shell";
 import { Crest } from "../ui/Crest";
 import { CLUBS } from "../clubs";
 import type { MatchListing } from "./summary";
 
+const COMPS = ["All", "League", "Cup"] as const;
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** "Sat 24 Oct" -> a number that sorts by date (one season, so month and day are enough). */
+const day = (d: string) => { const m = d.match(/(\d+)\s+(\w{3})/); return m ? MONTHS.indexOf(m[2]) * 40 + Number(m[1]) : 0; };
+const RESULTS = [["any", "Any result"], ["RIV", "Riverside wins"], ["NGT", "Northgate wins"], ["draw", "Draws"]] as const;
+
 export function Matches() {
   const [ms, setMs] = useState<MatchListing[] | null>(null);
+  const [comp, setComp] = useState<string>("All");
+  const [result, setResult] = useState<string>("any");
+  const [sort, setSort] = useState<"new" | "old">("new");
   useEffect(() => {
     fetch("/api/matches").then((r) => r.json()).then(setMs).catch(() => setMs([]));
   }, []);
+  const winner = (m: MatchListing) => (m.score[m.home] > m.score[m.away] ? m.home : m.score[m.away] > m.score[m.home] ? m.away : "draw");
+  const shown = useMemo(() => (ms ?? [])
+    .filter((m) => comp === "All" || m.comp === comp)
+    .filter((m) => result === "any" || winner(m) === result)
+    .sort((a, b) => (sort === "new" ? 1 : -1) * (day(b.date) - day(a.date) || b.match - a.match)), [ms, comp, result, sort]);
   const go = (id: number, page: string) => `/?page=${page}&match=${id}`;
   return (
     <Shell page="analyse">
       <section className="mh-head">
-        <h1>Analyse a match</h1>
-        <p>Pick a match to replay any play, follow any player and see every stat explained.</p>
+        <span className="mh-kicker">Match analysis</span>
+        <h1>Pick a match<i>.</i></h1>
+        <p>Replay any play touch by touch, follow any player, and see every stat explained.</p>
       </section>
-      {!ms ? <p className="mh-wait">Loading matches…</p> : (
+      <div className="mh-filters">
+        <div className="mh-chips" role="group" aria-label="Competition">
+          {COMPS.map((c) => <button key={c} className={comp === c ? "on" : ""} onClick={() => setComp(c)}>{c}</button>)}
+        </div>
+        <div className="mh-chips" role="group" aria-label="Result">
+          {RESULTS.map(([k, label]) => <button key={k} className={result === k ? "on" : ""} onClick={() => setResult(k)}>{label}</button>)}
+        </div>
+        <label className="mh-sort">Sort
+          <select value={sort} onChange={(e) => setSort(e.target.value as "new" | "old")}><option value="new">Newest first</option><option value="old">Oldest first</option></select>
+        </label>
+        <span className="mh-count">{shown.length} match{shown.length === 1 ? "" : "es"}</span>
+      </div>
+      {!ms ? <p className="mh-wait">Loading matches…</p> : shown.length === 0 ? <p className="mh-wait">No matches for those filters.</p> : (
         <div className="mh-grid">
-          {ms.map((m) => {
-            const home = CLUBS[m.home], away = CLUBS[m.away];
-            const winner = m.score[m.home] > m.score[m.away] ? m.home : m.score[m.away] > m.score[m.home] ? m.away : null;
+          {shown.map((m) => {
+            const home = CLUBS[m.home], away = CLUBS[m.away], w = winner(m);
+            const xgTotal = (m.team[m.home]?.xg ?? 0) + (m.team[m.away]?.xg ?? 0) || 1;
             return (
               <article key={m.match} className="mh-card" style={{ ["--home" as string]: home?.color, ["--away" as string]: away?.color }}>
-                <div className="mh-top"><span className="mh-tag">Full time</span><span>{m.title} · {m.date} · {m.venue}</span><span className="mh-plays">{m.plays} plays</span></div>
-                <div className="mh-score">
-                  <div className={`mh-team ${winner === m.home ? "won" : ""}`}><Crest code={m.home} size={64} /><b>{home?.short ?? m.home}</b></div>
-                  <div className="mh-num">{m.score[m.home]}<i>–</i>{m.score[m.away]}</div>
-                  <div className={`mh-team ${winner === m.away ? "won" : ""}`}><Crest code={m.away} size={64} /><b>{away?.short ?? m.away}</b></div>
+                <div className="mh-strip">
+                  <span className={`mh-comp ${m.comp.toLowerCase()}`}>{m.comp}</span>
+                  <span className="mh-meta">{m.title} · {m.date} · {m.venue}</span>
+                  <span className="mh-ft">FT</span>
                 </div>
-                <ul className="mh-goals">
-                  {m.goals.map((g, i) => (
-                    <li key={i} className={g.team === m.home ? "h" : "a"}>⚽ {g.name} {g.minute}′</li>
-                  ))}
-                </ul>
+                <div className="mh-body">
+                  <span className="mh-ghost h" aria-hidden="true"><Crest code={m.home} size={220} /></span>
+                  <span className="mh-ghost a" aria-hidden="true"><Crest code={m.away} size={220} /></span>
+                  <div className={`mh-side h ${w === m.home ? "won" : ""}`}>
+                    <Crest code={m.home} size={58} />
+                    <b>{home?.short ?? m.home}</b>
+                    <ul>{m.goals.filter((g) => g.team === m.home).map((g, i) => <li key={i}>{g.name} {g.minute}′</li>)}</ul>
+                  </div>
+                  <div className="mh-big">{m.score[m.home]}<i>–</i>{m.score[m.away]}</div>
+                  <div className={`mh-side a ${w === m.away ? "won" : ""}`}>
+                    <Crest code={m.away} size={58} />
+                    <b>{away?.short ?? m.away}</b>
+                    <ul>{m.goals.filter((g) => g.team === m.away).map((g, i) => <li key={i}>{g.name} {g.minute}′</li>)}</ul>
+                  </div>
+                </div>
+                <div className="mh-stats">
+                  <div className="mh-xg">
+                    <span>xG</span>
+                    <b>{m.team[m.home]?.xg.toFixed(2)}</b>
+                    <i><em style={{ width: `${(100 * (m.team[m.home]?.xg ?? 0)) / xgTotal}%` }} /></i>
+                    <b>{m.team[m.away]?.xg.toFixed(2)}</b>
+                  </div>
+                  <div><span>Shots</span><b>{m.team[m.home]?.shots}–{m.team[m.away]?.shots}</b></div>
+                  <div><span>Best player</span><b>{m.best.name} {m.best.rating.toFixed(1)}</b></div>
+                  <div><span>Plays</span><b>{m.plays}</b></div>
+                </div>
                 <div className="mh-actions">
                   <a className="mh-btn primary" href={go(m.match, "analyse")}>Analyse →</a>
                   <a className="mh-btn" href={go(m.match, "watch")}>Match centre</a>
+                  <a className="mh-btn" href={`/?page=watch&match=${m.match}&start=0`}>▶ Watch</a>
                 </div>
               </article>
             );

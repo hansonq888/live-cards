@@ -106,9 +106,14 @@ async def matches() -> list[dict]:
         short = {p["id"]: p["short"] for p in s["players"]}
         goals = [{"player": p["player"], "name": short.get(p["player"], p["player"]), "team": p["team"],
                   "minute": p["minute"]} for p in s["plays"] if p["outcome"] == "goal"]
+        team = {k: {"xg": v["xg"], "shots": v["shots"], "possession": v["possession"]}
+                for k, v in s["team"].items()}
+        best = max(s["players"], key=lambda p: p["rating"])
         return {"match": seed, "title": title, "date": date, "venue": s["meta"]["venue"],
+                "comp": "Cup" if "Cup" in title else "League",
                 "home": s["meta"]["home"]["code"], "away": s["meta"]["away"]["code"],
-                "score": s["score"], "goals": goals, "plays": len(s["plays"])}
+                "score": s["score"], "goals": goals, "plays": len(s["plays"]), "team": team,
+                "best": {"name": best["short"], "team": best["team"], "rating": best["rating"]}}
     return await asyncio.to_thread(lambda: [one(k) for k in MATCHES])
 
 

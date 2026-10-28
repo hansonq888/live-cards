@@ -40,6 +40,7 @@ export function useSummary(): Summary | null {
 export interface MatchListing {
   match: number; title: string; date: string; venue: string; home: string; away: string;
   score: Record<string, number>; goals: { player: string; name: string; team: string; minute: number }[]; plays: number;
+  comp: string; team: Record<string, { xg: number; shots: number; possession: number }>; best: { name: string; team: string; rating: number };
 }
 
 export const playHref = (id: string) => `/?page=play&play=${encodeURIComponent(id)}`;
