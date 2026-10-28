@@ -5,14 +5,14 @@ const P = "#2a0a4a", L = "#d4ff3a";
 
 function Logo({ size, slash = false, dark = true }: { size: number; slash?: boolean; dark?: boolean }) {
   const ink = dark ? "#fff" : P, acc = dark ? L : "#4b2bd6";
-  const w = slash ? 400 : 330;
+  const w = slash ? 290 : 202;  // the drawn width of the type, so the logo centres properly
   return (
-    <svg viewBox={`0 0 ${w} 124`} width={(w / 124) * size} height={size}>
+    <svg viewBox={`10 0 ${w} 124`} width={(w / 124) * size} height={size} overflow="visible">
       {slash && <rect x="28" y="4" width="16" height="118" fill={L} transform="skewX(-8)" />}
       <g transform={slash ? "translate(42 0)" : undefined}>
         <text x="16" y="26" className="fo-the3" fill={acc}>THE</text>
         <text x="14" y="68" className="fo-stack" fill={ink}>Fifth</text>
-        <text x="14" y="114" className="fo-stack" fill={ink}>Official<tspan fill={L}>.</tspan></text>
+        <text x="14" y="114" className="fo-stack" fill={ink}>Official<tspan fill={dark ? L : "#4b2bd6"}>.</tspan></text>
       </g>
     </svg>
   );
@@ -86,13 +86,17 @@ function Bands({ w, h, fill }: { w: number; h: number; fill: string }) {
   );
 }
 
-function BandFrame({ w, h, label, variant }: { w: number; h: number; label: string; variant: "lime" | "violet" }) {
+function BandFrame({ w, h, label, variant, stacked = false }: { w: number; h: number; label: string; variant: "lime" | "violet"; stacked?: boolean }) {
   const lime = variant === "lime";
   return (
     <figure className="th-fig">
       <div className={`th band-${variant}`} style={{ width: w, height: h }}>
         <Bands w={w} h={h} fill={lime ? P : L} />
-        <div className="th-center"><LogoLine height={Math.round(Math.min(h * 0.2, w * 0.11))} ink={lime ? P : "#fff"} acc={lime ? "#4b2bd6" : L} /></div>
+        <div className="th-center">
+          {stacked
+            ? <Logo size={Math.round(h * 0.42)} dark={!lime} />
+            : <LogoLine height={Math.round(Math.min(h * 0.2, w * 0.11))} ink={lime ? P : "#fff"} acc={lime ? "#4b2bd6" : L} />}
+        </div>
       </div>
       <figcaption>{label} · {w} × {h}</figcaption>
     </figure>
@@ -102,6 +106,9 @@ function BandFrame({ w, h, label, variant }: { w: number; h: number; label: stri
 export function Thumb() {
   return (
     <div className="th-page">
+      <BandFrame w={1280} h={720} variant="violet" stacked label="Bands, violet, stacked logo" />
+      <BandFrame w={1280} h={720} variant="lime" stacked label="Bands, lime, stacked logo" />
+      <BandFrame w={1080} h={1080} variant="violet" stacked label="Bands, square, violet, stacked" />
       <BandFrame w={1280} h={720} variant="lime" label="Bands, lime gradient" />
       <BandFrame w={1280} h={720} variant="violet" label="Bands, violet" />
       <BandFrame w={1080} h={1080} variant="lime" label="Bands, square, lime" />
