@@ -27,6 +27,7 @@
 <script>
   const q = new URLSearchParams(location.search);
   document.getElementById("label").textContent = q.get("label") || "";
+  if (!q.get("label")) document.querySelector(".label").style.display = "none";
   const face = q.get("kind") === "face";
   // The video window: 16:9, centred under the label. Exported for frame.py.
   const W = face ? 1280 : 1632, H = W * 9 / 16, X = Math.round((1920 - W) / 2), Y = face ? 150 : 112;

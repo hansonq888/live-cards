@@ -1,0 +1,5 @@
+[
+  {"src": "takes/demo.mov", "in": 0, "dur": 105, "kind": "screen", "frame": "", "keep_audio": true},
+  {"src": "out/card-numbers.mp4", "dur": 8, "kind": "card"},
+  {"src": "out/card-end.mp4", "dur": 5, "kind": "card"}
+]
