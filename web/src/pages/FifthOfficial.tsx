@@ -149,6 +149,31 @@ function Lockup({ dark, icon }: C & { icon: string }) {
   );
 }
 
+/** Three lines: a small "THE" over Fifth / Official, the mark scaled to the full height. */
+function Lockup3({ dark, icon }: C & { icon: string }) {
+  return (
+    <svg viewBox="0 0 340 124" className="lg">
+      <g transform="translate(0 10) scale(1.06)">{ICONS[icon](dark)}</g>
+      <text x="116" y="26" className="fo-the3" fill={dark ? L : V}>THE</text>
+      <text x="114" y="68" className="fo-stack" fill={ink(dark)}>Fifth</text>
+      <text x="114" y="114" className="fo-stack" fill={ink(dark)}>Official</text>
+    </svg>
+  );
+}
+
+export function FifthThreeConcepts() {
+  return (
+    <div className="lg-grid">
+      {STACKED.map(([icon, title]) => (
+        <figure key={icon}>
+          <div className="lg-pair"><div className="lg-light"><Lockup3 dark={false} icon={icon} /></div><div className="lg-dark"><Lockup3 dark icon={icon} /></div></div>
+          <figcaption><b>{title} · three lines</b>The / Fifth / Official.</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
 const STACKED: [string, string][] = [
   ["card", "A · Checked card"], ["asterisk", "B · Asterisk"], ["whistle", "C · Whistle"],
   ["badge", "D · Badge with 5"], ["flag", "E · Flag"],
