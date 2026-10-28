@@ -101,6 +101,72 @@ const CONCEPTS: [string, string, (p: C) => JSX.Element][] = [
   ["8 · 5th tile", "A compact app icon and favicon.", Monogram],
 ];
 
+// ---- Stacked lockups: a large mark on the left, "Fifth" over "Official" beside it ----
+// (the classic sports-brand arrangement; the marks and type are our own).
+const ICONS: Record<string, (dark: boolean) => JSX.Element> = {
+  card: (dark) => (
+    <g transform="rotate(-10 45 50)">
+      <rect x="20" y="10" width="52" height="78" rx="7" fill={L} />
+      <path d="M32 50 l11 11 l21 -25" fill="none" stroke={P} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+      {dark ? null : <rect x="20" y="10" width="52" height="78" rx="7" fill="none" stroke={P} strokeWidth="2" opacity=".15" />}
+    </g>
+  ),
+  asterisk: (dark) => (
+    <g>
+      <circle cx="46" cy="50" r="40" fill={dark ? L : V} />
+      <g stroke={dark ? P : L} strokeWidth="10" strokeLinecap="round">{[0, 60, 120].map((a) => <line key={a} x1="46" y1="28" x2="46" y2="72" transform={`rotate(${a} 46 50)`} />)}</g>
+    </g>
+  ),
+  whistle: (dark) => (
+    <g>
+      <path d="M4 44 h34 a25 25 0 1 1 -3 28 h-31 z" fill={dark ? L : V} />
+      <circle cx="55" cy="58" r="7.5" fill={dark ? P : "#fff"} />
+      <path d="M70 28 l8 -8 M75 37 l11 -4 M62 22 l2 -11" stroke={dark ? "#fff" : L} strokeWidth="5" strokeLinecap="round" />
+    </g>
+  ),
+  badge: (dark) => (
+    <g>
+      <path d="M46 6 l40 13 v32 c0 24 -18 40 -40 48 c-22 -8 -40 -24 -40 -48 v-32 z" fill={dark ? L : V} />
+      <text x="46" y="70" textAnchor="middle" className="fo-num huge" fill={dark ? P : L}>5</text>
+    </g>
+  ),
+  flag: (dark) => (
+    <g>
+      <line x1="16" y1="8" x2="16" y2="94" stroke={dark ? "#fff" : P} strokeWidth="7" strokeLinecap="round" />
+      <path d="M19 11 h64 l-14 22 l14 22 h-64 z" fill={dark ? L : V} />
+      <path d="M19 11 h32 v44 h-32 z" fill={dark ? "#fff" : L} />
+    </g>
+  ),
+};
+
+function Lockup({ dark, icon }: C & { icon: string }) {
+  return (
+    <svg viewBox="0 0 340 100" className="lg">
+      {ICONS[icon](dark)}
+      <text x="112" y="46" className="fo-stack" fill={ink(dark)}>Fifth</text>
+      <text x="112" y="92" className="fo-stack" fill={ink(dark)}>Official</text>
+    </svg>
+  );
+}
+
+const STACKED: [string, string][] = [
+  ["card", "A · Checked card"], ["asterisk", "B · Asterisk"], ["whistle", "C · Whistle"],
+  ["badge", "D · Badge with 5"], ["flag", "E · Flag"],
+];
+
+export function FifthStackedConcepts() {
+  return (
+    <div className="lg-grid">
+      {STACKED.map(([icon, title]) => (
+        <figure key={icon}>
+          <div className="lg-pair"><div className="lg-light"><Lockup dark={false} icon={icon} /></div><div className="lg-dark"><Lockup dark icon={icon} /></div></div>
+          <figcaption><b>{title}</b>Big mark left, Fifth over Official.</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
 export function FifthOfficialConcepts() {
   return (
     <div className="lg-grid">

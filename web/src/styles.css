@@ -2793,3 +2793,5 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .fo-num.big { font-size: 46px; }
 .fo-th { font-family: var(--headline); font-weight: 900; font-size: 15px; }
 .fo-poster { font-family: var(--poster); font-style: italic; font-weight: 900; font-size: 42px; letter-spacing: .5px; }
+.fo-stack { font-family: var(--headline); font-weight: 900; font-size: 46px; letter-spacing: -2px; }
+.fo-num.huge { font-size: 54px; }
