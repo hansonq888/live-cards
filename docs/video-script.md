@@ -15,7 +15,7 @@ break it down yourself → step out and explore the whole match.
 | 4 | 0:20–0:27 | card: three | "Interactive, like a video you can step inside. Walk through curated explanations, break down any play yourself, or just scroll through the match." | Three tiles light up |
 | 5 | 0:27–0:47 | take: journey (part 1) | "Start with a curated play-by-play. Every goal is told touch by touch: this pass was routine, this one split the defence, here's the space it opened. Then make your call: how good was this chance? The engine says 0.16." | Plays → Start the play-by-play → scroll bubbles → meter → Guess the xG |
 | 6 | 0:47–1:00 | take: journey (part 2) | "Want to see it for yourself? Open it in Analyse and break it down: step through every touch on the pitch, in the broadcast view or the tactics board." | Open in Analyse → breakdown bar → click touch chips → switch views |
-| 7 | 1:00–1:16 | take: journey (part 3) | "Then step out and explore the whole match. Click any player to follow them; their card explains every change. Colour the pitch by a stat to see who's doing the work. Fan or analyst, in your language." | Exit to analysis → click 2 players → Colour by → Engine → tactical view → ⚙ Analyst → Español |
+| 7 | 1:00–1:16 | take: journey (part 3) | "Then step out and explore the whole match. Click any player to follow them; their card explains every change. Colour the pitch by a stat to see who's doing the work. Analysts can even build their own rating model and watch every player re-score. And it all works in five languages." | Exit to analysis → click 2 players → Colour by → Engine → tactical view → Settings → Your model → change a weight → ratings update (flash ⚙ Español for 1 s) |
 | 8 | 1:16–1:24 | take: learn | "And every stat has its own lesson, so every new stat becomes a new chapter." | xG loop → quiz click |
 | 9 | 1:24–1:42 | take: agents (+ console) | "Teaching only works if it's right. Every number comes from the match engine. Specialist AI agents on Microsoft Foundry write the words: one writes, one checks every number, one reviews every claim, one translates. Plant a lie, and it's caught. And every card is also a timed overlay cue a broadcaster could put on their own feed, with a console to control what airs." | Agents tab → Plant a lie → red blocked row → console (3 s) |
 | 10 | 1:42–1:50 | card: numbers | "Zero of 275 planted lies aired. 98% fewer model calls for repeat viewers. Fifteen cents a match. Two hundred live viewers on one server." | Numbers count up, Microsoft strip |
@@ -32,8 +32,8 @@ Move the mouse slowly; record a little long (it gets trimmed).
   2. Click **Open in Analyse** (top right) → in the breakdown bar click two or three touch chips →
      click the corner view to switch broadcast ↔ tactics once.
   3. Click **Exit to analysis** → click two players on the pitch (their card opens) → **Colour by →
-     Engine** → switch to the tactics view so the rings show there too → ⚙ → Analyst →
-     ⚙ → Español.
+     Engine** → switch to the tactics view so the rings show there too → **Settings → Your model** → change a
+     weight → close and watch ratings change → (optional) ⚙ → Language → Español for one second.
 - **learn.mov (~12 s):** `/?page=learn#xg` → let the loop play → click a quiz answer.
 - **agents.mov (~30 s):** `/?page=analyse&start=3900` → Agents tab → **Plant a lie** → red row →
   switch to a tab already open on `/?view=console` for 3 s.
