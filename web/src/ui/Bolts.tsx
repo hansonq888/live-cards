@@ -41,19 +41,30 @@ export function Bands({ className = "", fill = "#d4ff3a", w = 1200, h = 500, cor
   );
 }
 
-/** Repeating diagonal stripes with a step notch in each, for the right end of the nav bar. */
+/** Curved lightning stripes for the right end of the nav bar: each a swept band with one step
+ *  notch, of uneven widths, getting thinner toward the left so they taper in instead of
+ *  stopping at an edge. */
 export function Stripes({ className = "", fill = "#d4ff3a", w = 600, h = 200 }: { className?: string; fill?: string; w?: number; h?: number }) {
-  const n = 7, gap = w / (n - 1.5), thick = gap * 0.42, lean = h * 0.55;
-  const stripe = (x0: number) => {
-    const ny = h * 0.52, step = thick * 0.38;  // where the notch sits, and how far it steps
-    return `M ${x0} 0 L ${x0 + thick} 0 L ${x0 + thick - lean * (ny / h)} ${ny}
-      L ${x0 + thick - lean * (ny / h) + step} ${ny} L ${x0 + thick - lean + step} ${h}
-      L ${x0 - lean + step} ${h} L ${x0 - lean * (ny / h) + step} ${ny + thick * 0.0}
-      L ${x0 - lean * (ny / h)} ${ny} Z`;
+  // x of each stripe's top edge, and its thickness (left ones thin, right ones thick)
+  const bands: [number, number][] = [[150, 10], [205, 20], [275, 34], [360, 52], [455, 44], [545, 62], [640, 40]];
+  const stripe = (x: number, t: number) => {
+    // A swept band: both edges are the same smooth S-curve, offset by the thickness, with a
+    // single clean step at mid-height (the "kink" of the bolt).
+    const lean = h * 0.62, ny = h * 0.52, step = t * 0.5;
+    const top = (dx: number) => `${x + dx} 0`;
+    const midL = x - lean * 0.48, bot = x - lean;
+    return `M ${top(0)} L ${top(t)}
+      C ${x + t - 6} ${ny * 0.5}, ${midL + t + 8} ${ny * 0.8}, ${midL + t} ${ny}
+      L ${midL + t + step} ${ny}
+      C ${midL + t + step - 8} ${ny + (h - ny) * 0.4}, ${bot + t + step + 6} ${h * 0.86}, ${bot + t + step} ${h}
+      L ${bot + step} ${h}
+      C ${bot + step + 6} ${h * 0.86}, ${midL + step - 8} ${ny + (h - ny) * 0.4}, ${midL + step} ${ny}
+      L ${midL} ${ny}
+      C ${midL + 8} ${ny * 0.8}, ${x - 6} ${ny * 0.5}, ${x} 0 Z`;
   };
   return (
     <svg className={`stripes ${className}`} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
-      <g fill={fill}>{Array.from({ length: n }, (_, i) => <path key={i} d={stripe(i * gap + lean * 0.6)} />)}</g>
+      <g fill={fill}>{bands.map(([x, t], i) => <path key={i} d={stripe(x, t)} />)}</g>
     </svg>
   );
 }
