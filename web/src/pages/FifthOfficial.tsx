@@ -237,6 +237,41 @@ function LockupLine({ dark, icon, the = true }: C & { icon: string; the?: boolea
   );
 }
 
+/** Stacked variants of the checked-card lockup. */
+function StackVariant({ dark, v }: C & { v: number }) {
+  const acc = dark ? L : V;
+  if (v === 0) return (  // The / Fifth / Official, all the same size
+    <svg viewBox="0 0 340 150" className="lg">
+      <Mark icon="card" dark={dark} x={10} y={14} w={84} h={122} />
+      <text x="112" y="46" className="fo-stack" fill={acc}>The</text>
+      <text x="112" y="92" className="fo-stack" fill={ink(dark)}>Fifth</text>
+      <text x="112" y="138" className="fo-stack" fill={ink(dark)}>Official</text>
+    </svg>
+  );
+  if (v === 1) return (  // The Fifth / Official
+    <svg viewBox="0 0 340 104" className="lg">
+      <Mark icon="card" dark={dark} x={10} y={10} w={70} h={86} />
+      <text x="100" y="48" className="fo-stack" fill={ink(dark)}><tspan fill={acc}>The </tspan>Fifth</text>
+      <text x="100" y="94" className="fo-stack" fill={ink(dark)}>Official</text>
+    </svg>
+  );
+  return <Lockup3 dark={dark} icon="card" />;  // small THE / Fifth / Official
+}
+
+export function FifthStackVariants() {
+  const names = ["The / Fifth / Official, all the same size", "The Fifth / Official", "Small THE / Fifth / Official"];
+  return (
+    <div className="lg-grid">
+      {names.map((n, i) => (
+        <figure key={i}>
+          <div className="lg-pair"><div className="lg-light"><StackVariant dark={false} v={i} /></div><div className="lg-dark"><StackVariant dark v={i} /></div></div>
+          <figcaption><b>{String.fromCharCode(83 + i)} · {n}</b>Checked card.</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
 const LINE: [string, string, boolean][] = [
   ["card", "A · Checked card", true], ["card", "A · Checked card, no THE", false],
   ["card5", "F · Card with 5", true], ["board", "H · +5 board", true],
