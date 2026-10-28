@@ -46,26 +46,20 @@ export function Matches() {
           {shown.map((m) => {
             const home = CLUBS[m.home], away = CLUBS[m.away], w = winner(m);
             return (
-              <article key={m.match} className="mh-card" style={{ ["--home" as string]: home?.color, ["--away" as string]: away?.color }}>
-                <div className="mh-strip">
-                  <span className={`mh-comp ${m.comp.toLowerCase()}`}>{m.comp}</span>
-                  <span className="mh-meta">{m.title} · {m.date} · {m.venue}</span>
-                  <span className="mh-ft">FT</span>
-                </div>
-                <div className="mh-body">
-                  <span className="mh-ghost h" aria-hidden="true"><Crest code={m.home} size={220} /></span>
-                  <span className="mh-ghost a" aria-hidden="true"><Crest code={m.away} size={220} /></span>
-                  <div className={`mh-side h ${w === m.home ? "won" : ""}`}>
-                    <Crest code={m.home} size={42} />
+              <article key={m.match} className="mh-card c" style={{ ["--home" as string]: home?.color, ["--away" as string]: away?.color }}>
+                <div className="gc-split">
+                  <div className={`gc-half h ${w === m.home ? "won" : ""}`}>
+                    <Crest code={m.home} size={46} />
                     <b>{home?.short ?? m.home}</b>
-                    <ul>{m.goals.filter((g) => g.team === m.home).map((g, i) => <li key={i}>{g.name} {g.minute}′</li>)}</ul>
+                    <small>{m.goals.filter((g) => g.team === m.home).map((g) => `${g.name} ${g.minute}′`).join(" · ") || "–"}</small>
                   </div>
-                  <div className="mh-big">{m.score[m.home]}<i>–</i>{m.score[m.away]}</div>
-                  <div className={`mh-side a ${w === m.away ? "won" : ""}`}>
-                    <Crest code={m.away} size={42} />
+                  <div className={`gc-half a ${w === m.away ? "won" : ""}`}>
+                    <Crest code={m.away} size={46} />
                     <b>{away?.short ?? m.away}</b>
-                    <ul>{m.goals.filter((g) => g.team === m.away).map((g, i) => <li key={i}>{g.name} {g.minute}′</li>)}</ul>
+                    <small>{m.goals.filter((g) => g.team === m.away).map((g) => `${g.name} ${g.minute}′`).join(" · ") || "–"}</small>
                   </div>
+                  <span className="gc-tag">{m.comp} · {m.date}</span>
+                  <div className="gc-score">{m.score[m.home]}<i>–</i>{m.score[m.away]}<em>FT</em></div>
                 </div>
                 <div className="mh-actions">
                   <a className="mh-btn primary" href={go(m.match, "watch")}>Match centre →</a>

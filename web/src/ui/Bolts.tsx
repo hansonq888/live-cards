@@ -47,7 +47,7 @@ export function Bands({ className = "", fill = "#d4ff3a", w = 1200, h = 500, cor
 export function Stripes({ className = "", fill = "#d4ff3a", w = 600, h = 200 }: { className?: string; fill?: string; w?: number; h?: number }) {
   // x of each stripe's top edge, and its thickness (left ones thin, right ones thick)
   // Fewer, thinner bolts with more room between them
-  const bands: [number, number][] = [[300, 14], [400, 26], [515, 38], [640, 50], [770, 40]];
+  const bands: [number, number][] = [[330, 44], [455, 44], [580, 44], [705, 44], [830, 44]];
   const stripe = (x: number, t: number) => {
     // A swept band: both edges are the same smooth S-curve, offset by the thickness, with a
     // single clean step at mid-height (the "kink" of the bolt).

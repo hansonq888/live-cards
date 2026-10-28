@@ -3120,3 +3120,17 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .sma-teams { max-width: 640px; margin: 0 auto; width: 100%; }
 .sma-key { max-width: 640px; margin: 0 auto; }
 .sma-team + .sma-team { flex-direction: row-reverse; } .sma-tip { top: auto; bottom: 8px; }
+/* Match card C: club-colour halves, a plain score panel across the split */
+.mh-card.c { background: #fff !important; }
+.gc-split { position: relative; display: grid; grid-template-columns: 1fr 1fr; height: 176px; color: #fff; }
+.gc-half { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; }
+.gc-half.h { background: var(--home); } .gc-half.a { background: var(--away); align-items: flex-end; text-align: right; }
+.gc-half .crest { margin-bottom: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,.25)); }
+.gc-half b { font-family: var(--headline); font-weight: 800; font-size: 18px; letter-spacing: -.02em; line-height: 1.1; }
+.gc-half:not(.won) b { opacity: .85; }
+.gc-half small { font-size: 11.5px; opacity: .88; }
+.gc-tag { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); font-size: 10.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; background: rgba(13,10,36,.55); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+.gc-score { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -54%); display: flex; align-items: baseline; gap: 2px; padding: 8px 16px 6px; background: #fff; color: #160f35; border-radius: 10px;
+  font-family: var(--headline); font-weight: 900; font-size: 38px; letter-spacing: -1px; line-height: 1; box-shadow: 0 8px 20px rgba(13,10,36,.25); }
+.gc-score i { font-style: normal; color: #b4afc9; padding: 0 6px; font-weight: 700; }
+.gc-score em { position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%); font-style: normal; font-size: 9.5px; font-weight: 900; letter-spacing: 1px; background: #3ddc97; color: #08261a; padding: 2px 6px; border-radius: 3px; }
