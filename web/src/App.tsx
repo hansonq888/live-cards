@@ -10,6 +10,7 @@ import { Wordmark } from "./ui/Wordmark";
 import { AskFloat, Controls, StatChips, UnderTheHood, ViewerSettings } from "./ui/SidePanel";
 import { Home } from "./pages/Home";
 import { Learn } from "./pages/Learn";
+import { Plays } from "./pages/Plays";
 import { Players } from "./pages/Players";
 import { AnalysisBoard, LeadersPanel } from "./ui/AnalysisBoard";
 import { FollowCard } from "./ui/FocusPanel";
@@ -37,6 +38,7 @@ export default function App() {
   if (view === "vision") return <VisionView />;
   const page = q.get("page") ?? (view === "studio" ? "analyse" : view === "fan" || q.has("start") || q.has("play") ? "watch" : "home");
   if (page === "learn") return <Learn />;
+  if (page === "plays") return <Plays />;
   if (page === "players") return <Players />;
   if (page === "play") return <PlayStory />;
   if (page === "avatars") return <AvatarSheet />;

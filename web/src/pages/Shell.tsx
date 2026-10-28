@@ -5,7 +5,7 @@ import { Stripes } from "../ui/Bolts";
 import { Crest } from "../ui/Crest";
 import { matchId, useSummary } from "./summary";
 
-const LINKS = [["home", "Home"], ["watch", "Matches"], ["learn", "Learn"], ["players", "Players"]] as const;
+const LINKS = [["home", "Home"], ["watch", "Matches"], ["plays", "Plays"], ["learn", "Learn"], ["players", "Players"]] as const;
 
 export function Shell({ page, children }: { page: string; children: ReactNode }) {
   const s = useSummary();

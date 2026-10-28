@@ -66,7 +66,7 @@ export function Home() {
       </section>
 
       <section className="l-section">
-        <div className="l-head"><h2>Plays to break down</h2><a href="/?page=analyse">All {s?.plays.length ?? ""} plays</a></div>
+        <div className="l-head"><h2>Plays to break down</h2><a href="/?page=plays">All {s?.plays.length ?? ""} plays</a></div>
         <div className="plays-grid">
           {lead && <PlayCard play={lead} title={`${possessive(name(lead.player))} equaliser`} feature />}
           {rest.map((p) => <PlayCard key={p.id} play={p} title={`${possessive(name(p.player))} ${p.outcome === "goal" ? "goal" : "chance"}`} />)}

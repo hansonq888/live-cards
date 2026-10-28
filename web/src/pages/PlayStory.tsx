@@ -43,6 +43,11 @@ function GuessXg({ xg }: { xg: number }) {
   );
 }
 
+/** Numbers in a stat label set large, the words around them small. */
+function bigNumbers(label: string) {
+  return label.split(/([\d.]+)/).map((part, i) => (/^[\d.]+$/.test(part) ? <strong key={i}>{part}</strong> : part));
+}
+
 export function PlayStory() {
   const playId = new URLSearchParams(location.search).get("play") ?? "";
   const meta = useLive((s) => s.meta);
@@ -76,11 +81,27 @@ export function PlayStory() {
     return () => io.disconnect();
   }, [b?.goal]);
 
+  // Clicking a touch (or the arrow keys) scrolls its section into view, which replays it.
+  const jump = (i: number) => {
+    if (!b) return;
+    const k = Math.max(-1, Math.min(b.steps.length - 1, i));
+    sections.current[k + 1]?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); jump(active + 1); }
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); jump(active - 1); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   const name = (id: string) => meta?.players.find((p) => p.id === id)?.short ?? "";
   const team = b && meta ? (meta.players.find((p) => p.id === b.scorer)?.team === meta.home.code ? meta.home : meta.away) : null;
   const idx = plays.findIndex((p) => p.id === playId);
   const next = idx >= 0 ? plays[idx + 1] : undefined;
   const story = b ? (b.storySource === "model" ? b.story : b.story) : "";
+  const scorer = b ? meta?.players.find((p) => p.id === b.scorer) : undefined;
   const shot = b?.steps.find((s) => s.kind === "shot");
   const xg = shot ? Number(shot.args?.xg) : null;
 
@@ -90,7 +111,9 @@ export function PlayStory() {
       <header className="sp-top">
         <Stripes className="nav-stripes" />
         <a className="brand" href="/"><Wordmark /></a>
-        <a className="sp-link" href={`/?page=analyse&play=${encodeURIComponent(playId)}`}>Open this play in Analyse</a>
+        <span className="sp-top-gap" />
+        <a className="sp-link" href="/?page=plays">← All plays</a>
+        <a className="sp-link" href={`/?page=analyse&play=${encodeURIComponent(playId)}`}>Open in Analyse</a>
       </header>
       <div className="sp-body">
         <div className="sp-visual">
@@ -103,22 +126,35 @@ export function PlayStory() {
               <button className={view === "broadcast" ? "on" : ""} onClick={() => setView("broadcast")}>Broadcast</button>
             </div>
           </div>
-          {b && <div className="sp-progress">{b.steps.map((_, i) => <i key={i} className={i <= active ? "on" : ""} />)}</div>}
+          {b && (
+            <div className="sp-chips" role="tablist" aria-label="Touches">
+              {b.steps.map((st, i) => (
+                <button key={i} className={`${i < active ? "done" : ""} ${i === active ? "on" : ""}`} onClick={() => jump(i)} title={stepCaption("en", st)}>
+                  <span>{String(i + 1).padStart(2, "0")}</span><em>{KIND[st.kind]?.[0] ?? st.kind}</em>
+                </button>
+              ))}
+              <span className="sp-keys">← → to step</span>
+            </div>
+          )}
         </div>
 
         <article className="sp-story">
           {!b ? <div className="sp-loading">Loading the play…</div> : (
             <>
               <section className="sp-intro" data-step={-1} ref={(el) => { sections.current[0] = el; }}>
-                <span className={`sp-badge ${b.kind}`}>{b.kind === "goal" ? "Goal" : "Chance"} · {Math.floor(b.goalT / 60)}′</span>
-                <h1>How {name(b.scorer)}'s {b.kind === "goal" ? "goal" : "chance"} was built</h1>
+                <div className="sp-poster">
+                  {scorer && team && <span className="sp-poster-bust"><Avatar player={scorer} color={team.color} size={150} bare /></span>}
+                  <span className={`sp-badge ${b.kind}`}>{b.kind === "goal" ? "Goal" : "Chance"} · {Math.floor(b.goalT / 60)}′</span>
+                  <h1>How {name(b.scorer)}'s {b.kind === "goal" ? "goal" : "chance"} was built</h1>
+                  {team && <span className="sp-poster-team">{team.name}</span>}
+                </div>
                 <p className="sp-lede">{story}{b.storySource === "model" && <span className="sp-check"> ✓ checked</span>}</p>
                 <div className="sp-facts">
                   <div><b>{b.steps.filter((s) => s.kind === "pass").length}</b><span>passes</span></div>
                   <div><b>{Math.round(b.goalT - b.start)} s</b><span>start to shot</span></div>
                   {xg !== null && <div><b>{xg.toFixed(2)}</b><span>xG: a chance like this {xgWords(xg)}</span></div>}
                 </div>
-                <p className="sp-hint">Scroll to walk through it, touch by touch.</p>
+                <button className="sp-start" onClick={() => jump(0)}>Start the play-by-play ↓</button>
               </section>
               {b.steps.map((s, i) => {
                 const [heading, lesson] = KIND[s.kind] ?? ["", null];
@@ -136,9 +172,15 @@ export function PlayStory() {
                     <h2>{s.kind === "shot" ? stepCaption("en", s).replace(/, xG [\d.]+/, "") : stepCaption("en", s)}</h2>
                     {meanings.length > 0 && (
                       <div className="sp-stats">
-                        {meanings.map((m, j) => (
-                          <div key={j}><b>{m.label}</b>{m.meaning && <span>{m.meaning}</span>}</div>
-                        ))}
+                        {meanings.map((m, j) => {
+                          const diff = /Difficulty ([\d.]+)\/10/.exec(m.label);
+                          return (
+                            <div key={j} className={diff ? "sp-diff" : ""}>
+                              <b>{bigNumbers(m.label)}</b>{m.meaning && <span>{m.meaning}</span>}
+                              {diff && <span className="sp-meter"><i style={{ width: `${Number(diff[1]) * 10}%` }} /></span>}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                     {s.space && team && (
@@ -159,7 +201,7 @@ export function PlayStory() {
                 <div className="sp-next">
                   {next && <a className="sp-btn primary" href={`/?page=play&play=${next.id}`}>Next play: {name(next.player)} {next.minute}′ →</a>}
                   <a className="sp-btn" href="/?page=learn">What do these numbers mean?</a>
-                  <a className="sp-btn" href="/">All plays</a>
+                  <a className="sp-btn" href="/?page=plays">All plays</a>
                 </div>
               </section>
             </>
