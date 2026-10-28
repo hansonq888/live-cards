@@ -77,9 +77,39 @@
   #end .links { position: absolute; left: 140px; top: 830px; display: flex; flex-direction: column; gap: 12px; font-size: 30px; font-weight: 600; }
   #end .links span { color: rgba(255,255,255,.65); font-weight: 500; margin-right: 14px; }
   #end .note { position: absolute; left: 140px; bottom: 50px; font-size: 22px; color: rgba(255,255,255,.6); }
+
+  /* ---- before: the usual stats table, numbers with no meaning ---- */
+  #before { background: #f4f3f9; color: #160f35; }
+  #before table { position: absolute; left: 360px; width: 1200px; top: 150px; border-collapse: collapse; font-size: 34px; }
+  #before td { padding: 16px 24px; border-bottom: 2px solid #e2dff0; font-variant-numeric: tabular-nums; }
+  #before td:first-child, #before td:last-child { width: 180px; font-weight: 700; text-align: center; }
+  #before td:nth-child(2) { text-align: center; color: #6c668a; font-weight: 500; }
+  #before .head td { font-weight: 800; color: #160f35; border-bottom: 3px solid #160f35; }
+  #before .q { position: absolute; left: 0; right: 0; bottom: 80px; text-align: center; font-size: 84px; color: #160f35; }
+  #before .q span { color: #4b2bd6; }
+  #before .fade { position: absolute; inset: 0; background: linear-gradient(transparent 55%, rgba(244,243,249,.95) 80%); }
 </style>
 </head>
 <body>
+
+
+<!-- 0. BEFORE (6 s): the usual post-match table -->
+<section class="scene" id="before">
+  <table>
+    <tr class="head a" style="animation: in .3s .1s both"><td>RIV</td><td>Match stats</td><td>NGT</td></tr>
+    <tr class="a" style="animation: in .25s 0.30s both"><td>46%</td><td>Possession</td><td>54%</td></tr>
+    <tr class="a" style="animation: in .25s 0.42s both"><td>0.80</td><td>Expected goals (xG)</td><td>1.01</td></tr>
+    <tr class="a" style="animation: in .25s 0.54s both"><td>9</td><td>Shots</td><td>9</td></tr>
+    <tr class="a" style="animation: in .25s 0.66s both"><td>5</td><td>Shots on target</td><td>5</td></tr>
+    <tr class="a" style="animation: in .25s 0.78s both"><td>559</td><td>Passes</td><td>691</td></tr>
+    <tr class="a" style="animation: in .25s 0.90s both"><td>78%</td><td>Pass accuracy</td><td>83%</td></tr>
+    <tr class="a" style="animation: in .25s 1.02s both"><td>18</td><td>Tackles won</td><td>13</td></tr>
+    <tr class="a" style="animation: in .25s 1.14s both"><td>11</td><td>Interceptions</td><td>17</td></tr>
+    <tr class="a" style="animation: in .25s 1.26s both"><td>126.4</td><td>Distance (km)</td><td>127.1</td></tr>
+  </table>
+  <div class="fade"></div>
+  <div class="q poster a" style="animation: up .6s 2.6s both">Numbers. <span>No meaning.</span></div>
+</section>
 
 <!-- 1. HOOK (8 s) -->
 <section class="scene" id="hook">

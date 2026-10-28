@@ -15,7 +15,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
-SCENES = {"hook": 8.0, "three": 6.0, "numbers": 9.0, "end": 6.0}
+SCENES = {"before": 6.0, "hook": 8.0, "three": 6.0, "numbers": 9.0, "end": 6.0}
 FPS = 30
 
 
