@@ -2925,3 +2925,11 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .mh-plays { margin-left: auto; font-size: 12.5px; color: rgba(255,255,255,.7); }
 @media (max-width: 560px) { .mh-grid { grid-template-columns: 1fr; } }
 .mh-top .mh-plays { margin-left: auto; padding: 3px 8px; border-radius: 6px; background: rgba(13,10,36,.55); color: #fff; font-size: 12px; }
+/* Hub cards: the two clubs' colours, split down the middle, like the home scoreboard */
+.mh-card { background: linear-gradient(100deg, var(--home) 0 49.6%, var(--away) 50.4% 100%) !important; box-shadow: 0 14px 34px rgba(30,20,90,.22) !important; }
+.mh-card::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(8,5,25,.28)); }
+.mh-num { background: #160f35; border-radius: 12px; padding: 10px 18px; font-size: 54px !important; box-shadow: 0 10px 24px rgba(0,0,0,.25); }
+.mh-team { opacity: 1 !important; }
+.mh-team:not(.won) b { opacity: .8; }
+.mh-top .mh-plays { background: rgba(8,5,25,.4); }
+.mh-btn { background: rgba(8,5,25,.32); }

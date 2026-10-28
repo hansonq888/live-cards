@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { Shell } from "./Shell";
 import { Crest } from "../ui/Crest";
 import { CLUBS } from "../clubs";
-import { CurvedBolts } from "../ui/Bolts";
 import type { MatchListing } from "./summary";
 
 export function Matches() {
@@ -27,7 +26,6 @@ export function Matches() {
             const winner = m.score[m.home] > m.score[m.away] ? m.home : m.score[m.away] > m.score[m.home] ? m.away : null;
             return (
               <article key={m.match} className="mh-card" style={{ ["--home" as string]: home?.color, ["--away" as string]: away?.color }}>
-                <CurvedBolts className="mh-bolts" plum="rgba(42,10,74,.55)" />
                 <div className="mh-top"><span className="mh-tag">Full time</span><span>{m.title} · {m.date} · {m.venue}</span><span className="mh-plays">{m.plays} plays</span></div>
                 <div className="mh-score">
                   <div className={`mh-team ${winner === m.home ? "won" : ""}`}><Crest code={m.home} size={64} /><b>{home?.short ?? m.home}</b></div>
