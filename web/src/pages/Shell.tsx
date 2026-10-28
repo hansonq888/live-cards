@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { Wordmark } from "../ui/Wordmark";
 import { Crest } from "../ui/Crest";
 import { useSummary } from "./summary";
-import { Bands } from "../ui/Bolts";
 
 const LINKS = [["home", "Home"], ["watch", "Match"], ["analyse", "Analyse"], ["learn", "Learn"], ["players", "Players"]] as const;
 
@@ -13,7 +12,6 @@ export function Shell({ page, children }: { page: string; children: ReactNode })
   return (
     <div className="light">
       <header className="l-band">
-        <Bands className="band-bands" corners="right" w={1400} h={200} />
         <div className="lb-row">
           <a className="lb-brand" href="/"><Wordmark /></a>
           <div className="lb-right">

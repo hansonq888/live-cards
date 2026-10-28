@@ -2846,7 +2846,6 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .l-band > :not(.bolts) { position: relative; z-index: 1; }
 .lb-note { color: #160f35 !important; }
 /* notched bands in the hero cards' corners */
-.hero-card::before, .hero-card::after { content: none !important; }
 .hero-card > .hero-bands { position: absolute !important; z-index: 0 !important; opacity: .95; }
 /* club-coloured heroes get bolts in white and shadow */
 .sq-head::before, .pp-hero::before, .pp-hero::after { content: none !important; }
@@ -2933,3 +2932,6 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .mh-team:not(.won) b { opacity: .8; }
 .mh-top .mh-plays { background: rgba(8,5,25,.4); }
 .mh-btn { background: rgba(8,5,25,.32); }
+/* Nav bar: plain violet, square buttons */
+.l-band { background: linear-gradient(100deg, #3a1fd0 0%, #4526e0 100%) !important; }
+.lb-result, .lb-cta, .lbr-tag, .lb-note, .lb-tabs a, .lb-tabs a.on { border-radius: 0 !important; }

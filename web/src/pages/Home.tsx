@@ -1,5 +1,4 @@
 // Home: the match at a glance, the plays worth studying, and the way in to each stat.
-import { CurvedBolts } from "../ui/Bolts";
 import { Shell } from "./Shell";
 import { PlayCard } from "./PlayCard";
 import { STAT_LOOK, StatVisual } from "./StatVisual";
@@ -34,7 +33,6 @@ export function Home() {
     <Shell page="home">
       <Doodle className="home-doodle" look="chalk" />
       <section className="hero-card">
-        <CurvedBolts className="hero-bolts" />
         <div className="hc-text">
           <p className="hc-eyebrow">Match analysis, explained</p>
           <h1>Understand every <span>moment.</span></h1>
