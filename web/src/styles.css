@@ -2830,3 +2830,4 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .th.band-violet { background: linear-gradient(150deg, #4b2bd6 0%, #3a1fd0 50%, #2a0a4a 100%); }
 .th-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .th-line { font-family: var(--headline); font-weight: 900; font-size: 60px; letter-spacing: -2px; }
+.th-center.left { justify-content: flex-start; padding-left: 9%; }

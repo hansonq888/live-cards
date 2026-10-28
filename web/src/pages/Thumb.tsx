@@ -64,7 +64,7 @@ function LogoLine({ height, ink, acc }: { height: number; ink: string; acc: stri
 
 /** Angular notched bands framing the top and bottom: our own shapes, not a copy of any
  *  league pattern. Each band is a slanted bar with one step cut into its edge. */
-function Bands({ w, h, fill }: { w: number; h: number; fill: string }) {
+function Bands({ w, h, fill, layout = "tb" }: { w: number; h: number; fill: string; layout?: string }) {
   const band = (x: number, y: number, len: number, thick: number) => {
     const s = thick * 0.9;  // slant
     return `M ${x} ${y} L ${x + len} ${y} L ${x + len + s} ${y + thick} L ${x + len * 0.55 + s} ${y + thick}
@@ -72,27 +72,36 @@ function Bands({ w, h, fill }: { w: number; h: number; fill: string }) {
       L ${x + len * 0.42 + s} ${y + thick} L ${x + s} ${y + thick} Z`;
   };
   const t = h * 0.24;
+  const sets: Record<string, string[]> = {
+    // top and bottom, the original
+    tb: [band(-w * 0.05, -t * 0.2, w * 0.34, t), band(w * 0.36, -t * 0.2, w * 0.40, t * 1.25), band(w * 0.80, -t * 0.2, w * 0.30, t * 0.8),
+      band(-w * 0.10, h - t * 1.1, w * 0.30, t * 1.3), band(w * 0.26, h - t * 0.9, w * 0.38, t), band(w * 0.70, h - t * 1.2, w * 0.40, t * 1.4)],
+    // top and bottom, fewer bands with wide gaps between them
+    spread: [band(-w * 0.08, -t * 0.25, w * 0.22, t * 0.9), band(w * 0.40, -t * 0.25, w * 0.24, t * 1.1), band(w * 0.86, -t * 0.25, w * 0.22, t * 0.8),
+      band(w * 0.08, h - t * 0.95, w * 0.22, t * 1.1), band(w * 0.58, h - t * 0.85, w * 0.24, t)],
+    // a diagonal sweep from the bottom-left to the top-right corner, leaving the middle clear
+    corners: [band(-w * 0.14, h - Math.min(t, w * 0.14) * 1.25, w * 0.36, Math.min(t, w * 0.14) * 1.25),
+      band(-w * 0.06, h - Math.min(t, w * 0.14) * 2.05, w * 0.18, Math.min(t, w * 0.14) * 0.6),
+      band(w * 0.76, -Math.min(t, w * 0.14) * 0.2, w * 0.38, Math.min(t, w * 0.14) * 1.25),
+      band(w * 0.88, Math.min(t, w * 0.14) * 1.2, w * 0.20, Math.min(t, w * 0.14) * 0.6)],
+    // a stack of bands running down the right edge, logo on the left
+    right: [band(w * 0.60, -t * 0.2, w * 0.50, t), band(w * 0.68, t * 1.05, w * 0.42, t * 0.8), band(w * 0.64, t * 2.05, w * 0.46, t * 1.1),
+      band(w * 0.72, t * 3.35, w * 0.40, t * 0.7)],
+  };
   return (
     <svg className="th-bolts" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
-      <g fill={fill}>
-        <path d={band(-w * 0.05, -t * 0.2, w * 0.34, t)} />
-        <path d={band(w * 0.36, -t * 0.2, w * 0.40, t * 1.25)} />
-        <path d={band(w * 0.80, -t * 0.2, w * 0.30, t * 0.8)} />
-        <path d={band(-w * 0.10, h - t * 1.1, w * 0.30, t * 1.3)} />
-        <path d={band(w * 0.26, h - t * 0.9, w * 0.38, t)} />
-        <path d={band(w * 0.70, h - t * 1.2, w * 0.40, t * 1.4)} />
-      </g>
+      <g fill={fill}>{(sets[layout] ?? sets.tb).map((d, i) => <path key={i} d={d} />)}</g>
     </svg>
   );
 }
 
-function BandFrame({ w, h, label, variant, stacked = false }: { w: number; h: number; label: string; variant: "lime" | "violet"; stacked?: boolean }) {
+function BandFrame({ w, h, label, variant, stacked = false, layout = "tb" }: { w: number; h: number; label: string; variant: "lime" | "violet"; stacked?: boolean; layout?: string }) {
   const lime = variant === "lime";
   return (
     <figure className="th-fig">
       <div className={`th band-${variant}`} style={{ width: w, height: h }}>
-        <Bands w={w} h={h} fill={lime ? P : L} />
-        <div className="th-center">
+        <Bands w={w} h={h} fill={lime ? P : L} layout={layout} />
+        <div className={`th-center ${layout === "right" ? "left" : ""}`}>
           {stacked
             ? <Logo size={Math.round(h * 0.42)} dark={!lime} />
             : <LogoLine height={Math.round(Math.min(h * 0.2, w * 0.11))} ink={lime ? P : "#fff"} acc={lime ? "#4b2bd6" : L} />}
@@ -106,6 +115,10 @@ function BandFrame({ w, h, label, variant, stacked = false }: { w: number; h: nu
 export function Thumb() {
   return (
     <div className="th-page">
+      <BandFrame w={1280} h={720} variant="violet" stacked layout="spread" label="Spread bands, top and bottom" />
+      <BandFrame w={1280} h={720} variant="violet" stacked layout="corners" label="Diagonal corners" />
+      <BandFrame w={1280} h={720} variant="violet" stacked layout="right" label="Right edge, logo left" />
+      <BandFrame w={1080} h={1080} variant="violet" stacked layout="corners" label="Square, diagonal corners" />
       <BandFrame w={1280} h={720} variant="violet" stacked label="Bands, violet, stacked logo" />
       <BandFrame w={1280} h={720} variant="lime" stacked label="Bands, lime, stacked logo" />
       <BandFrame w={1080} h={1080} variant="violet" stacked label="Bands, square, violet, stacked" />
