@@ -2817,3 +2817,12 @@ html:has(.story-page) { scroll-snap-type: y mandatory; scroll-padding-top: 64px;
 .fa-banner svg { flex: none; max-width: 48%; height: auto; } .fa-banner p { margin: 0; font-family: var(--headline); font-weight: 700; font-size: 18px; color: #3a3358; }
 .fa-icons { display: flex; align-items: flex-end; gap: 18px; padding: 20px; border-radius: 10px; background: #fff; box-shadow: var(--hard); }
 .fa-icon { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; } .fa-icon span { font-size: 11px; color: #6c668a; }
+/* ?page=thumb */
+.th-page { background: #e9e6f3; padding: 40px; display: flex; flex-direction: column; gap: 36px; }
+.th-fig { margin: 0; } .th-fig figcaption { margin-top: 8px; font: 600 14px Inter, sans-serif; color: #3a3358; }
+.th { position: relative; overflow: hidden; isolation: isolate; background: radial-gradient(70% 90% at 15% 20%, #5b3df5 0%, transparent 60%), linear-gradient(120deg, #4526e0, #2a0a4a); }
+.th.light { background: linear-gradient(120deg, #ffffff, #efecf9); }
+.th-bolts { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.th-inner { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 28px; padding-left: 8%; }
+.th-tag { margin: 0; font-family: var(--headline); font-weight: 700; font-size: 44px; line-height: 1.15; color: #fff; letter-spacing: -.5px; }
+.th-tag.small { font-size: 30px; }
